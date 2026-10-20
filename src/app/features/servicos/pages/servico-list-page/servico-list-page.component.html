@@ -1,0 +1,16 @@
+<section class="page">
+  <header class="page-header">
+    <p class="eyebrow">Catálogo</p>
+    <h1>Serviços</h1>
+  </header>
+
+  <div class="cards-grid">
+    @for (servico of servicos(); track servico.nome) {
+      <article class="service-card">
+        <h2>{{ servico.nome }}</h2>
+        <p>{{ servico.duracao }}</p>
+        <strong>{{ servico.preco }}</strong>
+      </article>
+    }
+  </div>
+</section>

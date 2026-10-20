@@ -1,0 +1,16 @@
+<section class="page">
+  <header class="page-header">
+    <p class="eyebrow">Base de clientes</p>
+    <h1>Clientes</h1>
+  </header>
+
+  <div class="cards-grid">
+    @for (cliente of clientes(); track cliente.email) {
+      <article class="client-card">
+        <h2>{{ cliente.nome }}</h2>
+        <p>{{ cliente.email }}</p>
+        <span>{{ cliente.status }}</span>
+      </article>
+    }
+  </div>
+</section>

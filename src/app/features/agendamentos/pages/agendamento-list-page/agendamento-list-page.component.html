@@ -1,0 +1,29 @@
+<section class="page">
+  <header class="page-header">
+    <p class="eyebrow">Gestão</p>
+    <h1>Agendamentos</h1>
+  </header>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Serviço</th>
+          <th>Data</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of list(); track item.cliente) {
+          <tr>
+            <td>{{ item.cliente }}</td>
+            <td>{{ item.servico }}</td>
+            <td>{{ item.data }}</td>
+            <td><span class="badge">{{ item.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

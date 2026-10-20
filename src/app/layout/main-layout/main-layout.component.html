@@ -1,0 +1,18 @@
+<div class="layout-shell">
+  <aside class="sidebar" aria-label="Menu principal">
+    <div class="brand">
+      <span class="brand-mark">WS</span>
+      <span>System Scheduling</span>
+    </div>
+
+    <nav class="nav" aria-label="Navegação principal">
+      @for (item of navItems(); track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active">{{ item.label }}</a>
+      }
+    </nav>
+  </aside>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
