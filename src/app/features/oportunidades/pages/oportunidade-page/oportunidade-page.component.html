@@ -1,0 +1,14 @@
+<h1 class="mb-4 text-3xl font-bold">Oportunidades do dia</h1>
+<p class="mb-4">Clientes com prazo de manutenção atingido em atendimentos concluídos.</p>
+<app-request-feedback />
+<p-button label="Atualizar" severity="secondary" (onClick)="load()" [disabled]="state.busy()" styleClass="mb-4" />
+<section class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+  @for (item of items(); track item.agendamento.id) {
+    <article class="rounded-xl border border-estetica-secondary bg-white p-4">
+      <h2 class="text-xl font-semibold">{{ item.cliente.nome }}</h2>
+      <p>{{ item.servico.nome }}</p>
+      <p>Retorno previsto: {{ item.retornoEm | date:'dd/MM/yyyy' }}</p>
+      <a [href]="item.whatsapp" target="_blank" rel="noopener noreferrer" class="mt-4 inline-block rounded-lg bg-estetica-secondary p-3 underline">Convidar pelo WhatsApp</a>
+    </article>
+  } @empty { <p>Nenhuma oportunidade carregada.</p> }
+</section>

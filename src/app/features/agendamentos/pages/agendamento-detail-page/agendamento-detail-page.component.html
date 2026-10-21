@@ -1,15 +1,38 @@
-<section class="page">
-  <header class="page-header">
-    <p class="eyebrow">Detalhes</p>
-    <h1>Agendamento</h1>
-  </header>
-
-  <article class="card">
-    <h2>João Ferreira</h2>
-    <ul>
-      <li><strong>Serviço:</strong> Corte + barba</li>
-      <li><strong>Data:</strong> 20/10/2026</li>
-      <li><strong>Status:</strong> Confirmado</li>
-    </ul>
-  </article>
-</section>
+<a routerLink="/agendamentos" class="underline">Voltar para agenda</a>
+<h1 class="my-4 text-3xl font-bold">Detalhes do agendamento</h1>
+<app-request-feedback />
+@if (booking(); as item) {
+  <dl class="mb-6 grid gap-3 rounded-xl bg-white p-4 md:grid-cols-2">
+    <div><dt class="font-bold">Cliente</dt><dd>{{ clientName() }}</dd></div>
+    <div><dt class="font-bold">Serviço</dt><dd>{{ serviceName() }}</dd></div>
+    <div><dt class="font-bold">Data</dt><dd>{{ item.dataHora | date:'dd/MM/yyyy HH:mm' }}</dd></div>
+    <div><dt class="font-bold">Valor reservado</dt><dd>{{ item.valor | currency:'BRL' }}</dd></div>
+    <div><dt class="font-bold">Duração</dt><dd>{{ item.duracaoMinutos }} min</dd></div>
+    <div><dt class="font-bold">Status</dt><dd>{{ item.status }}</dd></div>
+    @if (item.metodoPagamento) { <div><dt class="font-bold">Pagamento</dt><dd>{{ item.metodoPagamento }}</dd></div> }
+    @if (item.anotacoesFinais) { <div><dt class="font-bold">Anotações</dt><dd>{{ item.anotacoesFinais }}</dd></div> }
+  </dl>
+  <div class="mb-6 flex flex-col gap-3 md:flex-row">
+    @if (reminder() && item.status === 'Pendente') { <a [href]="reminder()" target="_blank" rel="noopener noreferrer" class="rounded-lg bg-estetica-secondary p-3 underline">Enviar lembrete pelo WhatsApp</a> }
+    @if (anamnese()) { <a [routerLink]="anamnese()" [queryParams]="{ agendamento: item.id }" class="rounded-lg bg-estetica-secondary p-3 underline">Abrir ficha de anamnese</a> }
+    @if (item.fotoResultadoUrl) { <a [href]="item.fotoResultadoUrl" target="_blank" rel="noopener noreferrer" class="p-3 underline">Ver foto do resultado</a> }
+  </div>
+  @if (item.status === 'Pendente') {
+    <form [formGroup]="form" (ngSubmit)="complete()" class="flex flex-col gap-4 rounded-xl bg-white p-4" novalidate>
+      <h2 class="text-xl font-semibold">Concluir atendimento</h2>
+      <div><label for="pagamento">Método de pagamento</label><p-select inputId="pagamento" formControlName="metodoPagamento" [options]="pagamentos" styleClass="mt-1 w-full md:w-64" /><app-field-error [control]="form.controls.metodoPagamento" /></div>
+      <label>Anotações finais<textarea pTextarea formControlName="anotacoesFinais" rows="3" class="mt-1 w-full"></textarea></label>
+      <p>Foto opcional: JPEG, PNG ou WebP, até 5 MB. O upload depende do Storage no backend.</p>
+      <p-fileupload mode="advanced" name="foto" accept="image/jpeg,image/png,image/webp" [maxFileSize]="5242880" chooseLabel="Selecionar foto" [auto]="false" [multiple]="false" [customUpload]="true" [showUploadButton]="false" [showCancelButton]="false" [disabled]="state.busy()" styleClass="w-full" (onSelect)="choose($event.currentFiles)" (onRemove)="choose([])" (onClear)="choose([])" />
+      @if (photo(); as file) { <p>Selecionada: {{ file.name }}</p><p-button label="Remover foto" severity="secondary" (onClick)="choose([])" /> }
+      <p-button type="submit" label="Concluir e registrar pagamento" [loading]="state.busy()" styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary" />
+    </form>
+    <div class="mt-6">
+      @if (cancelConfirmation()) {
+        <p role="alert" class="mb-2">Confirma o cancelamento? Esta ação encerra o agendamento.</p>
+        <p-button label="Confirmar cancelamento" severity="danger" (onClick)="cancel()" [disabled]="state.busy()" />
+        <p-button label="Manter agendamento" severity="secondary" (onClick)="cancelConfirmation.set(false)" styleClass="ml-2" />
+      } @else { <p-button label="Cancelar agendamento" severity="danger" (onClick)="cancelConfirmation.set(true)" /> }
+    </div>
+  } @else { <p>Atendimento encerrado: serviço e valor não podem ser alterados.</p> }
+}

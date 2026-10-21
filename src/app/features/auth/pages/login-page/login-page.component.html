@@ -1,0 +1,102 @@
+<main class="flex min-h-dvh items-center justify-center bg-estetica-bg p-4 text-estetica-text sm:p-8 lg:p-12">
+  <div class="grid w-full max-w-6xl overflow-hidden rounded-3xl border border-estetica-secondary bg-white shadow-[0_24px_90px_-35px_rgba(102,52,59,0.25)] lg:min-h-180 lg:grid-cols-2">
+    <aside class="relative isolate hidden overflow-hidden bg-estetica-secondary p-12 lg:flex lg:flex-col lg:justify-between" aria-label="Boas-vindas à clínica">
+      <div aria-hidden="true" class="pointer-events-none absolute -right-28 top-32 -z-10 size-96 rounded-full border border-estetica-primary/40"></div>
+      <div aria-hidden="true" class="pointer-events-none absolute -right-16 top-44 -z-10 size-72 rounded-full bg-estetica-primary/20"></div>
+      <div aria-hidden="true" class="pointer-events-none absolute -bottom-32 -left-24 -z-10 size-96 rounded-full bg-estetica-tertiary/20 blur-2xl"></div>
+
+      <div class="flex items-center gap-3">
+        <span aria-hidden="true" class="flex size-12 items-center justify-center rounded-2xl border border-white/70 bg-white/60">
+          <i class="pi pi-sparkles text-xl"></i>
+        </span>
+        <div>
+          <p class="text-lg font-semibold tracking-tight">WR Estética</p>
+          <p class="text-xs tracking-[0.18em] uppercase">Cuidado em cada detalhe</p>
+        </div>
+      </div>
+
+      <div class="relative my-14">
+        <span class="mb-7 inline-flex items-center gap-2 rounded-full border border-white bg-white/60 px-4 py-2 text-xs font-medium tracking-wide">
+          <span aria-hidden="true" class="size-2 rounded-full bg-estetica-text"></span>
+          Seu momento de cuidado
+        </span>
+        <h2 class="max-w-sm font-serif text-5xl leading-tight tracking-tight xl:text-6xl">
+          Sua beleza.<br />
+          Seu tempo.<br />
+          <span class="italic">Seu espaço.</span>
+        </h2>
+        <p class="mt-6 max-w-xs text-base leading-relaxed">
+          Um lugar para acompanhar seus cuidados e valorizar cada etapa da sua evolução.
+        </p>
+      </div>
+
+      <div class="flex items-start gap-3 border-t border-estetica-primary/40 pt-6">
+        <i aria-hidden="true" class="pi pi-heart mt-1"></i>
+        <p class="max-w-xs text-sm leading-relaxed">Mais do que estética, uma experiência de bem-estar feita para você.</p>
+      </div>
+    </aside>
+
+    <section class="flex flex-col justify-center px-6 py-10 sm:px-12 sm:py-14 lg:px-14 xl:px-20" aria-labelledby="login-title">
+      <div class="mb-10 flex items-center gap-3 lg:hidden">
+        <span aria-hidden="true" class="flex size-10 items-center justify-center rounded-xl bg-estetica-secondary">
+          <i class="pi pi-sparkles"></i>
+        </span>
+        <span class="font-semibold tracking-tight">WR Estética</span>
+      </div>
+
+      <div class="mb-8">
+        <p class="mb-3 text-xs font-semibold tracking-[0.2em] uppercase">Bem-vinda de volta</p>
+        <h1 id="login-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">Seu cuidado<br />começa aqui.</h1>
+        <p class="mt-4 text-sm leading-relaxed">Entre na sua conta para continuar sua experiência.</p>
+      </div>
+
+      <app-request-feedback />
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5" novalidate>
+        <div>
+          <label for="email" class="mb-2 block text-sm font-semibold">E-mail</label>
+          <input pInputText id="email" type="email" autocomplete="username" placeholder="voce@exemplo.com"
+            formControlName="email"
+            class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+            [invalid]="form.controls.email.invalid && form.controls.email.touched"
+            [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+            aria-describedby="email-error" />
+          <app-field-error id="email-error" [control]="form.controls.email" />
+        </div>
+        <div>
+          <label for="senha" class="mb-2 block text-sm font-semibold">Senha</label>
+          <div class="relative">
+            <input pInputText id="senha" [type]="showPassword() ? 'text' : 'password'" autocomplete="current-password"
+              placeholder="Digite sua senha" formControlName="senha"
+              class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg py-3 pr-14 pl-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+              [invalid]="form.controls.senha.invalid && form.controls.senha.touched"
+              [attr.aria-invalid]="form.controls.senha.invalid && form.controls.senha.touched"
+              aria-describedby="senha-error" />
+            <p-button type="button" [icon]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              [ariaLabel]="showPassword() ? 'Ocultar senha' : 'Mostrar senha'"
+              [attr.aria-pressed]="showPassword()" [text]="true" severity="secondary"
+              (onClick)="togglePassword()"
+              styleClass="absolute right-1 top-1 min-h-10 min-w-10 text-estetica-text" />
+          </div>
+          <app-field-error id="senha-error" [control]="form.controls.senha" />
+        </div>
+        <p-button type="submit" label="Entrar" icon="pi pi-arrow-right" iconPos="right"
+          [loading]="state.busy()"
+          [disabled]="form.invalid || state.busy()"
+          styleClass="mt-2 min-h-12 w-full justify-center gap-3 rounded-xl border-estetica-primary bg-estetica-primary px-5 font-bold [&_.p-button-label]:font-bold text-estetica-text shadow-sm transition-all duration-200 enabled:hover:-translate-y-0.5 enabled:hover:border-estetica-text enabled:hover:bg-estetica-text enabled:hover:text-white enabled:hover:shadow-lg enabled:active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text" />
+      </form>
+
+      <div class="my-8 flex items-center gap-4" aria-hidden="true">
+        <span class="h-px flex-1 bg-estetica-secondary"></span>
+        <span class="text-xs tracking-wide">Primeira vez por aqui?</span>
+        <span class="h-px flex-1 bg-estetica-secondary"></span>
+      </div>
+      <a routerLink="/pre-cadastro" class="flex min-h-12 items-center justify-center rounded-xl border border-estetica-secondary px-4 text-sm font-semibold transition-colors hover:bg-estetica-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text">
+        Criar minha conta
+      </a>
+      <p class="mt-8 flex items-center justify-center gap-2 text-center text-xs leading-relaxed">
+        <i aria-hidden="true" class="pi pi-lock text-xs"></i>
+        Um espaço de cuidado, do seu jeito.
+      </p>
+    </section>
+  </div>
+</main>

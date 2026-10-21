@@ -1,26 +1,12 @@
-<section class="page">
-  <header class="page-header">
-    <div>
-      <p class="eyebrow">Visão geral</p>
-      <h1>Dashboard</h1>
-    </div>
-  </header>
-
-  <div class="stats-grid">
-    @for (item of stats(); track item.label) {
-      <article class="stat-card {{ item.tone }}">
-        <span>{{ item.label }}</span>
-        <strong>{{ item.value }}</strong>
-      </article>
-    }
-  </div>
-
-  <section class="panel">
-    <h2>Atividades recentes</h2>
-    <ul>
-      @for (item of activities(); track item) {
-        <li>{{ item }}</li>
-      }
-    </ul>
+<h1 class="mb-4 text-3xl font-bold">Dashboard</h1>
+<app-request-feedback />
+<p-button label="Atualizar" severity="secondary" (onClick)="load()" [disabled]="state.busy()" styleClass="mb-4" />
+@if (summary(); as item) {
+  <section aria-label="Resumo gerencial" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <article class="rounded-xl bg-white p-6"><h2>Agendamentos hoje</h2><p class="text-3xl font-bold">{{ item.agendamentosHoje }}</p></article>
+    <article class="rounded-xl bg-white p-6"><h2>Clientes cadastrados</h2><p class="text-3xl font-bold">{{ item.clientes }}</p></article>
+    <article class="rounded-xl bg-white p-6"><h2>Receita concluída hoje</h2><p class="text-3xl font-bold">{{ item.receitaConcluidaHoje | currency:'BRL' }}</p></article>
+    <article class="rounded-xl bg-white p-6"><h2>Oportunidades</h2><p class="text-3xl font-bold">{{ item.oportunidades }}</p><a routerLink="/oportunidades" class="underline">Ver retornos</a></article>
   </section>
-</section>
+}
+<a routerLink="/agendamentos" class="mt-6 inline-block rounded-xl bg-estetica-secondary p-4 underline">Abrir agenda</a>

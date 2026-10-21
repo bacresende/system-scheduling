@@ -1,2 +1,7 @@
 
+@if (!api.configured) {
+  <p-message severity="warn" styleClass="w-full rounded-none">
+    Frontend sem backend configurado. Login, dados e upload aguardam a integração com a API; nenhum dado será salvo localmente.
+  </p-message>
+}
 <router-outlet />

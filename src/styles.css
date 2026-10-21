@@ -2,3 +2,30 @@
 @import "tailwindcss";
 @plugin "tailwindcss-primeui";
 @import "primeicons/primeicons.css";
+
+
+/* 1. O seu "Painel de Controlo" de cores através de variáveis nativas do CSS */
+:root {
+  --cor-primaria: #E5989B;
+  --cor-secundaria: #F6EBEC;
+  --cor-terciaria: #9EB3A6;
+  --cor-fundo: #FCFAFA;
+  --cor-texto: #4A4A4A;
+}
+
+/* 2. Ensinando o Tailwind v4 a ler o seu painel de controlo */
+@theme {
+  --color-estetica-primary: var(--cor-primaria);
+  --color-estetica-secondary: var(--cor-secundaria);
+  --color-estetica-tertiary: var(--cor-terciaria);
+  --color-estetica-bg: var(--cor-fundo);
+  --color-estetica-text: var(--cor-texto);
+}
+
+/* 3. Reset básico aplicando as suas novas cores */
+body {
+  margin: 0;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  font-family: var(--p-font-family, sans-serif);
+}
