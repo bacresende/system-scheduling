@@ -1,6 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -35,7 +36,9 @@ export class ServicoListPageComponent implements OnInit {
     diasParaRetorno: inject(FormBuilder).control<number | null>(null, [Validators.min(1), Validators.pattern(/^\d+$/)])
   });
   ngOnInit(): void { this.load(); }
-  protected load(): void { void this.state.run(async () => { this.servicos.set(await this.api.list()); }); }
+  protected load(): void {
+    void this.state.run(async () => { this.servicos.set(await firstValueFrom(this.api.list())); });
+  }
   protected edit(item: Servico): void {
     this.editing.set(item.id);
     this.form.reset({ ...item, descricao: item.descricao ?? '', diasParaRetorno: item.diasParaRetorno ?? null });
@@ -46,14 +49,17 @@ export class ServicoListPageComponent implements OnInit {
     if (this.form.invalid) return;
     void this.state.run(async () => {
       const value = this.form.getRawValue();
-      const saved = await this.api.save({ ...value, diasParaRetorno: value.diasParaRetorno ?? undefined }, this.editing());
+      const saved = await firstValueFrom(this.api.save(
+        { ...value, diasParaRetorno: value.diasParaRetorno ?? undefined },
+        this.editing()
+      ));
       this.servicos.update(items => [...items.filter(item => item.id !== saved.id), saved]);
       this.reset();
     }, 'Serviço salvo.');
   }
   protected deactivate(item: Servico): void {
     void this.state.run(async () => {
-      const saved = await this.api.deactivate(item.id);
+      const saved = await firstValueFrom(this.api.deactivate(item.id));
       this.servicos.update(items => items.map(current => current.id === saved.id ? saved : current));
     }, 'Serviço inativado.');
   }

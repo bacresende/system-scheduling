@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
@@ -26,12 +27,14 @@ export class ClienteListPageComponent implements OnInit {
     telefone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{9,14}$/)]]
   });
   ngOnInit(): void { this.load(); }
-  protected load(): void { void this.state.run(async () => { this.clientes.set(await this.api.list()); }); }
+  protected load(): void {
+    void this.state.run(async () => { this.clientes.set(await firstValueFrom(this.api.list())); });
+  }
   protected save(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
-      const saved = await this.api.create(this.form.getRawValue());
+      const saved = await firstValueFrom(this.api.create(this.form.getRawValue()));
       this.clientes.update(items => [...items, saved]);
       this.form.reset();
     }, 'Cliente cadastrado. O backend é responsável pelo convite de acesso.');

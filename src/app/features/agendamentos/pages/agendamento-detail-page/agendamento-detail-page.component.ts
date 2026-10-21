@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
@@ -44,7 +45,11 @@ export class AgendamentoDetailPageComponent implements OnInit {
   ngOnInit(): void {
     void this.state.run(async () => {
       if (!this.id) throw new Error('Agendamento não informado.');
-      const [booking, clients, services] = await Promise.all([this.api.get(this.id), this.clientsApi.list(), this.servicesApi.list()]);
+      const [booking, clients, services] = await Promise.all([
+        firstValueFrom(this.api.get(this.id)),
+        firstValueFrom(this.clientsApi.list()),
+        firstValueFrom(this.servicesApi.list())
+      ]);
       this.booking.set(booking);
       const client = clients.find(item => item.id === booking.idCliente);
       const service = services.find(item => item.id === booking.idServico);
@@ -61,7 +66,10 @@ export class AgendamentoDetailPageComponent implements OnInit {
     if (!booking || booking.status !== 'Pendente') {
       this.state.error.set('Somente agendamentos pendentes podem ser cancelados.'); return;
     }
-    void this.state.run(async () => { this.booking.set(await this.api.cancel(booking.id)); this.cancelConfirmation.set(false); }, 'Agendamento cancelado.');
+    void this.state.run(async () => {
+      this.booking.set(await firstValueFrom(this.api.cancel(booking.id)));
+      this.cancelConfirmation.set(false);
+    }, 'Agendamento cancelado.');
   }
   protected complete(): void {
     this.form.markAllAsTouched();
@@ -72,8 +80,10 @@ export class AgendamentoDetailPageComponent implements OnInit {
     }
     void this.state.run(async () => {
       const file = this.photo();
-      const fotoResultadoUrl = file ? await this.api.upload(booking.id, file) : undefined;
-      this.booking.set(await this.api.complete(booking.id, { ...this.form.getRawValue(), fotoResultadoUrl }));
+      const fotoResultadoUrl = file ? await firstValueFrom(this.api.upload(booking.id, file)) : undefined;
+      this.booking.set(await firstValueFrom(this.api.complete(booking.id, {
+        ...this.form.getRawValue(), fotoResultadoUrl
+      })));
       this.photo.set(null);
     }, 'Agendamento concluído e pagamento registrado.');
   }

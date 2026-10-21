@@ -1,6 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { TimelineModule } from 'primeng/timeline';
 import { Agendamento } from '../../agendamentos/models/agendamento.model';
@@ -66,9 +67,14 @@ export class PortalPage implements OnInit {
     .sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()));
   ngOnInit(): void { this.load(); }
   protected load(): void {
-    void this.state.run(async () => { this.items.set(await this.api.request('GET', '/clientes/me/linha-do-tempo')); });
+    void this.state.run(async () => {
+      this.items.set(await firstValueFrom(this.api.request('GET', '/clientes/me/linha-do-tempo')));
+    });
   }
   protected logout(): void {
-    void this.state.run(async () => { await this.auth.logout(); await this.router.navigateByUrl('/login'); });
+    void this.state.run(async () => {
+      await firstValueFrom(this.auth.logout());
+      await this.router.navigateByUrl('/login');
+    });
   }
 }

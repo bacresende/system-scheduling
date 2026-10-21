@@ -2,8 +2,9 @@ import { Component, Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
+import { firstValueFrom, Observable, of, throwError } from 'rxjs';
 import { ApiClient } from './core/api/api-client';
-import { PreCadastroPage } from './features/auth/pages/pre-cadastro-page';
+import { PreCadastroPage } from './features/auth/pages/pre-cadastro-page/pre-cadastro-page';
 import { ClienteListPageComponent } from './features/clientes/pages/cliente-list-page/cliente-list-page.component';
 import { AgendamentoDetailPageComponent } from './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component';
 import { AgendamentosService } from './features/agendamentos/services/agendamentos.service';
@@ -15,7 +16,7 @@ import { Agendamento } from './features/agendamentos/models/agendamento.model';
 class EmptyPage {}
 
 describe('Frontend forms and clinical flows', () => {
-  const request = vi.fn<(method: string, path: string, body?: unknown) => Promise<unknown>>();
+  const request = vi.fn<(method: string, path: string, body?: unknown) => Observable<unknown>>();
   const booking: Agendamento = {
     id: 'a', idCliente: 'c', idServico: 's', idFuncionario: 'f',
     dataHora: '2026-10-20T10:00:00-03:00', status: 'Pendente', valor: 100, duracaoMinutos: 60
@@ -42,13 +43,13 @@ describe('Frontend forms and clinical flows', () => {
   }
   beforeEach(() => {
     request.mockReset();
-    request.mockImplementation(async (_method, path) => {
-      if (path === '/agendamentos/a') return booking;
-      if (path === '/clientes') return [];
-      if (path === '/servicos') return [service];
-      if (path === '/servicos/s') return service;
-      if (path.startsWith('/anamnese/facial?')) return null;
-      throw new Error(`Unexpected request: ${path}`);
+    request.mockImplementation((_method, path) => {
+      if (path === '/agendamentos/a') return of(booking);
+      if (path === '/clientes') return of([]);
+      if (path === '/servicos') return of([service]);
+      if (path === '/servicos/s') return of(service);
+      if (path.startsWith('/anamnese/facial?')) return of(null);
+      return throwError(() => new Error(`Unexpected request: ${path}`));
     });
   });
   function input(root: HTMLElement, name: string, value: string): void {
@@ -73,7 +74,7 @@ describe('Frontend forms and clinical flows', () => {
     expect(root.textContent).toContain('Preencha este campo');
   });
   it('sends only the four signup fields to the API and clears the password', async () => {
-    request.mockResolvedValue(undefined);
+    request.mockReturnValue(of(undefined));
     const fixture = await setup(PreCadastroPage);
     const root: HTMLElement = fixture.nativeElement;
     input(root, 'nome', 'Cliente'); input(root, 'email', 'c@example.test');
@@ -104,7 +105,7 @@ describe('Frontend forms and clinical flows', () => {
     expect(request).not.toHaveBeenCalled();
   });
   it('does not show success or clear input when signup API fails', async () => {
-    request.mockRejectedValue(new Error('Cadastro indisponível'));
+    request.mockReturnValue(throwError(() => new Error('Cadastro indisponível')));
     const fixture = await setup(PreCadastroPage);
     const root: HTMLElement = fixture.nativeElement;
     input(root, 'nome', 'Cliente'); input(root, 'email', 'c@example.test');
@@ -123,11 +124,11 @@ describe('Frontend forms and clinical flows', () => {
     expect(root.textContent).toContain('Preencha este campo');
   });
   it('keeps completed appointments read-only', async () => {
-    request.mockImplementation(async (_method, path) => {
-      if (path === '/agendamentos/a') return { ...booking, status: 'Concluido', metodoPagamento: 'PIX' };
-      if (path === '/clientes') return [];
-      if (path === '/servicos') return [service];
-      throw new Error(`Unexpected request: ${path}`);
+    request.mockImplementation((_method, path) => {
+      if (path === '/agendamentos/a') return of({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
+      if (path === '/clientes') return of([]);
+      if (path === '/servicos') return of([service]);
+      return throwError(() => new Error(`Unexpected request: ${path}`));
     });
     const fixture = await setup(AgendamentoDetailPageComponent);
     const root: HTMLElement = fixture.nativeElement;
@@ -136,7 +137,7 @@ describe('Frontend forms and clinical flows', () => {
   });
   it('sends a payment method when completing an appointment', async () => {
     const fixture = await setup(AgendamentoDetailPageComponent);
-    request.mockResolvedValue({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
+    request.mockReturnValue(of({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' }));
     submit(fixture.nativeElement);
     await fixture.whenStable();
     expect(request).toHaveBeenCalledWith('POST', '/agendamentos/a/concluir', {
@@ -156,10 +157,10 @@ describe('Frontend forms and clinical flows', () => {
     expect(request).not.toHaveBeenCalled();
   });
   it('does not allow overwriting a facial record after failing to load it', async () => {
-    request.mockImplementation(async (_method, path) => {
-      if (path === '/agendamentos/a') return booking;
-      if (path === '/servicos/s') return service;
-      throw new Error('Ficha indisponível');
+    request.mockImplementation((_method, path) => {
+      if (path === '/agendamentos/a') return of(booking);
+      if (path === '/servicos/s') return of(service);
+      return throwError(() => new Error('Ficha indisponível'));
     });
     const fixture = await setup(AnamneseFacialPageComponent);
     const root: HTMLElement = fixture.nativeElement;
@@ -172,15 +173,19 @@ describe('Frontend forms and clinical flows', () => {
   it('rejects invalid files and excessive uploads without sending to the API', async () => {
     TestBed.configureTestingModule({ providers: [{ provide: ApiClient, useValue: { request } }] });
     const api = TestBed.inject(AgendamentosService);
-    await expect(api.upload('a', new File(['x'], 'file.txt', { type: 'text/plain' }))).rejects.toThrow('5 MB');
-    await expect(api.upload('a', new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'foto.png', { type: 'image/png' }))).rejects.toThrow('5 MB');
+    await expect(firstValueFrom(api.upload('a', new File(['x'], 'file.txt', { type: 'text/plain' }))))
+      .rejects.toThrow('5 MB');
+    await expect(firstValueFrom(api.upload('a', new File([
+      new Uint8Array(5 * 1024 * 1024 + 1)
+    ], 'foto.png', { type: 'image/png' })))).rejects.toThrow('5 MB');
     expect(request).not.toHaveBeenCalled();
   });
   it('uploads multipart and stores only the returned HTTPS URL', async () => {
     TestBed.configureTestingModule({ providers: [{ provide: ApiClient, useValue: { request } }] });
     const file = new File(['image'], 'foto.png', { type: 'image/png' });
-    request.mockResolvedValue({ url: 'https://storage.example.test/foto.png' });
-    await expect(TestBed.inject(AgendamentosService).upload('a', file)).resolves.toBe('https://storage.example.test/foto.png');
+    request.mockReturnValue(of({ url: 'https://storage.example.test/foto.png' }));
+    await expect(firstValueFrom(TestBed.inject(AgendamentosService).upload('a', file)))
+      .resolves.toBe('https://storage.example.test/foto.png');
     const body = request.mock.calls[0][2];
     expect(body).toBeInstanceOf(FormData);
     if (!(body instanceof FormData)) throw new Error('Expected multipart');

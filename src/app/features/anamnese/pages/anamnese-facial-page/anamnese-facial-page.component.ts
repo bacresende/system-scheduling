@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -31,8 +32,8 @@ export class AnamneseFacialPageComponent implements OnInit {
   });
   ngOnInit(): void {
     void this.state.run(async () => {
-      const id = await this.context.load('FACIAL');
-      const existing = await this.api.facial(id);
+      const id = await firstValueFrom(this.context.load('FACIAL'));
+      const existing = await firstValueFrom(this.api.facial(id));
       if (existing) this.form.patchValue(existing);
       this.context.editable.set(this.context.booking()?.status === 'Pendente');
       if (!this.context.editable()) this.form.disable();
@@ -43,9 +44,9 @@ export class AnamneseFacialPageComponent implements OnInit {
     if (this.form.invalid) return;
     void this.state.run(async () => {
       const value = this.form.getRawValue();
-      await this.api.saveFacial(this.context.editableId(), {
+      await firstValueFrom(this.api.saveFacial(this.context.editableId(), {
         ...value, quaisAcidos: value.usaAcidos ? value.quaisAcidos.trim() : undefined
-      });
+      }));
     }, 'Ficha facial salva.');
   }
 }

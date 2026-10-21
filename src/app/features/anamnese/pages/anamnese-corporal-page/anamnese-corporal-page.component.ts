@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AnamneseContext, AnamneseService, RespostasCorporal } from '../../services/anamnese.service';
@@ -26,8 +27,8 @@ export class AnamneseCorporalPageComponent implements OnInit {
   ];
   ngOnInit(): void {
     void this.state.run(async () => {
-      const id = await this.context.load('CORPORAL');
-      const existing = await this.api.corporal(id);
+      const id = await firstValueFrom(this.context.load('CORPORAL'));
+      const existing = await firstValueFrom(this.api.corporal(id));
       if (existing) this.form.patchValue(existing);
       this.context.editable.set(this.context.booking()?.status === 'Pendente');
       if (!this.context.editable()) this.form.disable();
@@ -35,7 +36,7 @@ export class AnamneseCorporalPageComponent implements OnInit {
   }
   protected save(): void {
     void this.state.run(async () => {
-      await this.api.saveCorporal(this.context.editableId(), this.form.getRawValue());
+      await firstValueFrom(this.api.saveCorporal(this.context.editableId(), this.form.getRawValue()));
     }, 'Ficha corporal salva.');
   }
 }
