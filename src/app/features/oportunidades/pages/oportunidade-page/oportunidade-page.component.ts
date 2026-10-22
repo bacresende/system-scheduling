@@ -1,7 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { firstValueFrom } from 'rxjs';
 import { Oportunidade, OportunidadesService } from '../../services/oportunidades.service';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 
@@ -19,6 +18,6 @@ export class OportunidadePageComponent implements OnInit {
   protected readonly items = signal<Oportunidade[]>([]);
   ngOnInit(): void { this.load(); }
   protected load(): void {
-    void this.state.run(async () => { this.items.set(await firstValueFrom(this.api.list())); });
+    void this.state.run(async () => { this.items.set(await this.api.list()); });
   }
 }

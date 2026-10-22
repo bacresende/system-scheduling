@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth.service';
@@ -46,13 +45,10 @@ export class LoginPageComponent {
   }
 
   public submit(): void {
-    console.log('entrou');
-    this.router.navigateByUrl('/');
-
-    /*this.form.markAllAsTouched();
+    this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
-      await firstValueFrom(this.auth.login(this.form.getRawValue()));
+      await this.auth.login(this.form.getRawValue());
       this.form.controls.senha.reset();
       const session = this.auth.session();
       if (!session) throw new Error('A API não retornou uma sessão válida.');
@@ -63,6 +59,5 @@ export class LoginPageComponent {
           : homeFor(session);
       await this.router.navigateByUrl(target);
     });
-    */
   }
 }

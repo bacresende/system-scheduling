@@ -2,7 +2,6 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { SelectModule } from 'primeng/select';
@@ -63,9 +62,9 @@ export class AgendamentoListPageComponent implements OnInit {
   ngOnInit(): void {
     void this.state.run(async () => {
       const [config, clientes, servicos] = await Promise.all([
-        firstValueFrom(this.api.config()),
-        firstValueFrom(this.clientsApi.list()),
-        firstValueFrom(this.servicesApi.list())
+        this.api.config(),
+        this.clientsApi.list(),
+        this.servicesApi.list()
       ]);
       if (config.fusoHorario !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
         throw new Error(`Configure seu dispositivo no fuso da clínica (${config.fusoHorario}) para operar a agenda.`);
@@ -78,7 +77,7 @@ export class AgendamentoListPageComponent implements OnInit {
     const first = this.days()[0].date;
     const last = new Date(first);
     last.setDate(first.getDate() + this.days().length);
-    this.bookings.set(await firstValueFrom(this.api.list(first, last)));
+    this.bookings.set(await this.api.list(first, last));
   }
   protected refresh(): void {
     if (!this.config()) {
@@ -107,10 +106,10 @@ export class AgendamentoListPageComponent implements OnInit {
       if (!this.clientes().some(item => item.id === value.idCliente)) throw new Error('Selecione uma cliente válida.');
       const dayStart = new Date(start); dayStart.setHours(0, 0, 0, 0);
       const dayEnd = new Date(dayStart); dayEnd.setDate(dayEnd.getDate() + 1);
-      const bookings = await firstValueFrom(this.api.list(dayStart, dayEnd));
+      const bookings = await this.api.list(dayStart, dayEnd);
       const error = validateSlot(start, service.duracaoMinutos, config.expediente, bookings);
       if (error) throw new Error(error);
-      await firstValueFrom(this.api.create({ ...value, dataHora: start.toISOString() }));
+      await this.api.create({ ...value, dataHora: start.toISOString() });
       this.form.reset();
       await this.fetch();
     }, 'Agendamento criado.');

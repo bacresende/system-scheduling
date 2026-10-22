@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, InjectionToken } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 // Configure somente quando o backend implementar os contratos documentados.
 export const API_BASE_URL = new InjectionToken<string | null>('API_BASE_URL', {
@@ -14,14 +14,14 @@ export class ApiClient {
   private readonly baseUrl = inject(API_BASE_URL);
   readonly configured = this.baseUrl !== null;
 
-  request<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown): Observable<T> {
+  async request<T>(method: 'GET' | 'POST' | 'PUT' | 'PATCH', path: string, body?: unknown): Promise<T> {
     if (!this.baseUrl) {
-      return throwError(() => new Error('Backend não configurado. Autenticação, consultas e salvamentos dependem da API.'));
+      throw new Error('Backend não configurado. Autenticação, consultas e salvamentos dependem da API.');
     }
-    return this.http.request<T>(method, `${this.baseUrl.replace(/\/$/, '')}${path}`, {
+    return firstValueFrom(this.http.request<T>(method, `${this.baseUrl.replace(/\/$/, '')}${path}`, {
       body,
       withCredentials: true
-    });
+    }));
   }
 }
 

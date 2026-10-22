@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map, Observable, switchMap, throwError } from 'rxjs';
 import { ApiClient } from '../../../core/api/api-client';
 import { Agendamento } from '../../agendamentos/models/agendamento.model';
 import { AgendamentosService } from '../../agendamentos/services/agendamentos.service';
@@ -14,16 +13,16 @@ export type RespostasCorporal = Omit<AnamneseCorporal, 'id' | 'idCliente' | 'idS
 @Injectable({ providedIn: 'root' })
 export class AnamneseService {
   private readonly api = inject(ApiClient);
-  facial(id: string): Observable<AnamneseFacial | null> {
+  facial(id: string): Promise<AnamneseFacial | null> {
     return this.api.request('GET', `/anamnese/facial?agendamento=${encodeURIComponent(id)}`);
   }
-  corporal(id: string): Observable<AnamneseCorporal | null> {
+  corporal(id: string): Promise<AnamneseCorporal | null> {
     return this.api.request('GET', `/anamnese/corporal?agendamento=${encodeURIComponent(id)}`);
   }
-  saveFacial(id: string, respostas: RespostasFacial): Observable<AnamneseFacial> {
+  saveFacial(id: string, respostas: RespostasFacial): Promise<AnamneseFacial> {
     return this.api.request('PUT', `/anamnese/facial/${encodeURIComponent(id)}`, respostas);
   }
-  saveCorporal(id: string, respostas: RespostasCorporal): Observable<AnamneseCorporal> {
+  saveCorporal(id: string, respostas: RespostasCorporal): Promise<AnamneseCorporal> {
     return this.api.request('PUT', `/anamnese/corporal/${encodeURIComponent(id)}`, respostas);
   }
 }
@@ -37,24 +36,20 @@ export class AnamneseContext {
   readonly booking = signal<Agendamento | null>(null);
   readonly editable = signal(false);
 
-  load(tipo: TipoAnamnese): Observable<string> {
+  async load(tipo: TipoAnamnese): Promise<string> {
     const id = this.route.snapshot.queryParamMap.get('agendamento');
-    if (!id) return throwError(() => new Error('Abra a ficha a partir de um agendamento para identificar cliente e serviço.'));
-    return this.bookings.get(id).pipe(
-      switchMap(booking => this.api.request<Servico>('GET', `/servicos/${encodeURIComponent(booking.idServico)}`).pipe(
-        map(service => {
-          const session = this.auth.session();
-          if (session?.papel !== 'ADMIN' && session?.cliente?.id !== booking.idCliente) {
-            throw new Error('Esta ficha não pertence à sua conta.');
-          }
-          if (service.tipoAnamneseExigida !== tipo) {
-            throw new Error('O serviço deste agendamento exige outro tipo de ficha.');
-          }
-          this.booking.set(booking);
-          return id;
-        })
-      ))
-    );
+    if (!id) throw new Error('Abra a ficha a partir de um agendamento para identificar cliente e serviço.');
+    const booking = await this.bookings.get(id);
+    const service = await this.api.request<Servico>('GET', `/servicos/${encodeURIComponent(booking.idServico)}`);
+    const session = this.auth.session();
+    if (session?.papel !== 'ADMIN' && session?.cliente?.id !== booking.idCliente) {
+      throw new Error('Esta ficha não pertence à sua conta.');
+    }
+    if (service.tipoAnamneseExigida !== tipo) {
+      throw new Error('O serviço deste agendamento exige outro tipo de ficha.');
+    }
+    this.booking.set(booking);
+    return id;
   }
 
   editableId(): string {

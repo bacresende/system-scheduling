@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { of, throwError } from 'rxjs';
 import { AuthService, Sessao } from './auth.service';
 import { adminGuard, sessionGuard } from './auth.guard';
 
@@ -13,7 +12,7 @@ describe('Access and progressive profile guards', () => {
   async function setup(session: Sessao | null, error?: Error): Promise<RouterTestingHarness> {
     TestBed.configureTestingModule({ providers: [
       { provide: AuthService, useValue: {
-        restore: () => error ? throwError(() => error) : of(session), session: () => session
+        restore: () => error ? Promise.reject(error) : Promise.resolve(session), session: () => session
       } },
       provideRouter([
         { path: 'login', component: TestPage },

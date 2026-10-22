@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../auth/services/auth.service';
@@ -75,7 +74,7 @@ export class CompletarCadastroPage {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
-      await firstValueFrom(this.auth.complete(this.form.getRawValue()));
+      await this.auth.complete(this.form.getRawValue());
       if (!this.auth.session()?.cliente?.cadastroCompleto) {
         throw new Error('O backend ainda não confirmou a conclusão do cadastro.');
       }
@@ -84,7 +83,7 @@ export class CompletarCadastroPage {
   }
   protected logout(): void {
     void this.state.run(async () => {
-      await firstValueFrom(this.auth.logout());
+      await this.auth.logout();
       await this.router.navigateByUrl('/login');
     });
   }

@@ -1,7 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DashboardService, ResumoDashboard } from '../../services/dashboard.service';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
@@ -20,6 +19,6 @@ export class DashboardPageComponent implements OnInit {
   protected readonly summary = signal<ResumoDashboard | null>(null);
   ngOnInit(): void { this.load(); }
   protected load(): void {
-    void this.state.run(async () => { this.summary.set(await firstValueFrom(this.api.get())); });
+    void this.state.run(async () => { this.summary.set(await this.api.get()); });
   }
 }

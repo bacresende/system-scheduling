@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth.service';
@@ -43,7 +42,7 @@ export class PreCadastroPage {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
-      await firstValueFrom(this.auth.register(this.form.getRawValue()));
+      await this.auth.register(this.form.getRawValue());
       this.form.reset();
       this.showPassword.set(false);
     }, 'Conta criada. Acesse o login para completar seu cadastro.');

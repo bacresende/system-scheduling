@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, map, Observable, of, tap, throwError } from 'rxjs';
 import { ApiClient } from '../../../core/api/api-client';
 import { CadastroCliente, Cliente, CompletarPerfil } from '../../clientes/models/cliente.model';
 
@@ -19,38 +18,33 @@ export class AuthService {
   private readonly current = signal<Sessao | null>(null);
   readonly session = this.current.asReadonly();
 
-  restore(): Observable<Sessao | null> {
-    if (this.current()) return of(this.current());
-    return this.api.request<Sessao>('GET', '/auth/sessao').pipe(
-      tap(session => this.current.set(session)),
-      catchError((error: unknown) => {
-        if (error instanceof HttpErrorResponse && error.status === 401) return of(null);
-        return throwError(() => error);
-      })
-    );
+  async restore(): Promise<Sessao | null> {
+    if (this.current()) return this.current();
+    try {
+      const session = await this.api.request<Sessao>('GET', '/auth/sessao');
+      this.current.set(session);
+      return session;
+    } catch (error: unknown) {
+      if (error instanceof HttpErrorResponse && error.status === 401) return null;
+      throw error;
+    }
   }
 
-  login(credentials: Credenciais): Observable<void> {
-    return this.api.request<Sessao>('POST', '/auth/login', credentials).pipe(
-      tap(session => this.current.set(session)),
-      map(() => undefined)
-    );
+  async login(credentials: Credenciais): Promise<void> {
+    this.current.set(await this.api.request<Sessao>('POST', '/auth/login', credentials));
   }
 
-  register(payload: PreCadastro): Observable<void> {
-    return this.api.request<void>('POST', '/auth/pre-cadastro', payload);
+  async register(payload: PreCadastro): Promise<void> {
+    await this.api.request<void>('POST', '/auth/pre-cadastro', payload);
   }
 
-  complete(payload: CompletarPerfil): Observable<void> {
-    return this.api.request<Cliente>('PUT', '/clientes/me/perfil', payload).pipe(
-      tap(cliente => this.current.update(session => session ? { ...session, cliente } : null)),
-      map(() => undefined)
-    );
+  async complete(payload: CompletarPerfil): Promise<void> {
+    const cliente = await this.api.request<Cliente>('PUT', '/clientes/me/perfil', payload);
+    this.current.update(session => session ? { ...session, cliente } : null);
   }
 
-  logout(): Observable<void> {
-    return this.api.request<void>('POST', '/auth/logout', {}).pipe(
-      tap(() => this.current.set(null))
-    );
+  async logout(): Promise<void> {
+    await this.api.request<void>('POST', '/auth/logout', {});
+    this.current.set(null);
   }
 }

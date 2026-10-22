@@ -1,5 +1,4 @@
 import { inject, Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
 import { ApiClient } from '../../../core/api/api-client';
 import { Agendamento } from '../../agendamentos/models/agendamento.model';
 import { Cliente } from '../../clientes/models/cliente.model';
@@ -32,9 +31,8 @@ export function opportunities(candidates: CandidatoRetorno[], today: Date): Opor
 @Injectable({ providedIn: 'root' })
 export class OportunidadesService {
   private readonly api = inject(ApiClient);
-  list(): Observable<Oportunidade[]> {
-    return this.api.request<CandidatoRetorno[]>('GET', '/oportunidades').pipe(
-      map(candidates => opportunities(candidates, new Date()))
-    );
+  async list(): Promise<Oportunidade[]> {
+    const candidates = await this.api.request<CandidatoRetorno[]>('GET', '/oportunidades');
+    return opportunities(candidates, new Date());
   }
 }

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { RequestFeedback, RequestState } from '../../shared/ui/request-feedback';
@@ -24,7 +23,7 @@ export class MainLayoutComponent {
   ];
   protected logout(): void {
     void this.state.run(async () => {
-      await firstValueFrom(this.auth.logout());
+      await this.auth.logout();
       await this.router.navigateByUrl('/login');
     });
   }
