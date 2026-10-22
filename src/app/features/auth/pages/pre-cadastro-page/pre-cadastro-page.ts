@@ -47,8 +47,8 @@ export class PreCadastroPage {
       await this.auth.register(this.form.getRawValue());
       this.form.reset();
       this.showPassword.set(false);
-      const navigated = await this.router.navigateByUrl('/completar-cadastro');
-      if (!navigated) throw new Error('Não foi possível abrir a página para completar o cadastro.');
+      const navigated = await this.router.navigateByUrl('/portal');
+      if (!navigated) throw new Error('Não foi possível abrir o portal.');
     });
   }
 }

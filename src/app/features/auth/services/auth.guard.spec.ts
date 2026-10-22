@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { AuthService, Sessao } from './auth.service';
-import { adminGuard, sessionGuard } from './auth.guard';
+import { adminGuard, homeFor, sessionGuard } from './auth.guard';
 
 @Component({ template: '<h1>Página de teste</h1>' })
 class TestPage {}
@@ -34,10 +34,18 @@ describe('Access and progressive profile guards', () => {
     const { Router } = await import('@angular/router');
     expect(TestBed.inject(Router).url).toContain('/login?retorno=%2Fdashboard');
   });
-  it('blocks incomplete profiles before any portal functionality', async () => {
+  it('allows incomplete profiles to access the portal', async () => {
     const harness = await setup(client(false)); await harness.navigateByUrl('/portal');
     const { Router } = await import('@angular/router');
-    expect(TestBed.inject(Router).url).toBe('/completar-cadastro');
+    expect(TestBed.inject(Router).url).toBe('/portal');
+  });
+  it('uses the portal as the home page for incomplete client profiles', () => {
+    expect(homeFor(client(false))).toBe('/portal');
+  });
+  it('redirects incomplete profiles from admin routes to the portal', async () => {
+    const harness = await setup(client(false)); await harness.navigateByUrl('/dashboard');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/portal');
   });
   it('prevents clients from accessing admin screens', async () => {
     const harness = await setup(client(true)); await harness.navigateByUrl('/dashboard');

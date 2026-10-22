@@ -5,7 +5,7 @@ import { errorMessage } from '../../../core/api/api-client';
 
 export function homeFor(session: Sessao): string {
   if (session.papel === 'ADMIN') return '/dashboard';
-  return session.cliente?.cadastroCompleto ? '/portal' : '/completar-cadastro';
+  return '/portal';
 }
 
 export const sessionGuard: CanActivateFn = async (_route, state): Promise<boolean | ReturnType<Router['createUrlTree']>> => {
@@ -15,8 +15,8 @@ export const sessionGuard: CanActivateFn = async (_route, state): Promise<boolea
     const session = await auth.restore();
     if (!session) return router.createUrlTree(['/login'], { queryParams: { retorno: state.url } });
     if (session.papel === 'CLIENTE' && !session.cliente?.cadastroCompleto &&
-        state.url.split('?')[0] !== '/completar-cadastro') {
-      return router.createUrlTree(['/completar-cadastro']);
+        !['/completar-cadastro', '/portal'].includes(state.url.split('?')[0])) {
+      return router.createUrlTree(['/portal']);
     }
     return true;
   } catch (error: unknown) {

@@ -45,14 +45,6 @@ export class LoginPageComponent {
     this.showPassword.update((value) => !value);
   }
 
-  private readonly api = inject(ApiClient);
-  public testarEndpoint(): void {
-    void this.state.run(async () => {
-      const valor = await this.api.request('POST', '/hello');
-      console.log('valor', valor);
-    });
-  }
-
   public submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;

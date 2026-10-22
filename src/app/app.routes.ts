@@ -25,7 +25,11 @@ export const routes: Routes = [
     //canActivateChild: [sessionGuard],
     children: [
       { path: 'completar-cadastro', component: CompletarCadastroPage, canActivate: [clientGuard] },
-      { path: 'portal', component: PortalPage, canActivate: [clientGuard] },
+      {
+        path: 'portal',
+        component: PortalPage,
+        //canActivate: [clientGuard],
+      },
       { path: 'anamnese/facial', component: AnamneseFacialPageComponent },
       { path: 'anamnese/corporal', component: AnamneseCorporalPageComponent },
       { path: 'anamnese/capilar', component: AnamnesePendentePage },
