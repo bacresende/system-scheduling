@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth.service';
@@ -27,6 +27,7 @@ export class PreCadastroPage {
   protected readonly state = inject(RequestState);
   protected readonly showPassword = signal(false);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   protected readonly form = inject(FormBuilder).nonNullable.group({
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
@@ -41,10 +42,13 @@ export class PreCadastroPage {
   protected submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+
     void this.state.run(async () => {
       await this.auth.register(this.form.getRawValue());
       this.form.reset();
       this.showPassword.set(false);
-    }, 'Conta criada. Acesse o login para completar seu cadastro.');
+      const navigated = await this.router.navigateByUrl('/completar-cadastro');
+      if (!navigated) throw new Error('Não foi possível abrir a página para completar o cadastro.');
+    });
   }
 }

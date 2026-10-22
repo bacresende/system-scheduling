@@ -8,6 +8,7 @@ import { homeFor } from '../../services/auth.guard';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { ElegantButton } from '../../../../shared/components/elegant-button/elegant-button';
+import { ApiClient } from '../../../../core/api/api-client';
 
 @Component({
   selector: 'app-login-page',
@@ -42,6 +43,14 @@ export class LoginPageComponent {
 
   protected togglePassword(): void {
     this.showPassword.update((value) => !value);
+  }
+
+  private readonly api = inject(ApiClient);
+  public testarEndpoint(): void {
+    void this.state.run(async () => {
+      const valor = await this.api.request('POST', '/hello');
+      console.log('valor', valor);
+    });
   }
 
   public submit(): void {

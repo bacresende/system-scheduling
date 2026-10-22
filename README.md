@@ -6,10 +6,10 @@ Frontend Angular 21, zoneless, com componentes standalone, PrimeNG 21 e Tailwind
 As regras de [desenvolvimento](docs/regras-desenvolvimento.md) complementam a
 [especificação funcional](docs/especificacao-requisito.md).
 
-**Este repositório não implementa backend.** Por decisão de escopo, não há
-autenticação simulada, contas de demonstração, senhas no navegador, dados fictícios
-ou persistência em localStorage. Sem API configurada, o login e as operações
-exibem a pendência; as áreas protegidas não são liberadas.
+**A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
+Functions de cadastro, login e restauração de sessão do Back4App. As demais
+operações de clientes, serviços e agendamentos ainda precisam de funções/endpoints.
+Não há autenticação simulada nem contas de demonstração.
 
 ### Organização
 
@@ -55,7 +55,9 @@ estimada). Com autorização, o orçamento passou a aviso em 1,25 MB e erro em
 
 ### Conectar uma API real
 
-Fornecer `API_BASE_URL` nos providers de
+O [ApiClient](src/app/core/api/api-client.ts) já usa
+`https://parseapi.back4app.com/functions` por padrão e adiciona os cabeçalhos do
+Parse. `API_BASE_URL` ainda pode ser sobrescrito nos providers de
 [app.config.ts](src/app/app.config.ts), por exemplo:
 
 ```ts
@@ -65,28 +67,35 @@ import { API_BASE_URL } from './core/api/api-client';
 { provide: API_BASE_URL, useValue: '/api' }
 ```
 
-`null` é o padrão deliberado: nenhuma requisição é enviada a um servidor
-inexistente. `/api` exige um backend/reverse proxy; este repositório não o fornece.
-Recomenda-se a mesma origem para suportar cookies HttpOnly/Secure/SameSite e a
-proteção XSRF do HttpClient (`XSRF-TOKEN` / `X-XSRF-TOKEN`). A API deve validar
-XSRF, sessão e autorização em todas as operações. Caso use outra origem, será
-necessário configurar CORS com credenciais e definir a proteção CSRF adequada.
-Nenhum segredo de servidor deve ser colocado no frontend.
+Publique `cloud/main.js` como Cloud Code no Back4App. O pré-cadastro cria `_User`,
+retorna o token Parse, inicia a sessão no frontend e encaminha para
+`/completar-cadastro`. O token fica em `sessionStorage` e é enviado nas próximas
+requisições como `X-Parse-Session-Token`. O logout invalida a sessão pelo endpoint
+REST do Parse. A REST API Key usada no cliente é visível no navegador; não coloque
+a Master Key no frontend e configure ACL/CLP e permissões no Back4App.
 
-### Contrato HTTP proposto (integração pendente)
+### Cloud Functions implementadas
 
-Respostas são JSON direto, sem envelope. IDs são strings obrigatórias nas
-respostas. Datas de eventos são ISO 8601 com offset/UTC; nascimento usa
-`YYYY-MM-DD`. O servidor é a fonte de verdade de IDs, datas de preenchimento,
-papéis, propriedade dos dados e `cadastroCompleto`.
+As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
+`ApiClient` remove esse envelope antes de entregar os dados aos serviços.
 
 | Método e caminho | Corpo / resposta |
 |---|---|
-| `POST /auth/login` | `{ email, senha }` -> `Sessao`; cria cookie de sessão |
-| `GET /auth/sessao` | `Sessao` ou HTTP 401 |
-| `POST /auth/logout` | `{}` -> 204; invalida cookie e sessão |
-| `POST /auth/pre-cadastro` | Estritamente `{ nome, email, telefone, senha }` -> 201/204; e-mail único |
-| `GET /clientes` | `Cliente[]`; apenas administrador |
+| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `{ sessionToken, session }`; cria `_User` e autentica |
+| `POST /functions/login` | `{ email, senha }` -> `{ sessionToken, session }` |
+| `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Sessao` atual |
+| `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
+
+O pré-cadastro associa a conta ao papel `CLIENTE`; crie esse papel em `_Role`
+antes de publicar/usar a função. As funções de sessão consultam o papel `ADMIN`
+em `_Role`; usuários sem esse papel são tratados como `CLIENTE`. O perfil `Cliente`
+é opcional até sua criação e, quando existe, a função carrega o Pointer `endereco`.
+
+### Contrato HTTP proposto (integração pendente)
+
+As rotas a seguir ainda não foram implementadas como Cloud Functions ou endpoints.
+O servidor deve validar as entradas, autorização e propriedade dos registros.
+Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `POST /clientes` | `{ nome, email, telefone }` -> `Cliente`; backend define mecanismo de convite |
 | `PUT /clientes/me/perfil` | `{ cpf, nasc, endereco }` -> `Cliente` com conclusão calculada no servidor |
 | `GET /servicos` | `Servico[]`, incluindo inativos para consulta histórica |
