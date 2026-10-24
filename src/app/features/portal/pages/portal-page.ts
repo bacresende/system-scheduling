@@ -1,5 +1,12 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TimelineModule } from 'primeng/timeline';
@@ -26,13 +33,21 @@ export class PortalPage implements OnInit {
   private readonly api = inject(ApiClient);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  protected readonly cadastroIncompleto = computed(() => !this.auth.session()?.cliente?.cadastroCompleto);
+  protected readonly cadastroIncompleto = computed(() => !this.auth.session()?.cadastroCompleto);
   protected readonly items = signal<AtendimentoPortal[]>([]);
-  protected readonly pending = computed(() => this.items().filter(item => item.status === 'Pendente')
-    .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime()));
-  protected readonly history = computed(() => this.items().filter(item => item.status === 'Concluido')
-    .sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()));
-  ngOnInit(): void { this.load(); }
+  protected readonly pending = computed(() =>
+    this.items()
+      .filter((item) => item.status === 'Pendente')
+      .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime()),
+  );
+  protected readonly history = computed(() =>
+    this.items()
+      .filter((item) => item.status === 'Concluido')
+      .sort((a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime()),
+  );
+  ngOnInit(): void {
+    this.load();
+  }
   protected load(): void {
     void this.state.run(async () => {
       this.items.set(await this.api.request('GET', '/clientes/me/linha-do-tempo'));

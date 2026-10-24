@@ -20,29 +20,48 @@ import { localDay } from '../../../shared/utils/date';
       <h1 class="text-3xl font-bold">Complete seu cadastro</h1>
       <p class="my-4">Precisamos destes dados antes de liberar o portal.</p>
       <app-request-feedback />
-      <form [formGroup]="form" (ngSubmit)="submit()" class="grid grid-cols-1 gap-4 md:grid-cols-2" novalidate>
-        <label>CPF (11 dígitos)
+      <form
+        [formGroup]="form"
+        (ngSubmit)="submit()"
+        class="grid grid-cols-1 gap-4 md:grid-cols-2"
+        novalidate
+      >
+        <label
+          >CPF (11 dígitos)
           <input pInputText formControlName="cpf" inputmode="numeric" class="mt-1 w-full" />
           <app-field-error [control]="form.controls.cpf" />
         </label>
-        <label>Data de nascimento
+        <label
+          >Data de nascimento
           <input pInputText type="date" formControlName="nasc" [max]="today" class="mt-1 w-full" />
           <app-field-error [control]="form.controls.nasc" />
         </label>
         <fieldset formGroupName="endereco" class="grid gap-4 md:col-span-2 md:grid-cols-2">
           <legend class="mb-2 font-semibold">Endereço</legend>
           @for (field of fields; track field.key) {
-            <label>{{ field.label }}
+            <label
+              >{{ field.label }}
               <input pInputText [formControlName]="field.key" class="mt-1 w-full" />
               <app-field-error [control]="form.controls.endereco.controls[field.key]" />
             </label>
           }
         </fieldset>
-        <p-button type="submit" label="Salvar e acessar portal" [loading]="state.busy()" styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary" />
+        <p-button
+          type="submit"
+          label="Salvar e acessar portal"
+          [loading]="state.busy()"
+          styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary"
+        />
       </form>
-      <p-button label="Sair" severity="secondary" (onClick)="logout()" styleClass="mt-4" [disabled]="state.busy()" />
+      <p-button
+        label="Sair"
+        severity="secondary"
+        (onClick)="logout()"
+        styleClass="mt-4"
+        [disabled]="state.busy()"
+      />
     </main>
-  `
+  `,
 })
 export class CompletarCadastroPage {
   protected readonly state = inject(RequestState);
@@ -52,30 +71,45 @@ export class CompletarCadastroPage {
   protected readonly today = localDay(new Date());
   protected readonly form = this.fb.group({
     cpf: ['', [Validators.required, cpfValidator]],
-    nasc: ['', [Validators.required, (control: AbstractControl) => {
-      const value = String(control.value);
-      return value && (value > this.today || !Number.isFinite(Date.parse(value))) ? { data: true } : null;
-    }]],
+    nasc: [
+      '',
+      [
+        Validators.required,
+        (control: AbstractControl) => {
+          const value = String(control.value);
+          return value && (value > this.today || !Number.isFinite(Date.parse(value)))
+            ? { data: true }
+            : null;
+        },
+      ],
+    ],
     endereco: this.fb.group({
       cep: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-      logradouro: ['', Validators.required], numeroResidencia: ['', Validators.required],
-      bairro: ['', Validators.required], complemento: [''], cidade: ['', Validators.required],
+      logradouro: ['', Validators.required],
+      numeroResidencia: ['', Validators.required],
+      bairro: ['', Validators.required],
+      complemento: [''],
+      cidade: ['', Validators.required],
       estado: ['', [Validators.required, Validators.pattern(/^[A-Za-z]{2}$/)]],
-      pais: ['Brasil', Validators.required]
-    })
+      pais: ['Brasil', Validators.required],
+    }),
   });
   protected readonly fields: { key: keyof Endereco; label: string }[] = [
-    { key: 'cep', label: 'CEP (8 dígitos)' }, { key: 'logradouro', label: 'Logradouro' },
-    { key: 'numeroResidencia', label: 'Número' }, { key: 'bairro', label: 'Bairro' },
-    { key: 'complemento', label: 'Complemento (opcional)' }, { key: 'cidade', label: 'Cidade' },
-    { key: 'estado', label: 'UF' }, { key: 'pais', label: 'País' }
+    { key: 'cep', label: 'CEP (8 dígitos)' },
+    { key: 'logradouro', label: 'Logradouro' },
+    { key: 'numeroResidencia', label: 'Número' },
+    { key: 'bairro', label: 'Bairro' },
+    { key: 'complemento', label: 'Complemento (opcional)' },
+    { key: 'cidade', label: 'Cidade' },
+    { key: 'estado', label: 'UF' },
+    { key: 'pais', label: 'País' },
   ];
   protected submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
       await this.auth.complete(this.form.getRawValue());
-      if (!this.auth.session()?.cliente?.cadastroCompleto) {
+      if (!this.auth.session()?.cadastroCompleto) {
         throw new Error('O backend ainda não confirmou a conclusão do cadastro.');
       }
       await this.router.navigateByUrl('/portal');

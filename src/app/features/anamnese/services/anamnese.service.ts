@@ -7,8 +7,14 @@ import { Servico, TipoAnamnese } from '../../servicos/models/servico.model';
 import { AuthService } from '../../auth/services/auth.service';
 import { AnamneseCorporal, AnamneseFacial } from '../models/anamnese.model';
 
-export type RespostasFacial = Omit<AnamneseFacial, 'id' | 'idCliente' | 'idServico' | 'idAgendamento' | 'dataPreenchimento'>;
-export type RespostasCorporal = Omit<AnamneseCorporal, 'id' | 'idCliente' | 'idServico' | 'idAgendamento' | 'dataPreenchimento'>;
+export type RespostasFacial = Omit<
+  AnamneseFacial,
+  'id' | 'idCliente' | 'idServico' | 'idAgendamento' | 'dataPreenchimento'
+>;
+export type RespostasCorporal = Omit<
+  AnamneseCorporal,
+  'id' | 'idCliente' | 'idServico' | 'idAgendamento' | 'dataPreenchimento'
+>;
 
 @Injectable({ providedIn: 'root' })
 export class AnamneseService {
@@ -38,11 +44,17 @@ export class AnamneseContext {
 
   async load(tipo: TipoAnamnese): Promise<string> {
     const id = this.route.snapshot.queryParamMap.get('agendamento');
-    if (!id) throw new Error('Abra a ficha a partir de um agendamento para identificar cliente e serviço.');
+    if (!id)
+      throw new Error(
+        'Abra a ficha a partir de um agendamento para identificar cliente e serviço.',
+      );
     const booking = await this.bookings.get(id);
-    const service = await this.api.request<Servico>('GET', `/servicos/${encodeURIComponent(booking.idServico)}`);
+    const service = await this.api.request<Servico>(
+      'GET',
+      `/servicos/${encodeURIComponent(booking.idServico)}`,
+    );
     const session = this.auth.session();
-    if (session?.papel !== 'ADMIN' && session?.cliente?.id !== booking.idCliente) {
+    if (session?.perfil !== 'ADMIN' && session?.id !== booking.idCliente) {
       throw new Error('Esta ficha não pertence à sua conta.');
     }
     if (service.tipoAnamneseExigida !== tipo) {
@@ -54,7 +66,8 @@ export class AnamneseContext {
 
   editableId(): string {
     const booking = this.booking();
-    if (!booking || !this.editable()) throw new Error('A ficha está indisponível ou o atendimento já foi encerrado.');
+    if (!booking || !this.editable())
+      throw new Error('A ficha está indisponível ou o atendimento já foi encerrado.');
     return booking.id;
   }
 }

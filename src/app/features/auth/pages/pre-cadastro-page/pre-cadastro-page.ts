@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth.service';
@@ -28,6 +28,7 @@ export class PreCadastroPage {
   protected readonly showPassword = signal(false);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly form = inject(FormBuilder).nonNullable.group({
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
@@ -47,6 +48,21 @@ export class PreCadastroPage {
       await this.auth.register(this.form.getRawValue());
       this.form.reset();
       this.showPassword.set(false);
+
+      // 2. O parâmetro sobreviveu à troca de telas e é resgatado aqui
+      const urlDestino = this.route.snapshot.queryParamMap.get('returnUrl');
+      const perfil = this.auth.session()?.perfil;
+
+      if (urlDestino) {
+        this.router.navigateByUrl(urlDestino);
+      } else if (perfil === 'ADMIN') {
+        this.router.navigateByUrl('/dashboard');
+      } else if (perfil === 'CLIENTE') {
+        this.router.navigateByUrl('/portal');
+      } else {
+        this.router.navigateByUrl('/login');
+      }
+
       const navigated = await this.router.navigateByUrl('/portal');
       if (!navigated) throw new Error('Não foi possível abrir o portal.');
     });
