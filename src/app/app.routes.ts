@@ -28,7 +28,7 @@ export const routes: Routes = [
       {
         path: 'portal',
         component: PortalPage,
-        //canActivate: [clientGuard],
+        canActivate: [clientGuard],
       },
       { path: 'anamnese/facial', component: AnamneseFacialPageComponent },
       { path: 'anamnese/corporal', component: AnamneseCorporalPageComponent },
@@ -37,7 +37,7 @@ export const routes: Routes = [
       {
         path: '',
         component: MainLayoutComponent,
-        //canActivateChild: [adminGuard],
+        canActivateChild: [adminGuard],
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           { path: 'dashboard', component: DashboardPageComponent },

@@ -50,5 +50,5 @@ export const adminGuard: CanActivateChildFn = () => {
 
 export const clientGuard: CanActivateFn = () => {
   const session = inject(AuthService).session();
-  return session?.perfil === 'CLIENTE' || inject(Router).createUrlTree(['/dashboard']);
+  return session?.perfil === 'CLIENTE' || inject(Router).createUrlTree(['/login']);
 };
