@@ -18,15 +18,10 @@ function isParseFunctionResponse<T>(
   return typeof response === 'object' && response !== null && 'result' in response;
 }
 
-export const API_BASE_URL = new InjectionToken<string | null>('API_BASE_URL', {
-  providedIn: 'root',
-  factory: () => BACK4APP_FUNCTIONS_URL,
-});
-
 @Injectable({ providedIn: 'root' })
 export class ApiClient {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = inject(API_BASE_URL);
+  private readonly baseUrl = BACK4APP_FUNCTIONS_URL;
   readonly configured = this.baseUrl !== null;
 
   get sessionToken(): string | null {
@@ -50,11 +45,6 @@ export class ApiClient {
     path: string,
     body?: unknown,
   ): Promise<T> {
-    if (!this.baseUrl) {
-      throw new Error(
-        'Backend não configurado. Autenticação, consultas e salvamentos dependem da API.',
-      );
-    }
     const response = await firstValueFrom(
       this.http.request<T | ParseFunctionResponse<T>>(
         method,

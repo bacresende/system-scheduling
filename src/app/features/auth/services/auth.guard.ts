@@ -3,9 +3,16 @@ import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { AuthService, Usuario } from './auth.service';
 import { errorMessage } from '../../../core/api/api-client';
 
-export function homeFor(session: Usuario): string {
-  if (session.perfil === 'ADMIN') return '/dashboard';
-  return '/portal';
+export function homeFor(urlDestino: string | null, perfil: string | undefined): string {
+  if (urlDestino) {
+    return urlDestino;
+  } else if (perfil === 'ADMIN') {
+    return '/dashboard';
+  } else if (perfil === 'CLIENTE') {
+    return '/portal';
+  } else {
+    return '/login';
+  }
 }
 
 export const sessionGuard: CanActivateFn = async (
@@ -36,7 +43,8 @@ export const adminGuard: CanActivateChildFn = () => {
   const session = inject(AuthService).session();
   const router = inject(Router);
   return (
-    session?.perfil === 'ADMIN' || router.createUrlTree([session ? homeFor(session) : '/login'])
+    session?.perfil === 'ADMIN' ||
+    router.createUrlTree([session ? homeFor(null, session.perfil) : '/login'])
   );
 };
 

@@ -51,14 +51,14 @@ export class LoginPageComponent {
     void this.state.run(async () => {
       await this.auth.login(this.form.getRawValue());
       this.form.controls.senha.reset();
-      const session = this.auth.session();
-      if (!session) throw new Error('A API não retornou uma sessão válida.');
-      const retorno = this.route.snapshot.queryParamMap.get('retorno');
-      const target =
-        retorno?.startsWith('/') && !retorno.startsWith('//') && !retorno.startsWith('/login')
-          ? retorno
-          : homeFor(session);
-      await this.router.navigateByUrl(target);
+
+      //O parâmetro sobreviveu à troca de telas e é resgatado aqui
+      const urlDestino = this.route.snapshot.queryParamMap.get('returnUrl');
+      const perfil = this.auth.session()?.perfil;
+
+      const direcionamento = homeFor(urlDestino, perfil);
+
+      this.router.navigateByUrl(direcionamento);
     });
   }
 }

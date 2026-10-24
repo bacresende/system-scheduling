@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { ElegantButton } from '../../../../shared/components/elegant-button/elegant-button';
+import { homeFor } from '../../services/auth.guard';
 
 @Component({
   selector: 'app-pre-cadastro-page',
@@ -49,19 +50,13 @@ export class PreCadastroPage {
       this.form.reset();
       this.showPassword.set(false);
 
-      // 2. O parâmetro sobreviveu à troca de telas e é resgatado aqui
+      //O parâmetro sobreviveu à troca de telas e é resgatado aqui
       const urlDestino = this.route.snapshot.queryParamMap.get('returnUrl');
       const perfil = this.auth.session()?.perfil;
 
-      if (urlDestino) {
-        this.router.navigateByUrl(urlDestino);
-      } else if (perfil === 'ADMIN') {
-        this.router.navigateByUrl('/dashboard');
-      } else if (perfil === 'CLIENTE') {
-        this.router.navigateByUrl('/portal');
-      } else {
-        this.router.navigateByUrl('/login');
-      }
+      const direcionamento = homeFor(urlDestino, perfil);
+
+      this.router.navigateByUrl(direcionamento);
     });
   }
 }
