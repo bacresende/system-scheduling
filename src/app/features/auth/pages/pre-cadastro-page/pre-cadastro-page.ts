@@ -50,13 +50,12 @@ export class PreCadastroPage {
       this.form.reset();
       this.showPassword.set(false);
 
-      //O parâmetro sobreviveu à troca de telas e é resgatado aqui
       const urlDestino = this.route.snapshot.queryParamMap.get('returnUrl');
       const perfil = this.auth.session()?.perfil;
 
       const direcionamento = homeFor(urlDestino, perfil);
-
-      this.router.navigateByUrl(direcionamento);
+      const navigated = await this.router.navigateByUrl(direcionamento);
+      if (!navigated) throw new Error('Não foi possível concluir a navegação após o cadastro.');
     });
   }
 }
