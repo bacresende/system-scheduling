@@ -62,9 +62,6 @@ export class PreCadastroPage {
       } else {
         this.router.navigateByUrl('/login');
       }
-
-      const navigated = await this.router.navigateByUrl('/portal');
-      if (!navigated) throw new Error('Não foi possível abrir o portal.');
     });
   }
 }
