@@ -44,7 +44,7 @@
           {{ editing() ? 'Atualização do catálogo' : 'Novo no catálogo' }}
         </p>
         <h2 id="servico-form-title" class="font-serif text-2xl sm:text-3xl">
-          {{ editing() ? 'Editar serviço' : 'Cadastrar serviço' }}
+          {{ editing() ? 'Editar' : 'Salvar' }}
         </h2>
       </div>
       <p-button
@@ -203,7 +203,9 @@
               {{ item.descricao || 'Sem descrição cadastrada.' }}
             </p>
 
-            <dl class="mt-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4">
+            <dl
+              class="mt-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+            >
               <div>
                 <dt class="text-xs text-estetica-text/70">Duração</dt>
                 <dd class="mt-1 flex items-center gap-2 text-sm font-medium">

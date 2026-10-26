@@ -58,6 +58,29 @@ export class ApiClient {
     return isParseFunctionResponse(response) ? response.result : response;
   }
 
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.post(
+          `${BACK4APP_REST_URL}/requestPasswordReset`,
+          { email },
+          { headers: this.parseHeaders(null) },
+        ),
+      );
+    } catch (error: unknown) {
+      if (
+        error instanceof HttpErrorResponse &&
+        typeof error.error === 'object' &&
+        error.error !== null &&
+        'code' in error.error &&
+        error.error.code === 205
+      ) {
+        return;
+      }
+      throw error;
+    }
+  }
+
   async logoutParseSession(): Promise<void> {
     const token = this.sessionToken;
     if (!token) return;
@@ -84,6 +107,8 @@ export class ApiClient {
 
 export function errorMessage(error: unknown): string {
   if (error instanceof HttpErrorResponse) {
+    if (error.status === 400)
+      return error.error?.error || 'Requisição inválida. Verifique os dados e tente novamente.';
     if (error.status === 401)
       return 'Sua sessão expirou ou as credenciais são inválidas. Entre novamente.';
     if (error.status === 403) return 'Você não tem permissão para realizar esta operação.';

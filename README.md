@@ -9,8 +9,8 @@ As diretrizes de interface estão em
 [especificação visual](docs/especificacao-visual.md).
 
 **A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
-Functions de cadastro, login e restauração de sessão do Back4App. As demais
-operações de clientes, serviços e agendamentos ainda precisam de funções/endpoints.
+Functions de login, usuários e serviços do Back4App. As demais operações de
+agendamentos ainda precisam de funções/endpoints.
 Não há autenticação simulada nem contas de demonstração.
 
 ### Organização
@@ -22,7 +22,7 @@ src/app/
   shared/utils/              # utilitários sem regras de negócio
   layout/main-layout/        # navegação exclusiva da administração
   features/
-    auth/                    # sessão, guards, login e pré-cadastro público
+    auth/                    # sessão, guards, login, cadastro e redefinição de senha
     usuarios/                # modelo único Usuario e operações administrativas
     clientes/                # telas de clientes e conclusão progressiva do perfil
     servicos/                # cadastro, edição e inativação
@@ -42,7 +42,8 @@ não imagens estáticas do projeto.
 
 ### Rotas
 
-- Públicas, sem layout administrativo: `/login` e `/pre-cadastro`.
+- Públicas, sem layout administrativo: `/login` (inclui redefinição de senha) e
+  `/pre-cadastro` (cadastro próprio do usuário).
 - Cliente autenticada: `/completar-cadastro` e `/portal`.
 - Compartilhada e autenticada: `/anamnese?agendamento=ID`, ficha única vinculada
   ao agendamento.
@@ -70,12 +71,22 @@ import { API_BASE_URL } from './core/api/api-client';
 { provide: API_BASE_URL, useValue: '/api' }
 ```
 
-Publique `cloud/main.js` como Cloud Code no Back4App. O pré-cadastro cria um
-`Usuario` com perfil `CLIENTE`, retorna o token Parse, inicia a sessão no frontend e encaminha para
+Publique `cloud/main.js` como Cloud Code no Back4App. O administrador pode criar
+um `Usuario` em `_User` com senha aleatória, que nunca é retornada, e a pessoa
+pode também criar sua própria conta pela rota `/pre-cadastro`. Ambos usam o
+e-mail normalizado como `username`, cuja unicidade no Parse impede contas
+duplicadas. Se a clínica já criou a conta, a pessoa deve usar “Esqueci minha
+senha” para definir seu acesso. Após o login, o sistema encaminha para
 `/completar-cadastro`. O token fica em `sessionStorage` e é enviado nas próximas
 requisições como `X-Parse-Session-Token`. O logout invalida a sessão pelo endpoint
 REST do Parse. A REST API Key usada no cliente é visível no navegador; não coloque
 a Master Key no frontend e configure ACL/CLP e permissões no Back4App.
+
+Configure um `emailAdapter` válido no app Back4App/Parse Server para o envio dos
+e-mails de redefinição. A solicitação usa diretamente
+`POST https://parseapi.back4app.com/requestPasswordReset`; o Parse processa o
+pedido e envia o link. Revise a URL de redefinição e os domínios permitidos na
+configuração do app antes de liberar o fluxo em produção.
 
 ### Cloud Functions implementadas
 
@@ -84,24 +95,22 @@ As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
 
 | Método e caminho | Corpo / resposta |
 |---|---|
-| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `Usuario` com `sessionToken`; cria `_User` e autentica |
+| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `Usuario` com `sessionToken`; cria `_User`, username=email e autentica |
 | `POST /functions/login` | `{ email, senha }` -> `Usuario` com `sessionToken` |
 | `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Usuario` atual |
 | `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
+| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
+| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin |
 
-O pré-cadastro associa a conta ao papel `CLIENTE`; crie esse papel em `_Role`
-antes de publicar/usar a função. As funções de sessão consultam o papel `ADMIN`
-em `_Role`; usuários sem esse papel são tratados como `CLIENTE`. O perfil de acesso
-`CLIENTE` e os campos `endereco`, CPF e nascimento pertencem ao próprio `Usuario`,
-sem depender de uma classe Parse separada.
+As funções de usuários consultam o perfil `ADMIN` armazenado em `_User`. Os novos
+usuários recebem perfil `CLIENTE`; nome, e-mail, telefone, endereço, CPF e
+nascimento permanecem em `_User`, sem uma classe Parse separada.
 
 ### Contrato HTTP proposto (integração pendente)
 
 As rotas a seguir ainda não foram implementadas como Cloud Functions ou endpoints.
 O servidor deve validar as entradas, autorização e propriedade dos registros.
 Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
-| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
-| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin, fluxo de criação/convite deve ser definido no backend |
 | `PUT /usuarios/me/perfil` | `{ cpf, nasc, endereco }` -> `Usuario` com conclusão calculada no servidor |
 | `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
 | `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |

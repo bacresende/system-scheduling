@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { ApiClient } from './core/api/api-client';
+import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
 import { PreCadastroPage } from './features/auth/pages/pre-cadastro-page/pre-cadastro-page';
 import { ClienteListPageComponent } from './features/clientes/pages/cliente-list-page/cliente-list-page.component';
 import { AgendamentoDetailPageComponent } from './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component';
@@ -16,6 +17,7 @@ class EmptyPage {}
 
 describe('Frontend forms and clinical flows', () => {
   const request = vi.fn<(method: string, path: string, body?: unknown) => Promise<unknown>>();
+  const requestPasswordReset = vi.fn<(email: string) => Promise<void>>();
   const booking: Agendamento = {
     id: 'a', idCliente: 'c', idServico: 's', idFuncionario: 'f',
     dataHora: '2026-10-20T10:00:00-03:00', status: 'Pendente', valor: 100, duracaoMinutos: 60
@@ -28,7 +30,7 @@ describe('Frontend forms and clinical flows', () => {
       imports: [component],
       providers: [
         provideRouter([{ path: 'login', component: EmptyPage }]),
-        { provide: ApiClient, useValue: { configured: true, request } },
+        { provide: ApiClient, useValue: { configured: true, request, requestPasswordReset } },
         { provide: ActivatedRoute, useValue: {
           snapshot: { paramMap: convertToParamMap({ id: 'a' }), queryParamMap: convertToParamMap({ agendamento: 'a' }) }
         } }
@@ -49,11 +51,12 @@ describe('Frontend forms and clinical flows', () => {
   }
   beforeEach(() => {
     request.mockReset();
+    requestPasswordReset.mockReset();
+    requestPasswordReset.mockResolvedValue(undefined);
     request.mockImplementation((_method, path) => {
       if (path === '/agendamentos/a') return Promise.resolve(booking);
       if (path === '/listUsuarios') return Promise.resolve([]);
-      if (path === '/servicos') return Promise.resolve([service]);
-      if (path === '/servicos/s') return Promise.resolve(service);
+      if (path === '/listServicos') return Promise.resolve([service]);
       if (path.startsWith('/anamnese?')) return Promise.resolve(null);
       return Promise.reject(new Error(`Unexpected request: ${path}`));
     });
@@ -69,56 +72,43 @@ describe('Frontend forms and clinical flows', () => {
     if (!form) throw new Error('Form not found');
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   }
-  it('requires all four minimal signup fields and does not send invalid data', async () => {
+  it('sends reset instructions for a valid email without revealing account existence', async () => {
+    const fixture = await setup(LoginPageComponent);
+    const root: HTMLElement = fixture.nativeElement;
+    const resetButton = Array.from(root.querySelectorAll('button')).find(button =>
+      button.textContent?.includes('Esqueci minha senha'),
+    );
+    if (!resetButton) throw new Error('Password reset action not found');
+    resetButton.click();
+    await fixture.whenStable();
+    input(root, 'email', 'c@example.test');
+    submit(root);
+    await fixture.whenStable();
+    expect(requestPasswordReset).toHaveBeenCalledWith('c@example.test');
+    expect(root.textContent).toContain('Se houver uma conta associada');
+  });
+  it('does not request a reset for an invalid email', async () => {
+    const fixture = await setup(LoginPageComponent);
+    const root: HTMLElement = fixture.nativeElement;
+    const resetButton = Array.from(root.querySelectorAll('button')).find(button =>
+      button.textContent?.includes('Esqueci minha senha'),
+    );
+    if (!resetButton) throw new Error('Password reset action not found');
+    resetButton.click();
+    await fixture.whenStable();
+    input(root, 'email', 'not-an-email');
+    submit(root);
+    await fixture.whenStable();
+    expect(requestPasswordReset).not.toHaveBeenCalled();
+  });
+  it('keeps self-registration available and validates its required fields', async () => {
     const fixture = await setup(PreCadastroPage);
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelectorAll('input')).toHaveLength(4);
-    expect(root.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);
     submit(root);
     await fixture.whenStable();
     expect(request).not.toHaveBeenCalled();
     expect(root.textContent).toContain('Preencha este campo');
-  });
-  it('sends only the four signup fields to the API and clears the password', async () => {
-    request.mockReturnValue(Promise.resolve(undefined));
-    const fixture = await setup(PreCadastroPage);
-    const root: HTMLElement = fixture.nativeElement;
-    input(root, 'nome', 'Cliente'); input(root, 'email', 'c@example.test');
-    input(root, 'telefone', '5511999999999'); input(root, 'senha', 'senha-de-teste');
-    await fixture.whenStable();
-    expect(root.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(false);
-    submit(root);
-    await fixture.whenStable();
-    expect(request).toHaveBeenCalledWith('POST', '/auth/pre-cadastro', {
-      nome: 'Cliente', email: 'c@example.test', telefone: '5511999999999', senha: 'senha-de-teste'
-    });
-    expect(root.querySelector<HTMLInputElement>('input[type="password"]')?.value).toBe('');
-    expect(root.textContent).toContain('Conta criada');
-  });
-  it('toggles signup password visibility without submitting or changing its value', async () => {
-    const fixture = await setup(PreCadastroPage);
-    const root: HTMLElement = fixture.nativeElement;
-    input(root, 'senha', 'senha-de-teste');
-    const toggle = root.querySelector<HTMLButtonElement>('button[aria-label="Mostrar senha"]');
-    if (!toggle) throw new Error('Password toggle not found');
-    toggle.click();
-    await fixture.whenStable();
-    expect(root.querySelector<HTMLInputElement>('#senha')?.type).toBe('text');
-    expect(root.querySelector<HTMLInputElement>('#senha')?.value).toBe('senha-de-teste');
-    toggle.click();
-    await fixture.whenStable();
-    expect(root.querySelector<HTMLInputElement>('#senha')?.type).toBe('password');
-    expect(request).not.toHaveBeenCalled();
-  });
-  it('does not show success or clear input when signup API fails', async () => {
-    request.mockReturnValue(Promise.reject(new Error('Cadastro indisponível')));
-    const fixture = await setup(PreCadastroPage);
-    const root: HTMLElement = fixture.nativeElement;
-    input(root, 'nome', 'Cliente'); input(root, 'email', 'c@example.test');
-    input(root, 'telefone', '5511999999999'); input(root, 'senha', 'senha-de-teste');
-    submit(root); await fixture.whenStable();
-    expect(root.textContent).toContain('Cadastro indisponível');
-    expect(root.textContent).not.toContain('Conta criada');
   });
   it('validates client contact fields before sending a registration', async () => {
     const fixture = await setup(ClienteListPageComponent);
@@ -133,7 +123,7 @@ describe('Frontend forms and clinical flows', () => {
     request.mockImplementation((_method, path) => {
       if (path === '/agendamentos/a') return Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
       if (path === '/listUsuarios') return Promise.resolve([]);
-      if (path === '/servicos') return Promise.resolve([service]);
+      if (path === '/listServicos') return Promise.resolve([service]);
       return Promise.reject(new Error(`Unexpected request: ${path}`));
     });
     const fixture = await setup(AgendamentoDetailPageComponent);

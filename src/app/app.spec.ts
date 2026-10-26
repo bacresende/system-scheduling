@@ -2,12 +2,17 @@ import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { API_BASE_URL } from './core/api/api-client';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), provideRouter([])],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: API_BASE_URL, useValue: null },
+      ],
     }).compileComponents();
   });
 

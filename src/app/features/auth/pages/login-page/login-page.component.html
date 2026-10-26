@@ -74,12 +74,22 @@
       </div>
 
       <div class="mb-8">
-        <p class="mb-3 text-xs font-semibold tracking-[0.2em] uppercase">Bem-vinda de volta</p>
+        <p class="mb-3 text-xs font-semibold tracking-[0.2em] uppercase">
+          {{ resettingPassword() ? 'Recupere seu acesso' : 'Bem-vinda de volta' }}
+        </p>
         <h1 id="login-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
-          Seu cuidado<br />começa aqui.
+          @if (resettingPassword()) {
+            Redefina sua<br />senha.
+          } @else {
+            Seu cuidado<br />começa aqui.
+          }
         </h1>
         <p class="mt-4 text-sm leading-relaxed">
-          Entre na sua conta para continuar sua experiência.
+          {{
+            resettingPassword()
+              ? 'Informe o e-mail usado no cadastro para receber as instruções.'
+              : 'Entre na sua conta para continuar sua experiência.'
+          }}
         </p>
       </div>
 
@@ -101,6 +111,7 @@
           />
           <app-field-error id="email-error" [control]="form.controls.email" />
         </div>
+        @if (!resettingPassword()) {
         <div>
           <label for="senha" class="mb-2 block text-sm font-semibold">Senha</label>
           <div class="relative">
@@ -129,25 +140,45 @@
           </div>
           <app-field-error id="senha-error" [control]="form.controls.senha" />
         </div>
+        }
 
         <app-elegant-button
-          [label]="'Entrar'"
+          [label]="resettingPassword() ? 'Enviar instruções' : 'Entrar'"
           [loading]="state.busy()"
-          [disabled]="form.invalid || state.busy()"
+          [disabled]="
+            state.busy() ||
+            form.controls.email.invalid ||
+            (!resettingPassword() && form.controls.senha.invalid)
+          "
         />
       </form>
 
-      <div class="my-8 flex items-center gap-4" aria-hidden="true">
-        <span class="h-px flex-1 bg-estetica-secondary"></span>
-        <span class="text-xs tracking-wide">Primeira vez por aqui?</span>
-        <span class="h-px flex-1 bg-estetica-secondary"></span>
-      </div>
-      <a
-        routerLink="/pre-cadastro"
-        class="flex min-h-12 items-center justify-center rounded-xl border border-estetica-secondary px-4 text-sm font-semibold transition-colors hover:bg-estetica-secondary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text"
-      >
-        Criar minha conta
-      </a>
+      @if (resettingPassword()) {
+        <p-button
+          type="button"
+          label="Voltar para entrar"
+          [text]="true"
+          (onClick)="returnToLogin()"
+          styleClass="mt-4 min-h-11 text-estetica-primary-dark"
+        />
+      } @else {
+        <p-button
+          type="button"
+          label="Esqueci minha senha"
+          [text]="true"
+          (onClick)="showPasswordReset()"
+          styleClass="mt-4 min-h-11 self-start text-estetica-primary-dark"
+        />
+        <p class="mt-4 text-center text-sm leading-relaxed">
+          Ainda não tem acesso?
+          <a
+            routerLink="/pre-cadastro"
+            class="font-semibold text-estetica-primary-dark underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text"
+          >
+            Crie sua conta
+          </a>
+        </p>
+      }
       <p class="mt-8 flex items-center justify-center gap-2 text-center text-xs leading-relaxed">
         <i aria-hidden="true" class="pi pi-lock text-xs"></i>
         Um espaço de cuidado, do seu jeito.

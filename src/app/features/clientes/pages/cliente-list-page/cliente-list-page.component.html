@@ -101,8 +101,8 @@
           type="tel"
           formControlName="telefone"
           autocomplete="tel"
-          mask="+00 (00) 00000-0000"
-          placeholder="+55 (11) 99999-9999"
+          mask="(00) 00000-0000"
+          placeholder="(61) 99999-9999"
           class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
           [invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
           [attr.aria-invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
@@ -124,7 +124,7 @@
         />
         <p-button
           type="submit"
-          label="Cadastrar cliente"
+          label="Salvar"
           icon="pi pi-check"
           [loading]="state.busy()"
           styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"

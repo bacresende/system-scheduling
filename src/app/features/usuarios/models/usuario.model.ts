@@ -20,6 +20,7 @@ export interface Usuario {
   cpf?: string;
   nasc?: string;
   endereco?: Endereco;
+  ocupacaoProfissional?: string;
   cadastroCompleto: boolean;
   perfil: PerfilUsuario;
 }

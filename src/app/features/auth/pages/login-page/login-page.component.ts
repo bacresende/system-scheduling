@@ -29,6 +29,7 @@ import { ApiClient } from '../../../../core/api/api-client';
 export class LoginPageComponent {
   protected readonly state = inject(RequestState);
   protected readonly showPassword = signal(false);
+  protected readonly resettingPassword = signal(false);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -46,6 +47,10 @@ export class LoginPageComponent {
   }
 
   public submit(): void {
+    if (this.resettingPassword()) {
+      this.requestPasswordReset();
+      return;
+    }
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
@@ -60,5 +65,29 @@ export class LoginPageComponent {
 
       this.router.navigateByUrl(direcionamento);
     });
+  }
+
+  protected showPasswordReset(): void {
+    this.form.controls.senha.reset();
+    this.resettingPassword.set(true);
+    this.state.error.set('');
+    this.state.success.set('');
+  }
+
+  protected returnToLogin(): void {
+    this.resettingPassword.set(false);
+    this.state.error.set('');
+    this.state.success.set('');
+  }
+
+  private requestPasswordReset(): void {
+    const email = this.form.controls.email;
+    email.markAsTouched();
+    if (email.invalid) return;
+
+    void this.state.run(
+      () => this.auth.requestPasswordReset(email.value),
+      'Se houver uma conta associada a esse e-mail, enviaremos instruções para redefinir sua senha.',
+    );
   }
 }

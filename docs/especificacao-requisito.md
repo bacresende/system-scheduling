@@ -10,7 +10,7 @@ Sistema de Produto Mínimo Viável (MVP) para gerenciar e otimizar a rotina de a
 * **RF04 - Bloqueio Automático:** O sistema bloqueia a agenda automaticamente usando a `duração em minutos` do serviço escolhido. Apenas 1 serviço por agendamento.
 * **RF05 - Controle Financeiro:** Agendamentos devem ter status (Pendente, Cancelado, Concluído). Ao concluir, registrar método de pagamento.
 * **RF06 - Lembretes via WhatsApp:** Geração de link pré-formatado para disparar mensagem via API do WhatsApp web/mobile.
-* **RF07 - Portal do Cliente (Pré-cadastro Mínimo):** Link público onde a cliente insere estritamente Nome, E-mail (login), Telefone (WhatsApp) e Senha para criar a conta de forma rápida e acessar a ficha de anamnese.
+* **RF07 - Acesso do Usuário:** O administrador pode cadastrar uma pessoa como `Usuario` com perfil `CLIENTE`. A pessoa pode solicitar redefinição de senha pelo e-mail cadastrado para definir sua senha de acesso.
 * **RF08 - Cadastro Progressivo:** Quando a cliente logar no sistema, se o perfil estiver incompleto (`cadastroCompleto: false`), o sistema deve solicitar a conclusão do cadastro (Endereço, CPF, Nasc) antes de liberar outras funcionalidades.
 * **RF09 - Ficha de Anamnese Única:** O sistema deve disponibilizar uma ficha única por agendamento, reunindo informações de pele, saúde e rotina, sem selecionar a ficha por serviço.
 * **RF10 - Linha do Tempo e Histórico Visual:** Ao concluir um agendamento, o sistema deve permitir o upload de uma fotografia de resultado (salvando a URL atrelada ao agendamento). A interface da cliente deve exibir essas fotos em formato de "Linha do Tempo", permitindo visualizar a evolução dos procedimentos passados.

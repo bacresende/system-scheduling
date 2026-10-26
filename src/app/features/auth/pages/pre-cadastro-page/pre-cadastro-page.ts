@@ -36,7 +36,7 @@ export class PreCadastroPage {
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{9,14}$/)]],
-    senha: ['', Validators.required],
+    senha: ['', Validators.required, Validators.minLength(8)],
   });
 
   protected togglePassword(): void {
