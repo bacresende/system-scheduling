@@ -8,4 +8,6 @@ export interface Servico {
   diasParaRetorno?: number;
 }
 
-export type SalvarServico = Omit<Servico, 'id'>;
+export type SalvarServico = Omit<Servico, 'id' | 'diasParaRetorno'> & {
+  diasParaRetorno?: number | null;
+};

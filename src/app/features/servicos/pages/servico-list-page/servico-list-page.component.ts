@@ -110,7 +110,7 @@ export class ServicoListPageComponent implements OnInit {
         throw new Error('Informe o preço e a duração do serviço.');
       }
       const saved = await this.api.save(
-        { ...value, preco, duracaoMinutos, diasParaRetorno: value.diasParaRetorno ?? undefined },
+        { ...value, preco, duracaoMinutos, diasParaRetorno: value.diasParaRetorno },
         this.editing(),
       );
       this.servicos.update((items) => [...items.filter((item) => item.id !== saved.id), saved]);
