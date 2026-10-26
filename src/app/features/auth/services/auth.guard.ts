@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
-import { AuthService, Usuario } from './auth.service';
+import { AuthService } from './auth.service';
 import { errorMessage } from '../../../core/api/api-client';
 
 export function homeFor(urlDestino: string | null, perfil: string | undefined): string {

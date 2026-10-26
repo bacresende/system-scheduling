@@ -33,20 +33,24 @@ describe('AuthService', () => {
     request.flush({
       result: {
         sessionToken: 'parse-session-token',
-        session: { id: 'user-1', nome: 'Cliente Teste', papel: 'CLIENTE' },
+        id: 'user-1',
+        nome: 'Cliente Teste',
+        telefone: '5511999999999',
+        email: 'cliente@example.test',
+        cadastroCompleto: false,
+        perfil: 'CLIENTE',
       },
     });
 
-    await expect(registration).resolves.toEqual({
-      id: 'user-1',
-      nome: 'Cliente Teste',
-      papel: 'CLIENTE',
-    });
+    await expect(registration).resolves.toBeUndefined();
     expect(api.sessionToken).toBe('parse-session-token');
     expect(auth.session()).toEqual({
       id: 'user-1',
       nome: 'Cliente Teste',
-      papel: 'CLIENTE',
+      telefone: '5511999999999',
+      email: 'cliente@example.test',
+      cadastroCompleto: false,
+      perfil: 'CLIENTE',
     });
   });
 });

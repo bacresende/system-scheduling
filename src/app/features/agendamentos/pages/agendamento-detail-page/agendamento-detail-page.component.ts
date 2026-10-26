@@ -8,7 +8,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { FileUploadModule } from 'primeng/fileupload';
 import { Agendamento, MetodoPagamento } from '../../models/agendamento.model';
 import { AgendamentosService } from '../../services/agendamentos.service';
-import { ClientesService } from '../../../clientes/services/clientes.service';
+import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 import { ServicosService } from '../../../servicos/services/servicos.service';
 import { whatsappLink } from '../../services/agenda-rules';
 import { FieldError } from '../../../../shared/ui/field-error';
@@ -26,7 +26,7 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
 export class AgendamentoDetailPageComponent implements OnInit {
   protected readonly state = inject(RequestState);
   private readonly api = inject(AgendamentosService);
-  private readonly clientsApi = inject(ClientesService);
+  private readonly usuariosApi = inject(UsuariosService);
   private readonly servicesApi = inject(ServicosService);
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id');
   protected readonly booking = signal<Agendamento | null>(null);
@@ -46,7 +46,7 @@ export class AgendamentoDetailPageComponent implements OnInit {
       if (!this.id) throw new Error('Agendamento não informado.');
       const [booking, clients, services] = await Promise.all([
         this.api.get(this.id),
-        this.clientsApi.list(),
+        this.usuariosApi.listByProfile('CLIENTE'),
         this.servicesApi.list()
       ]);
       this.booking.set(booking);

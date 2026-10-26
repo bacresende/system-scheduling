@@ -23,7 +23,8 @@ src/app/
   layout/main-layout/        # navegação exclusiva da administração
   features/
     auth/                    # sessão, guards, login e pré-cadastro público
-    clientes/                # modelos, cadastro administrativo e perfil progressivo
+    usuarios/                # modelo único Usuario e operações administrativas
+    clientes/                # telas de clientes e conclusão progressiva do perfil
     servicos/                # cadastro, edição e inativação
     agendamentos/            # agenda diária/semanal, horários, pagamento e upload
     anamnese/                # contratos e formulários facial e corporal
@@ -69,8 +70,8 @@ import { API_BASE_URL } from './core/api/api-client';
 { provide: API_BASE_URL, useValue: '/api' }
 ```
 
-Publique `cloud/main.js` como Cloud Code no Back4App. O pré-cadastro cria `_User`,
-retorna o token Parse, inicia a sessão no frontend e encaminha para
+Publique `cloud/main.js` como Cloud Code no Back4App. O pré-cadastro cria um
+`Usuario` com perfil `CLIENTE`, retorna o token Parse, inicia a sessão no frontend e encaminha para
 `/completar-cadastro`. O token fica em `sessionStorage` e é enviado nas próximas
 requisições como `X-Parse-Session-Token`. O logout invalida a sessão pelo endpoint
 REST do Parse. A REST API Key usada no cliente é visível no navegador; não coloque
@@ -83,23 +84,25 @@ As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
 
 | Método e caminho | Corpo / resposta |
 |---|---|
-| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `{ sessionToken, session }`; cria `_User` e autentica |
-| `POST /functions/login` | `{ email, senha }` -> `{ sessionToken, session }` |
-| `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Sessao` atual |
+| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `Usuario` com `sessionToken`; cria `_User` e autentica |
+| `POST /functions/login` | `{ email, senha }` -> `Usuario` com `sessionToken` |
+| `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Usuario` atual |
 | `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
 
 O pré-cadastro associa a conta ao papel `CLIENTE`; crie esse papel em `_Role`
 antes de publicar/usar a função. As funções de sessão consultam o papel `ADMIN`
-em `_Role`; usuários sem esse papel são tratados como `CLIENTE`. O perfil `Cliente`
-é opcional até sua criação e, quando existe, a função carrega o Pointer `endereco`.
+em `_Role`; usuários sem esse papel são tratados como `CLIENTE`. O perfil de acesso
+`CLIENTE` e os campos `endereco`, CPF e nascimento pertencem ao próprio `Usuario`,
+sem depender de uma classe Parse separada.
 
 ### Contrato HTTP proposto (integração pendente)
 
 As rotas a seguir ainda não foram implementadas como Cloud Functions ou endpoints.
 O servidor deve validar as entradas, autorização e propriedade dos registros.
 Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
-| `POST /clientes` | `{ nome, email, telefone }` -> `Cliente`; backend define mecanismo de convite |
-| `PUT /clientes/me/perfil` | `{ cpf, nasc, endereco }` -> `Cliente` com conclusão calculada no servidor |
+| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
+| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin, fluxo de criação/convite deve ser definido no backend |
+| `PUT /usuarios/me/perfil` | `{ cpf, nasc, endereco }` -> `Usuario` com conclusão calculada no servidor |
 | `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
 | `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |
 | `POST /functions/updateServico` | `{ id, ...SalvarServico }` -> `Servico`; somente admin |
@@ -113,14 +116,14 @@ Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `POST /agendamentos/:id/foto` | Multipart `foto` -> `{ url: "https://..." }`; upload autorizado para Storage |
 | `GET /anamnese?agendamento=ID` | `Anamnese` única ou `null` se ainda não preenchida |
 | `PUT /anamnese/:idAgendamento` | Respostas da ficha única -> `Anamnese` |
-| `GET /clientes/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
+| `GET /usuarios/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
 | `GET /dashboard` | `{ agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades }` |
-| `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, cliente, servico }` |
+| `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, usuario, servico }` |
 
-`Sessao` contém `{ id, nome, papel: 'ADMIN' | 'CLIENTE', cliente? }`; o objeto
-`cliente` é obrigatório para sessões de cliente. Não devolver senha em nenhuma
-resposta. A política de senha, confirmação de e-mail e provisão de administradores
-ainda deve ser definida pelo backend.
+`Usuario` contém os dados da conta e `perfil: 'ADMIN' | 'CLIENTE'`; não há uma
+classe separada `Cliente`. Não devolver senha em nenhuma resposta. A política de
+senha, confirmação de e-mail e provisão de administradores ainda deve ser definida
+pelo backend.
 
 `Agendamento` inclui `valor` e `duracaoMinutos` como snapshots do momento da
 reserva, além dos campos da especificação. Alterar um serviço não pode alterar

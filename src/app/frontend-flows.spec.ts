@@ -51,7 +51,7 @@ describe('Frontend forms and clinical flows', () => {
     request.mockReset();
     request.mockImplementation((_method, path) => {
       if (path === '/agendamentos/a') return Promise.resolve(booking);
-      if (path === '/clientes') return Promise.resolve([]);
+      if (path === '/listUsuarios') return Promise.resolve([]);
       if (path === '/servicos') return Promise.resolve([service]);
       if (path === '/servicos/s') return Promise.resolve(service);
       if (path.startsWith('/anamnese?')) return Promise.resolve(null);
@@ -132,7 +132,7 @@ describe('Frontend forms and clinical flows', () => {
   it('keeps completed appointments read-only', async () => {
     request.mockImplementation((_method, path) => {
       if (path === '/agendamentos/a') return Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
-      if (path === '/clientes') return Promise.resolve([]);
+      if (path === '/listUsuarios') return Promise.resolve([]);
       if (path === '/servicos') return Promise.resolve([service]);
       return Promise.reject(new Error(`Unexpected request: ${path}`));
     });

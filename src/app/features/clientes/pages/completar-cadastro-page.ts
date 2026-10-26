@@ -6,7 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../auth/services/auth.service';
 import { FieldError } from '../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../shared/ui/request-feedback';
-import { Endereco } from '../models/cliente.model';
+import { Endereco } from '../../usuarios/models/usuario.model';
 import { cpfValidator } from '../models/cliente-validators';
 import { localDay } from '../../../shared/utils/date';
 

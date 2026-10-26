@@ -43,13 +43,14 @@ export interface Endereco {
   pais: string;
 }
 
-export interface Cliente {
+export interface Usuario {
   id?: string;
+  perfil: 'ADMIN' | 'CLIENTE';
   // --- Campos do Pré-cadastro (Obrigatórios) ---
   nome: string;
   email: string;                 // Chave de login (Unique)
   telefone: string;              // Para lembretes via WhatsApp
-  senha?: string;                // Opcional no retorno da API, mas obrigatório na criação
+  senha?: string;                // Opcional no retorno da API, mas obrigatório na criação da conta
   
   // --- Campos do Cadastro Progressivo (Opcionais no início) ---
   nasc?: Date | string;          

@@ -48,7 +48,7 @@ export class PortalPage implements OnInit {
   }
   protected load(): void {
     void this.state.run(async () => {
-      this.items.set(await this.api.request('GET', '/clientes/me/linha-do-tempo'));
+      this.items.set(await this.api.request('GET', '/usuarios/me/linha-do-tempo'));
     });
   }
   protected logout(): void {

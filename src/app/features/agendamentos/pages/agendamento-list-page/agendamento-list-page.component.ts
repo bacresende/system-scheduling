@@ -9,8 +9,8 @@ import { Agendamento, ConfiguracaoAgenda } from '../../models/agendamento.model'
 import { AgendamentosService } from '../../services/agendamentos.service';
 import { endTime, validateSlot } from '../../services/agenda-rules';
 import { localDay } from '../../../../shared/utils/date';
-import { ClientesService } from '../../../clientes/services/clientes.service';
-import { Cliente } from '../../../clientes/models/cliente.model';
+import { UsuariosService } from '../../../usuarios/services/usuarios.service';
+import { Usuario } from '../../../usuarios/models/usuario.model';
 import { ServicosService } from '../../../servicos/services/servicos.service';
 import { Servico } from '../../../servicos/models/servico.model';
 import { FieldError } from '../../../../shared/ui/field-error';
@@ -27,11 +27,11 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
 export class AgendamentoListPageComponent implements OnInit {
   protected readonly state = inject(RequestState);
   private readonly api = inject(AgendamentosService);
-  private readonly clientsApi = inject(ClientesService);
+  private readonly usuariosApi = inject(UsuariosService);
   private readonly servicesApi = inject(ServicosService);
   private readonly fb = inject(FormBuilder);
   protected readonly config = signal<ConfiguracaoAgenda | null>(null);
-  protected readonly clientes = signal<Cliente[]>([]);
+  protected readonly clientes = signal<Usuario[]>([]);
   protected readonly servicos = signal<Servico[]>([]);
   protected readonly bookings = signal<Agendamento[]>([]);
   protected readonly selectedDay = signal(new Date());
@@ -63,7 +63,7 @@ export class AgendamentoListPageComponent implements OnInit {
     void this.state.run(async () => {
       const [config, clientes, servicos] = await Promise.all([
         this.api.config(),
-        this.clientsApi.list(),
+        this.usuariosApi.listByProfile('CLIENTE'),
         this.servicesApi.list()
       ]);
       if (config.fusoHorario !== Intl.DateTimeFormat().resolvedOptions().timeZone) {

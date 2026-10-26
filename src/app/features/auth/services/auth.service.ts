@@ -1,37 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiClient } from '../../../core/api/api-client';
-import { CadastroCliente, Cliente, CompletarPerfil } from '../../clientes/models/cliente.model';
-
-export interface Usuario {
-  sessionToken?: string;
-  id: string;
-  nome: string;
-  telefone: string;
-  email: string;
-  cpf?: string;
-  nasc?: string;
-  endereco?: Endereco;
-  cadastroCompleto: boolean;
-  perfil: 'ADMIN' | 'CLIENTE';
-}
-
-export interface Endereco {
-  cep: string;
-  logradouro: string;
-  numeroResidencia: string;
-  bairro: string;
-  complemento: string;
-  cidade: string;
-  estado: string;
-  pais: string;
-}
+import { CompletarPerfil, PreCadastro, Usuario } from '../../usuarios/models/usuario.model';
 
 export interface Credenciais {
   email: string;
   senha: string;
 }
-export type PreCadastro = CadastroCliente & { senha: string };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -68,10 +43,9 @@ export class AuthService {
     this.acceptAuthenticationResponse(response);
   }
 
-  //TODO: Ajustar método
   async complete(payload: CompletarPerfil): Promise<void> {
-    const cliente = await this.api.request<Cliente>('PUT', '/clientes/me/perfil', payload);
-    this.current.update((session) => (session ? { ...session, cliente } : null));
+    const usuario = await this.api.request<Usuario>('PUT', '/usuarios/me/perfil', payload);
+    this.current.set(usuario);
   }
 
   async logout(): Promise<void> {

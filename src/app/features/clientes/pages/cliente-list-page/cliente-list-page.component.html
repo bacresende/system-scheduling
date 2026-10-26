@@ -1,14 +1,232 @@
-<h1 class="mb-4 text-3xl font-bold">Clientes</h1>
 <app-request-feedback />
-<form [formGroup]="form" (ngSubmit)="save()" class="mb-8 grid gap-4 rounded-2xl bg-white p-4 md:grid-cols-3" novalidate>
-  <label>Nome <input pInputText formControlName="nome" autocomplete="name" class="mt-1 w-full" /><app-field-error [control]="form.controls.nome" /></label>
-  <label>E-mail <input pInputText type="email" formControlName="email" autocomplete="email" class="mt-1 w-full" /><app-field-error [control]="form.controls.email" /></label>
-  <label>WhatsApp com DDI <input pInputText type="tel" formControlName="telefone" autocomplete="tel" class="mt-1 w-full" /><app-field-error [control]="form.controls.telefone" /></label>
-  <p-button type="submit" label="Cadastrar cliente" [loading]="state.busy()" styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary" />
-</form>
-<p-button label="Atualizar lista" severity="secondary" (onClick)="load()" [disabled]="state.busy()" styleClass="mb-4" />
-<p-table [value]="clientes()" [scrollable]="true" styleClass="w-full">
-  <ng-template #header><tr><th>Nome</th><th>E-mail</th><th>WhatsApp</th><th>Cadastro</th></tr></ng-template>
-  <ng-template #body let-item><tr><td>{{ item.nome }}</td><td>{{ item.email }}</td><td>{{ item.telefone }}</td><td>{{ item.cadastroCompleto ? 'Completo' : 'Pendente' }}</td></tr></ng-template>
-  <ng-template #emptymessage><tr><td colspan="4">Nenhum cliente carregado.</td></tr></ng-template>
-</p-table>
+<section aria-labelledby="clientes-title" class="mx-auto max-w-7xl">
+  <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-text/70 uppercase">
+        Relacionamento da clínica
+      </p>
+      <h1 id="clientes-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+        Clientes
+      </h1>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-estetica-text/80">
+        Consulte os contatos e acompanhe o status de cadastro de cada cliente.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <p-button
+        label="Atualizar"
+        icon="pi pi-refresh"
+        [outlined]="true"
+        (onClick)="load()"
+        [disabled]="state.busy()"
+        styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+      />
+      <p-button
+        label="Incluir cliente"
+        icon="pi pi-plus"
+        (onClick)="newClient()"
+        [disabled]="state.busy()"
+        styleClass="bg-estetica-primary border-estetica-primary text-estetica-text"
+      />
+    </div>
+  </header>
+
+  <dialog
+    #clientDialog
+    aria-labelledby="cliente-form-title"
+    (cancel)="handleDialogCancel($event)"
+    (click)="handleDialogClick($event)"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+  >
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+          Novo no relacionamento
+        </p>
+        <h2 id="cliente-form-title" class="font-serif text-2xl sm:text-3xl">Cadastrar cliente</h2>
+        <p class="mt-2 text-sm leading-relaxed text-estetica-text/75">
+          Informe os dados básicos para adicionar a cliente à sua lista.
+        </p>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        [text]="true"
+        ariaLabel="Fechar formulário"
+        (onClick)="reset()"
+        [disabled]="state.busy()"
+        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+      />
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="grid gap-5" novalidate>
+      <div>
+        <label for="nome-cliente" class="mb-2 block text-sm font-semibold">Nome completo</label>
+        <input
+          pInputText
+          id="nome-cliente"
+          formControlName="nome"
+          autocomplete="name"
+          autofocus
+          placeholder="Ex.: Ana Silva"
+          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          [invalid]="form.controls.nome.invalid && form.controls.nome.touched"
+          [attr.aria-invalid]="form.controls.nome.invalid && form.controls.nome.touched"
+          aria-describedby="nome-cliente-error"
+        />
+        <app-field-error id="nome-cliente-error" [control]="form.controls.nome" />
+      </div>
+
+      <div>
+        <label for="email-cliente" class="mb-2 block text-sm font-semibold">E-mail</label>
+        <input
+          pInputText
+          id="email-cliente"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          placeholder="ana@exemplo.com"
+          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          [invalid]="form.controls.email.invalid && form.controls.email.touched"
+          [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+          aria-describedby="email-cliente-error"
+        />
+        <app-field-error id="email-cliente-error" [control]="form.controls.email" />
+      </div>
+
+      <div>
+        <label for="telefone-cliente" class="mb-2 block text-sm font-semibold">WhatsApp</label>
+        <input
+          pInputText
+          id="telefone-cliente"
+          type="tel"
+          formControlName="telefone"
+          autocomplete="tel"
+          mask="+00 (00) 00000-0000"
+          placeholder="+55 (11) 99999-9999"
+          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          [invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
+          [attr.aria-invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
+          aria-describedby="telefone-cliente-hint telefone-cliente-error"
+        />
+        <p id="telefone-cliente-hint" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
+          Inclua o código do país e o DDD.
+        </p>
+        <app-field-error id="telefone-cliente-error" [control]="form.controls.telefone" />
+      </div>
+
+      <div class="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+        <p-button
+          label="Cancelar"
+          [outlined]="true"
+          (onClick)="reset()"
+          [disabled]="state.busy()"
+          styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+        />
+        <p-button
+          type="submit"
+          label="Cadastrar cliente"
+          icon="pi pi-check"
+          [loading]="state.busy()"
+          styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"
+        />
+      </div>
+    </form>
+  </dialog>
+
+  <section aria-labelledby="lista-clientes-title">
+    <div class="mb-4">
+      <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
+      <p class="mt-1 text-sm text-estetica-text/70">
+        {{ clientes().length }}
+        {{ clientes().length === 1 ? 'cliente cadastrada' : 'clientes cadastradas' }}
+      </p>
+    </div>
+
+    @if (clientes().length) {
+      <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        @for (item of clientes(); track item.id) {
+          <article
+            class="group relative overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+          >
+            <div
+              aria-hidden="true"
+              class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
+            ></div>
+            <div class="flex items-start justify-between gap-4">
+              <div class="min-w-0">
+                <span
+                  class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                  [class]="
+                    item.cadastroCompleto
+                      ? 'bg-estetica-tertiary/25 text-estetica-text'
+                      : 'bg-estetica-secondary text-estetica-primary-dark'
+                  "
+                >
+                  <span
+                    aria-hidden="true"
+                    class="size-2 rounded-full"
+                    [class]="
+                      item.cadastroCompleto ? 'bg-estetica-tertiary' : 'bg-estetica-primary-dark'
+                    "
+                  ></span>
+                  {{ item.cadastroCompleto ? 'Cadastro completo' : 'Cadastro pendente' }}
+                </span>
+                <h3 class="break-words text-xl font-semibold tracking-tight">{{ item.nome }}</h3>
+              </div>
+              <span
+                aria-hidden="true"
+                class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+              >
+                <i class="pi pi-user text-lg"></i>
+              </span>
+            </div>
+
+            <dl
+              class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+            >
+              <div class="min-w-0">
+                <dt class="text-xs text-estetica-text/70">E-mail</dt>
+                <dd class="mt-1 flex min-w-0 items-center gap-2 text-sm font-medium">
+                  <i
+                    class="pi pi-envelope shrink-0 text-estetica-primary-dark"
+                    aria-hidden="true"
+                  ></i>
+                  <span class="break-all">{{ item.email }}</span>
+                </dd>
+              </div>
+              <div class="border-t border-estetica-primary/20 pt-3">
+                <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
+                <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
+                  <i class="pi pi-phone text-estetica-primary-dark" aria-hidden="true"></i>
+                  {{ item.telefone }}
+                </dd>
+              </div>
+            </dl>
+          </article>
+        }
+      </div>
+    } @else {
+      <div
+        class="rounded-2xl border border-dashed border-estetica-primary/50 bg-white px-6 py-12 text-center shadow-[0_8px_24px_-18px_rgba(74,74,74,0.3)]"
+      >
+        <span
+          aria-hidden="true"
+          class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+        >
+          <i class="pi pi-users text-xl"></i>
+        </span>
+        <h3 class="text-lg font-semibold">Sua lista começa aqui</h3>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+          Cadastre clientes para manter os contatos organizados e acompanhar o status do perfil.
+        </p>
+        <p-button
+          label="Incluir primeira cliente"
+          icon="pi pi-plus"
+          (onClick)="newClient()"
+          [disabled]="state.busy()"
+          styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
+        />
+      </div>
+    }
+  </section>
+</section>

@@ -2,7 +2,7 @@ import { CandidatoRetorno, opportunities } from './oportunidades.service';
 
 describe('Return opportunities', () => {
   const candidate: CandidatoRetorno = {
-    cliente: { id: 'c', nome: 'Cliente', email: 'cliente@example.test', telefone: '5511999999999', cadastroCompleto: true },
+    usuario: { id: 'c', nome: 'Cliente', email: 'cliente@example.test', telefone: '5511999999999', cadastroCompleto: true, perfil: 'CLIENTE' },
     servico: { id: 's', nome: 'Facial', ativo: true, preco: 100, duracaoMinutos: 60, diasParaRetorno: 30 },
     agendamento: { id: 'a', idCliente: 'c', idServico: 's', idFuncionario: 'f', dataHora: '2026-09-20T10:00:00', duracaoMinutos: 60, valor: 100, status: 'Concluido' }
   };
