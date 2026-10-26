@@ -1,0 +1,32 @@
+@if (cadastroIncompleto()) {
+  <aside
+    aria-labelledby="profile-notice-title"
+    class="flex flex-col gap-5 rounded-2xl border border-green-200 bg-green-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6"
+    role="status"
+  >
+    <div class="flex gap-4">
+      <span
+        class="grid size-11 shrink-0 place-items-center rounded-xl bg-green-100 text-amber-900"
+        aria-hidden="true"
+      >
+        <i class="pi pi-user-edit text-lg"></i>
+      </span>
+      <div>
+        <h2 id="profile-notice-title" class="font-semibold text-amber-950">
+          Seu cadastro pode ser completado depois
+        </h2>
+        <p class="mt-1 max-w-2xl text-sm leading-6 text-amber-950">
+          Você já pode consultar seu portal. Quando quiser, complete seus dados para manter seu
+          perfil atualizado.
+        </p>
+      </div>
+    </div>
+    <a
+      routerLink="/completar-cadastro"
+      class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-950"
+    >
+      Completar cadastro
+      <i class="pi pi-arrow-right" aria-hidden="true"></i>
+    </a>
+  </aside>
+}

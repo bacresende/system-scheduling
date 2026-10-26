@@ -33,6 +33,7 @@ export class CompletarCadastroPage {
   protected readonly cepLookupBusy = signal(false);
   protected readonly cepLookupMessage = signal('');
   protected readonly cepLookupFailed = signal(false);
+  protected readonly activeHint = signal<string | null>(null);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
@@ -41,6 +42,10 @@ export class CompletarCadastroPage {
   private lastSuccessfulCepLookup = '';
   protected readonly today = localDay(new Date());
   protected readonly maxBirthDate = new Date();
+  protected toggleHint(hint: string): void {
+    this.activeHint.update((activeHint) => (activeHint === hint ? null : hint));
+  }
+
   protected readonly form = this.fb.group({
     cpf: ['', [Validators.required, cpfValidator]],
     ocupacaoProfissional: ['', Validators.maxLength(120)],
@@ -173,10 +178,8 @@ export class CompletarCadastroPage {
       if (!navigated) throw new Error('Não foi possível acessar a página inicial da sua conta.');
     });
   }
-  protected logout(): void {
-    void this.state.run(async () => {
-      await this.auth.logout();
-      await this.router.navigateByUrl('/login');
-    });
+  protected returnToHome(): void {
+    const home = homeFor(null, this.auth.session()?.perfil);
+    void this.router.navigateByUrl(home);
   }
 }

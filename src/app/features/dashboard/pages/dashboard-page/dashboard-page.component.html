@@ -1,12 +1,37 @@
 <h1 class="mb-4 text-3xl font-bold">Dashboard</h1>
 <app-request-feedback />
-<p-button label="Atualizar" severity="secondary" (onClick)="load()" [disabled]="state.busy()" styleClass="mb-4" />
+<app-banner-completar-cadastro />
+
+<p-button
+  label="Atualizar"
+  severity="secondary"
+  (onClick)="load()"
+  [disabled]="state.busy()"
+  styleClass="mb-4"
+/>
 @if (summary(); as item) {
   <section aria-label="Resumo gerencial" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-    <article class="rounded-xl bg-white p-6"><h2>Agendamentos hoje</h2><p class="text-3xl font-bold">{{ item.agendamentosHoje }}</p></article>
-    <article class="rounded-xl bg-white p-6"><h2>Clientes cadastrados</h2><p class="text-3xl font-bold">{{ item.clientes }}</p></article>
-    <article class="rounded-xl bg-white p-6"><h2>Receita concluída hoje</h2><p class="text-3xl font-bold">{{ item.receitaConcluidaHoje | currency:'BRL' }}</p></article>
-    <article class="rounded-xl bg-white p-6"><h2>Oportunidades</h2><p class="text-3xl font-bold">{{ item.oportunidades }}</p><a routerLink="/oportunidades" class="underline">Ver retornos</a></article>
+    <article class="rounded-xl bg-white p-6">
+      <h2>Agendamentos hoje</h2>
+      <p class="text-3xl font-bold">{{ item.agendamentosHoje }}</p>
+    </article>
+    <article class="rounded-xl bg-white p-6">
+      <h2>Clientes cadastrados</h2>
+      <p class="text-3xl font-bold">{{ item.clientes }}</p>
+    </article>
+    <article class="rounded-xl bg-white p-6">
+      <h2>Receita concluída hoje</h2>
+      <p class="text-3xl font-bold">{{ item.receitaConcluidaHoje | currency: 'BRL' }}</p>
+    </article>
+    <article class="rounded-xl bg-white p-6">
+      <h2>Oportunidades</h2>
+      <p class="text-3xl font-bold">{{ item.oportunidades }}</p>
+      <a routerLink="/oportunidades" class="underline">Ver retornos</a>
+    </article>
   </section>
 }
-<a routerLink="/agendamentos" class="mt-6 inline-block rounded-xl bg-estetica-secondary p-4 underline">Abrir agenda</a>
+<a
+  routerLink="/agendamentos"
+  class="mt-6 inline-block rounded-xl bg-estetica-secondary p-4 underline"
+  >Abrir agenda</a
+>

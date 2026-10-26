@@ -14,6 +14,7 @@ import { Agendamento } from '../../agendamentos/models/agendamento.model';
 import { AuthService } from '../../auth/services/auth.service';
 import { ApiClient } from '../../../core/api/api-client';
 import { RequestFeedback, RequestState } from '../../../shared/ui/request-feedback';
+import { BannerCompletarCadastro } from '../../../shared/components/banner-completar-cadastro/banner-completar-cadastro';
 
 export interface AtendimentoPortal extends Agendamento {
   nomeServico: string;
@@ -21,7 +22,14 @@ export interface AtendimentoPortal extends Agendamento {
 
 @Component({
   selector: 'app-portal-page',
-  imports: [DatePipe, CurrencyPipe, RouterLink, ButtonModule, RequestFeedback],
+  imports: [
+    DatePipe,
+    CurrencyPipe,
+    RouterLink,
+    ButtonModule,
+    RequestFeedback,
+    BannerCompletarCadastro,
+  ],
   providers: [RequestState],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './portal-page.html',

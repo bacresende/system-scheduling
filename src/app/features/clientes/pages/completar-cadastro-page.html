@@ -30,9 +30,33 @@
           </div>
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
-              <label for="cpf-perfil" class="mb-2 block text-sm font-semibold"
-                >CPF <span class="font-normal text-estetica-text/70">(11 dígitos)</span></label
-              >
+              <div class="mb-2 flex items-center gap-2">
+                <label for="cpf-perfil" class="text-sm font-semibold">
+                  CPF <span class="font-normal text-estetica-text/70">(11 dígitos)</span>
+                </label>
+                <span class="profile-help relative inline-flex">
+                  <button
+                    type="button"
+                    class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                    aria-label="Ajuda sobre o CPF"
+                    aria-controls="cpf-perfil-hint"
+                    aria-describedby="cpf-perfil-hint"
+                    [attr.aria-expanded]="activeHint() === 'cpf'"
+                    (click)="toggleHint('cpf')"
+                  >
+                    <i class="pi pi-question-circle" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    id="cpf-perfil-hint"
+                    role="tooltip"
+                    class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
+                    [class.visible]="activeHint() === 'cpf'"
+                    [class.opacity-100]="activeHint() === 'cpf'"
+                  >
+                    Digite os 11 números do CPF; a pontuação é aplicada automaticamente.
+                  </span>
+                </span>
+              </div>
               <input
                 pInputText
                 id="cpf-perfil"
@@ -44,21 +68,44 @@
                 class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
                 [invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
                 [attr.aria-invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
-                aria-describedby="cpf-perfil-hint cpf-perfil-error"
+                aria-describedby="cpf-perfil-error"
               />
-              <p id="cpf-perfil-hint" class="mt-2 text-xs leading-relaxed text-estetica-text/70">
-                Digite os 11 números do CPF; a pontuação é aplicada automaticamente.
-              </p>
               <app-field-error id="cpf-perfil-error" [control]="form.controls.cpf" />
             </div>
 
             <div>
-              <label
-                id="nascimento-perfil-label"
-                for="nascimento-perfil"
-                class="mb-2 block text-sm font-semibold"
-                >Data de nascimento</label
-              >
+              <div class="mb-2 flex items-center gap-2">
+                <label
+                  id="nascimento-perfil-label"
+                  for="nascimento-perfil"
+                  class="text-sm font-semibold"
+                >
+                  Data de nascimento
+                </label>
+                <span class="profile-help relative inline-flex">
+                  <button
+                    type="button"
+                    class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                    aria-label="Ajuda sobre a data de nascimento"
+                    aria-controls="nascimento-perfil-hint"
+                    aria-describedby="nascimento-perfil-hint"
+                    [attr.aria-expanded]="activeHint() === 'nascimento'"
+                    (click)="toggleHint('nascimento')"
+                  >
+                    <i class="pi pi-question-circle" aria-hidden="true"></i>
+                  </button>
+                  <span
+                    id="nascimento-perfil-hint"
+                    role="tooltip"
+                    class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
+                    [class.visible]="activeHint() === 'nascimento'"
+                    [class.opacity-100]="activeHint() === 'nascimento'"
+                  >
+                    Você pode digitar a data ou selecionar dia, mês e ano no calendário. Clique no
+                    mês ou no ano do cabeçalho para escolher diretamente.
+                  </span>
+                </span>
+              </div>
               <p-datepicker
                 inputId="nascimento-perfil"
                 ariaLabelledBy="nascimento-perfil-label"
@@ -74,10 +121,6 @@
                 styleClass="w-full"
                 inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
               />
-              <p class="mt-2 text-xs leading-relaxed text-estetica-text/70">
-                Você pode digitar a data ou selecionar dia, mês e ano no calendário. Clique no mês
-                ou no ano do cabeçalho para escolher diretamente.
-              </p>
               <app-field-error id="nascimento-perfil-error" [control]="form.controls.nasc" />
             </div>
 
@@ -125,9 +168,35 @@
           <legend class="mb-4 px-1 text-lg font-semibold">Endereço</legend>
           @for (field of fields; track field.key) {
             <div>
-              <label [for]="'endereco-' + field.key" class="mb-2 block text-sm font-semibold">
-                {{ field.label }}
-              </label>
+              <div class="mb-2 flex items-center gap-2">
+                <label [for]="'endereco-' + field.key" class="text-sm font-semibold">
+                  {{ field.label }}
+                </label>
+                @if (field.key === 'cep') {
+                  <span class="profile-help relative inline-flex">
+                    <button
+                      type="button"
+                      class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                      aria-label="Ajuda sobre o CEP"
+                      aria-controls="endereco-cep-hint"
+                      aria-describedby="endereco-cep-hint"
+                      [attr.aria-expanded]="activeHint() === 'cep'"
+                      (click)="toggleHint('cep')"
+                    >
+                      <i class="pi pi-question-circle" aria-hidden="true"></i>
+                    </button>
+                    <span
+                      id="endereco-cep-hint"
+                      role="tooltip"
+                      class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
+                      [class.visible]="activeHint() === 'cep'"
+                      [class.opacity-100]="activeHint() === 'cep'"
+                    >
+                      A busca automática é opcional; você pode preencher o endereço manualmente.
+                    </span>
+                  </span>
+                }
+              </div>
               @if (field.key === 'cep') {
                 <input
                   pInputText
@@ -148,14 +217,8 @@
                     form.controls.endereco.controls.cep.invalid &&
                     form.controls.endereco.controls.cep.touched
                   "
-                  aria-describedby="endereco-cep-hint endereco-cep-error cep-lookup-status"
+                  aria-describedby="endereco-cep-error cep-lookup-status"
                 />
-                <p
-                  id="endereco-cep-hint"
-                  class="mt-2 text-xs leading-relaxed text-estetica-text/70"
-                >
-                  A busca automática é opcional; você pode preencher o endereço manualmente.
-                </p>
                 @if (cepLookupBusy()) {
                   <p id="cep-lookup-status" class="mt-2 text-sm" role="status">
                     Buscando endereço…
@@ -203,10 +266,10 @@
           class="flex flex-col-reverse gap-3 border-t border-estetica-secondary pt-6 sm:flex-row sm:justify-end"
         >
           <p-button
-            label="Sair"
-            icon="pi pi-sign-out"
+            label="Voltar"
+            icon="pi pi-arrow-left"
             [outlined]="true"
-            (onClick)="logout()"
+            (onClick)="returnToHome()"
             [disabled]="state.busy()"
             styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
           />

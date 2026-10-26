@@ -37,3 +37,11 @@ body {
   background-color: var(--cor-primaria);
   color: #222;
 }
+
+@media (hover: hover) {
+  .profile-help:hover .profile-help-tooltip,
+  .profile-help:focus-within .profile-help-tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+}
