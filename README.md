@@ -7,10 +7,14 @@ As regras de [desenvolvimento](docs/regras-desenvolvimento.md) complementam a
 [especificação funcional](docs/especificacao-requisito.md).
 As diretrizes de interface estão em
 [especificação visual](docs/especificacao-visual.md).
+Para retomar o trabalho com outra IA, consulte o
+[handoff de contexto](docs/CONTEXTO-PROXIMA-IA.md), que registra o estado
+observado do código, as lacunas de integração e as prioridades de continuidade.
 
 **A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
-Functions de login, usuários e serviços do Back4App. As demais operações de
-agendamentos ainda precisam de funções/endpoints.
+Functions de pré-cadastro, login, sessão, consulta de CEP e conclusão do perfil.
+As operações administrativas de usuários e serviços, agendamentos, anamneses,
+dashboard e oportunidades ainda precisam de funções/endpoints.
 Não há autenticação simulada nem contas de demonstração.
 
 ### Organização
@@ -44,13 +48,16 @@ não imagens estáticas do projeto.
 
 - Públicas, sem layout administrativo: `/login` (inclui redefinição de senha) e
   `/pre-cadastro` (cadastro próprio do usuário).
-- Cliente autenticada: `/completar-cadastro` e `/portal`.
-- Compartilhada e autenticada: `/anamnese?agendamento=ID`, ficha única vinculada
-  ao agendamento.
+- `/completar-cadastro` não tem guard ativado atualmente. `/portal` tem
+  `clientGuard`, que verifica a sessão já carregada.
+- `/anamnese?agendamento=ID` é a rota da ficha única vinculada ao agendamento,
+  mas não tem guard ativado atualmente.
 - Administração: `/dashboard`, `/clientes`, `/servicos`, `/agendamentos`,
   `/agendamentos/:id`, `/oportunidades`.
-- `/` encaminha ao dashboard; os guards encaminham clientes ao portal ou à
-  conclusão obrigatória do perfil. Usuários sem sessão vão ao login.
+- As proteções `sessionGuard` na raiz e `adminGuard` na área administrativa estão
+  comentadas em `src/app/app.routes.ts`; por isso, as rotas administrativas não
+  estão protegidas por esses guards no estado atual. O `sessionGuard` contém a
+  lógica de restauração/redirecionamento, mas precisa ser ligado às rotas.
 
 São usados imports estáticos e `component`, conforme a preferência do projeto.
 O bundle inicial medido é de aproximadamente 1,22 MB (235 kB de transferência
@@ -59,24 +66,16 @@ estimada). Com autorização, o orçamento passou a aviso em 1,25 MB e erro em
 
 ### Conectar uma API real
 
-O [ApiClient](src/app/core/api/api-client.ts) já usa
-`https://parseapi.back4app.com/functions` por padrão e adiciona os cabeçalhos do
-Parse. `API_BASE_URL` ainda pode ser sobrescrito nos providers de
-[app.config.ts](src/app/app.config.ts), por exemplo:
-
-```ts
-import { API_BASE_URL } from './core/api/api-client';
-
-// Dentro de providers:
-{ provide: API_BASE_URL, useValue: '/api' }
-```
-
-Publique `cloud/main.js` como Cloud Code no Back4App. O administrador pode criar
-um `Usuario` em `_User` com senha aleatória, que nunca é retornada, e a pessoa
-pode também criar sua própria conta pela rota `/pre-cadastro`. Ambos usam o
-e-mail normalizado como `username`, cuja unicidade no Parse impede contas
-duplicadas. Se a clínica já criou a conta, a pessoa deve usar “Esqueci minha
-senha” para definir seu acesso. Após o login, o sistema encaminha para
+O [ApiClient](src/app/core/api/api-client.ts) usa
+`https://parseapi.back4app.com/functions` e adiciona os cabeçalhos do Parse.
+Essa URL está definida diretamente no serviço; não há atualmente um provider
+`API_BASE_URL` funcional. Publique `cloud/main.js` como Cloud Code no Back4App.
+A pessoa pode criar sua própria conta pela rota `/pre-cadastro`; o fluxo de
+criação administrativa de usuários ainda depende de endpoint a implementar.
+O cadastro usa o e-mail normalizado como `username`, cuja unicidade no Parse
+impede contas duplicadas. Se a clínica criar uma conta por outro meio, a pessoa
+deve usar “Esqueci minha senha” para definir seu acesso. Após o login, o fluxo de
+perfil leva a pessoa para
 `/completar-cadastro`. O token fica em `sessionStorage` e é enviado nas próximas
 requisições como `X-Parse-Session-Token`. O logout invalida a sessão pelo endpoint
 REST do Parse. A REST API Key usada no cliente é visível no navegador; não coloque
@@ -99,20 +98,21 @@ As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
 | `POST /functions/login` | `{ email, senha }` -> `Usuario` com `sessionToken` |
 | `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Usuario` atual |
 | `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
-| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
-| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin |
 | `POST /functions/completarCadastro` | Requer sessão; `{ cpf, nasc, endereco, ocupacaoProfissional? }` -> atualiza o perfil do usuário autenticado, cliente ou admin, e calcula a conclusão no servidor; endereço pode ser preenchido manualmente mesmo se a consulta do CEP falhar |
 | `POST /functions/consultarCep` | Requer sessão; `{ cep }` -> consulta ViaCEP e retorna CEP, logradouro, complemento, bairro, cidade e UF |
 
-As funções de usuários consultam o perfil `ADMIN` armazenado em `_User`. Os novos
-usuários recebem perfil `CLIENTE`; nome, e-mail, telefone, CPF e nascimento
-permanecem em `_User`. O endereço é salvo na classe `Endereco` e associado ao
-usuário pelo ponteiro `_User.endereco`.
+O Cloud Code atual determina o perfil pela associação do usuário aos papéis
+`ADMIN`/`CLIENTE`; o fluxo de pré-cadastro associa novos usuários ao papel
+`CLIENTE`. Nome, e-mail, telefone, CPF e nascimento permanecem em `_User`. O
+endereço é salvo na classe `Endereco` e associado ao usuário pelo ponteiro
+`_User.endereco`.
 
 ### Contratos de integração pendentes
 
 As integrações abaixo ainda aguardam implementação. Datas de eventos devem ser
 ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
+| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
+| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin |
 | `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
 | `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |
 | `POST /functions/updateServico` | `{ id, ...SalvarServico }` -> `Servico`; somente admin |
