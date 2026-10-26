@@ -101,17 +101,18 @@ As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
 | `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
 | `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
 | `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin |
+| `POST /functions/completarCadastro` | Requer sessão; `{ cpf, nasc, endereco, ocupacaoProfissional? }` -> atualiza o perfil do usuário autenticado, cliente ou admin, e calcula a conclusão no servidor; endereço pode ser preenchido manualmente mesmo se a consulta do CEP falhar |
+| `POST /functions/consultarCep` | Requer sessão; `{ cep }` -> consulta ViaCEP e retorna CEP, logradouro, complemento, bairro, cidade e UF |
 
 As funções de usuários consultam o perfil `ADMIN` armazenado em `_User`. Os novos
-usuários recebem perfil `CLIENTE`; nome, e-mail, telefone, endereço, CPF e
-nascimento permanecem em `_User`, sem uma classe Parse separada.
+usuários recebem perfil `CLIENTE`; nome, e-mail, telefone, CPF e nascimento
+permanecem em `_User`. O endereço é salvo na classe `Endereco` e associado ao
+usuário pelo ponteiro `_User.endereco`.
 
-### Contrato HTTP proposto (integração pendente)
+### Contratos de integração pendentes
 
-As rotas a seguir ainda não foram implementadas como Cloud Functions ou endpoints.
-O servidor deve validar as entradas, autorização e propriedade dos registros.
-Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
-| `PUT /usuarios/me/perfil` | `{ cpf, nasc, endereco }` -> `Usuario` com conclusão calculada no servidor |
+As integrações abaixo ainda aguardam implementação. Datas de eventos devem ser
+ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
 | `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |
 | `POST /functions/updateServico` | `{ id, ...SalvarServico }` -> `Servico`; somente admin |

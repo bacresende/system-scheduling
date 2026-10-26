@@ -1,7 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiClient } from '../../../core/api/api-client';
-import { CompletarPerfil, PreCadastro, Usuario } from '../../usuarios/models/usuario.model';
+import {
+  CompletarPerfil,
+  EnderecoCep,
+  PreCadastro,
+  Usuario,
+} from '../../usuarios/models/usuario.model';
 
 export interface Credenciais {
   email: string;
@@ -19,7 +24,7 @@ export class AuthService {
     if (!this.api.sessionToken) return null;
     try {
       const session = await this.api.request<Usuario>('POST', '/sessao');
-      this.acceptAuthenticationResponse(session);
+      this.current.set(session);
       return session;
     } catch (error: unknown) {
       if (error instanceof HttpErrorResponse && error.status === 401) {
@@ -60,8 +65,12 @@ export class AuthService {
   }
 
   async complete(payload: CompletarPerfil): Promise<void> {
-    const usuario = await this.api.request<Usuario>('PUT', '/usuarios/me/perfil', payload);
+    const usuario = await this.api.request<Usuario>('POST', '/completarCadastro', payload);
     this.current.set(usuario);
+  }
+
+  async lookupCep(cep: string): Promise<EnderecoCep> {
+    return this.api.request<EnderecoCep>('POST', '/consultarCep', { cep });
   }
 
   async logout(): Promise<void> {

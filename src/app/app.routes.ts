@@ -18,11 +18,15 @@ export const routes: Routes = [
   { path: 'login', component: LoginPageComponent },
   { path: 'pre-cadastro', component: PreCadastroPage },
   {
+    path: 'completar-cadastro',
+    component: CompletarCadastroPage,
+    //canActivate: [sessionGuard],
+  },
+  {
     path: '',
     //canActivate: [sessionGuard],
     //canActivateChild: [sessionGuard],
     children: [
-      { path: 'completar-cadastro', component: CompletarCadastroPage, canActivate: [clientGuard] },
       {
         path: 'portal',
         component: PortalPage,

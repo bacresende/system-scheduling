@@ -31,3 +31,9 @@ body {
   color: var(--cor-texto);
   font-family: var(--p-font-family, sans-serif);
 }
+
+.p-datepicker-day-selected,
+.p-datepicker-day-selected:hover {
+  background-color: var(--cor-primaria);
+  color: #222;
+}

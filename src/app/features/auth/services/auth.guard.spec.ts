@@ -69,6 +69,20 @@ describe('Access and progressive profile guards', () => {
     const { Router } = await import('@angular/router');
     expect(TestBed.inject(Router).url).toBe('/dashboard');
   });
+  it('allows administrators to complete their profile', async () => {
+    const admin: Usuario = {
+      id: 'admin',
+      nome: 'Admin',
+      email: 'admin@example.test',
+      telefone: '',
+      cadastroCompleto: false,
+      perfil: 'ADMIN',
+    };
+    const harness = await setup(admin);
+    await harness.navigateByUrl('/completar-cadastro');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/completar-cadastro');
+  });
   it('reports backend failures rather than authenticating by default', async () => {
     const harness = await setup(null, new Error('Backend indisponível')); await harness.navigateByUrl('/dashboard');
     const { Router } = await import('@angular/router');

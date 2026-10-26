@@ -1,90 +1,60 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { AuthService } from '../../auth/services/auth.service';
 import { FieldError } from '../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../shared/ui/request-feedback';
 import { Endereco } from '../../usuarios/models/usuario.model';
 import { cpfValidator } from '../models/cliente-validators';
 import { localDay } from '../../../shared/utils/date';
+import { homeFor } from '../../auth/services/auth.guard';
 
 @Component({
   selector: 'app-completar-cadastro-page',
-  imports: [ReactiveFormsModule, ButtonModule, InputTextModule, FieldError, RequestFeedback],
-  providers: [RequestState],
+  imports: [
+    ReactiveFormsModule,
+    ButtonModule,
+    InputTextModule,
+    DatePickerModule,
+    NgxMaskDirective,
+    FieldError,
+    RequestFeedback,
+  ],
+  providers: [RequestState, provideNgxMask()],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <main class="mx-auto max-w-2xl p-4 md:p-8">
-      <h1 class="text-3xl font-bold">Complete seu cadastro</h1>
-      <p class="my-4">Precisamos destes dados antes de liberar o portal.</p>
-      <app-request-feedback />
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        class="grid grid-cols-1 gap-4 md:grid-cols-2"
-        novalidate
-      >
-        <label
-          >CPF (11 dígitos)
-          <input pInputText formControlName="cpf" inputmode="numeric" class="mt-1 w-full" />
-          <app-field-error [control]="form.controls.cpf" />
-        </label>
-        <label
-          >Data de nascimento
-          <input pInputText type="date" formControlName="nasc" [max]="today" class="mt-1 w-full" />
-          <app-field-error [control]="form.controls.nasc" />
-        </label>
-        <fieldset formGroupName="endereco" class="grid gap-4 md:col-span-2 md:grid-cols-2">
-          <legend class="mb-2 font-semibold">Endereço</legend>
-          @for (field of fields; track field.key) {
-            <label
-              >{{ field.label }}
-              <input pInputText [formControlName]="field.key" class="mt-1 w-full" />
-              <app-field-error [control]="form.controls.endereco.controls[field.key]" />
-            </label>
-          }
-        </fieldset>
-        <p-button
-          type="submit"
-          label="Salvar e acessar portal"
-          [loading]="state.busy()"
-          styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary"
-        />
-      </form>
-      <p-button
-        label="Sair"
-        severity="secondary"
-        (onClick)="logout()"
-        styleClass="mt-4"
-        [disabled]="state.busy()"
-      />
-    </main>
-  `,
+  templateUrl: './completar-cadastro-page.html',
 })
 export class CompletarCadastroPage {
   protected readonly state = inject(RequestState);
+  protected readonly cepLookupBusy = signal(false);
+  protected readonly cepLookupMessage = signal('');
+  protected readonly cepLookupFailed = signal(false);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder).nonNullable;
+  private cepLookupRequest = 0;
+  private activeCepLookup = '';
+  private lastSuccessfulCepLookup = '';
   protected readonly today = localDay(new Date());
+  protected readonly maxBirthDate = new Date();
   protected readonly form = this.fb.group({
     cpf: ['', [Validators.required, cpfValidator]],
-    nasc: [
-      '',
-      [
-        Validators.required,
-        (control: AbstractControl) => {
-          const value = String(control.value);
-          return value && (value > this.today || !Number.isFinite(Date.parse(value)))
-            ? { data: true }
-            : null;
-        },
-      ],
-    ],
+    ocupacaoProfissional: ['', Validators.maxLength(120)],
+    nasc: this.fb.control<Date | null>(null, [
+      Validators.required,
+      (control: AbstractControl) => {
+        const value: unknown = control.value;
+        if (value === null || value === '') return null;
+        if (!(value instanceof Date) || !Number.isFinite(value.getTime())) return { data: true };
+        return localDay(value) > this.today ? { data: true } : null;
+      },
+    ]),
     endereco: this.fb.group({
-      cep: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+      cep: ['', Validators.required],
       logradouro: ['', Validators.required],
       numeroResidencia: ['', Validators.required],
       bairro: ['', Validators.required],
@@ -94,25 +64,113 @@ export class CompletarCadastroPage {
       pais: ['Brasil', Validators.required],
     }),
   });
-  protected readonly fields: { key: keyof Endereco; label: string }[] = [
-    { key: 'cep', label: 'CEP (8 dígitos)' },
-    { key: 'logradouro', label: 'Logradouro' },
-    { key: 'numeroResidencia', label: 'Número' },
-    { key: 'bairro', label: 'Bairro' },
-    { key: 'complemento', label: 'Complemento (opcional)' },
-    { key: 'cidade', label: 'Cidade' },
-    { key: 'estado', label: 'UF' },
-    { key: 'pais', label: 'País' },
+  protected readonly fields: { key: keyof Endereco; label: string; autocomplete: string }[] = [
+    { key: 'cep', label: 'CEP (8 dígitos)', autocomplete: 'postal-code' },
+    { key: 'logradouro', label: 'Logradouro', autocomplete: 'address-line1' },
+    { key: 'numeroResidencia', label: 'Número', autocomplete: 'address-line2' },
+    { key: 'bairro', label: 'Bairro', autocomplete: 'address-level3' },
+    { key: 'complemento', label: 'Complemento (opcional)', autocomplete: 'address-line3' },
+    { key: 'cidade', label: 'Cidade', autocomplete: 'address-level2' },
+    { key: 'estado', label: 'UF', autocomplete: 'address-level1' },
+    { key: 'pais', label: 'País', autocomplete: 'country-name' },
   ];
+
+  protected lookupCepOnInput(event: Event): void {
+    const input = event.target;
+    if (input instanceof HTMLInputElement) {
+      const cep = input.value.replace(/\D/g, '');
+      if (cep.length === 8 || this.cepLookupBusy()) this.lookupCep(input.value);
+    }
+  }
+
+  protected lookupCep(enteredCep?: string): void {
+    const cepControl = this.form.controls.endereco.controls.cep;
+    const cep = (enteredCep ?? cepControl.value).replace(/\D/g, '');
+    if (
+      /^\d{8}$/.test(cep) &&
+      ((this.cepLookupBusy() && this.activeCepLookup === cep) ||
+        this.lastSuccessfulCepLookup === cep)
+    ) {
+      return;
+    }
+
+    const requestId = ++this.cepLookupRequest;
+    this.cepLookupMessage.set('');
+    this.cepLookupFailed.set(false);
+    if (!/^\d{8}$/.test(cep)) {
+      this.activeCepLookup = '';
+      this.lastSuccessfulCepLookup = '';
+      this.cepLookupBusy.set(false);
+      if (cep) {
+        this.cepLookupFailed.set(true);
+        this.cepLookupMessage.set(
+          'CEP fora do formato esperado. Preencha o endereço manualmente para continuar.',
+        );
+      }
+      return;
+    }
+
+    this.activeCepLookup = cep;
+    this.lastSuccessfulCepLookup = '';
+    this.cepLookupBusy.set(true);
+    void this.auth
+      .lookupCep(cep)
+      .then((address) => {
+        if (
+          requestId !== this.cepLookupRequest ||
+          cep !== this.form.controls.endereco.controls.cep.value.replace(/\D/g, '')
+        ) {
+          return;
+        }
+        this.lastSuccessfulCepLookup = cep;
+        this.form.controls.endereco.patchValue({
+          cep: address.cep.replace(/\D/g, ''),
+          logradouro: address.logradouro,
+          complemento: address.complemento ?? '',
+          bairro: address.bairro,
+          cidade: address.cidade,
+          estado: address.estado,
+          pais: 'Brasil',
+        });
+        this.cepLookupMessage.set('Endereço encontrado. Confira os dados e informe o número.');
+      })
+      .catch(() => {
+        if (requestId !== this.cepLookupRequest) return;
+        this.cepLookupFailed.set(true);
+        this.cepLookupMessage.set(
+          'Não foi possível localizar o CEP. Confira o número ou preencha o endereço manualmente.',
+        );
+      })
+      .finally(() => {
+        if (requestId === this.cepLookupRequest) {
+          this.activeCepLookup = '';
+          this.cepLookupBusy.set(false);
+        }
+      });
+  }
+
   protected submit(): void {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
+    if (this.cepLookupBusy()) {
+      this.cepLookupRequest++;
+      this.activeCepLookup = '';
+      this.cepLookupBusy.set(false);
+    }
     void this.state.run(async () => {
-      await this.auth.complete(this.form.getRawValue());
+      const payload = this.form.getRawValue();
+      if (!payload.nasc) throw new Error('Informe uma data de nascimento válida.');
+      await this.auth.complete({
+        ...payload,
+        cpf: payload.cpf.replace(/\D/g, ''),
+        nasc: localDay(payload.nasc),
+      });
       if (!this.auth.session()?.cadastroCompleto) {
         throw new Error('O backend ainda não confirmou a conclusão do cadastro.');
       }
-      await this.router.navigateByUrl('/portal');
+      const perfil = this.auth.session()?.perfil;
+      const navigated = await this.router.navigateByUrl(homeFor(null, perfil));
+      if (!navigated) throw new Error('Não foi possível acessar a página inicial da sua conta.');
     });
   }
   protected logout(): void {

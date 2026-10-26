@@ -1,7 +1,9 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 export function cpfValidator(control: AbstractControl): ValidationErrors | null {
-  const cpf = String(control.value ?? '');
+  const value = String(control.value ?? '');
+  if (!/^[\d.-]*$/.test(value)) return { cpf: true };
+  const cpf = value.replace(/\D/g, '');
   if (!cpf) return null;
   if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return { cpf: true };
   for (const size of [9, 10]) {
