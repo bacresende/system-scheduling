@@ -54,7 +54,7 @@ export class AgendamentoDetailPageComponent implements OnInit {
       const service = services.find(item => item.id === booking.idServico);
       this.clientName.set(client?.nome ?? booking.idCliente);
       this.serviceName.set(service?.nome ?? booking.idServico);
-      if (service) this.anamnese.set(`/anamnese/${service.tipoAnamneseExigida.toLowerCase()}`);
+      if (service) this.anamnese.set('/anamnese');
       if (client) this.reminder.set(whatsappLink(client.telefone,
         `Olá, ${client.nome}! Lembramos seu agendamento de ${service?.nome ?? 'procedimento'} em ${new Date(booking.dataHora).toLocaleString('pt-BR')}.`));
     });

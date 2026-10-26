@@ -11,14 +11,18 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
   providers: [RequestState],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard-page.component.html',
-  styleUrl: './dashboard-page.component.css'
+  styleUrl: './dashboard-page.component.css',
 })
 export class DashboardPageComponent implements OnInit {
   protected readonly state = inject(RequestState);
   private readonly api = inject(DashboardService);
   protected readonly summary = signal<ResumoDashboard | null>(null);
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+  }
   protected load(): void {
-    void this.state.run(async () => { this.summary.set(await this.api.get()); });
+    void this.state.run(async () => {
+      this.summary.set(await this.api.get());
+    });
   }
 }

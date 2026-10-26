@@ -133,7 +133,7 @@
             </div>
           </div>
           <a
-            [routerLink]="['/anamnese', item.tipoAnamneseExigida.toLowerCase()]"
+            routerLink="/anamnese"
             [queryParams]="{ agendamento: item.id }"
             class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-950 transition hover:bg-rose-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-900 sm:w-auto"
           >

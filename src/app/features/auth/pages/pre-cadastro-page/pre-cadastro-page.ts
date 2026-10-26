@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { AuthService } from '../../services/auth.service';
@@ -16,11 +17,12 @@ import { homeFor } from '../../services/auth.guard';
     RouterLink,
     ButtonModule,
     InputTextModule,
+    NgxMaskDirective,
     FieldError,
     RequestFeedback,
     ElegantButton,
   ],
-  providers: [RequestState],
+  providers: [RequestState, provideNgxMask()],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pre-cadastro-page.html',
 })

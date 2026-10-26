@@ -5,6 +5,8 @@
 Frontend Angular 21, zoneless, com componentes standalone, PrimeNG 21 e Tailwind 4.
 As regras de [desenvolvimento](docs/regras-desenvolvimento.md) complementam a
 [especificação funcional](docs/especificacao-requisito.md).
+As diretrizes de interface estão em
+[especificação visual](docs/especificacao-visual.md).
 
 **A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
 Functions de cadastro, login e restauração de sessão do Back4App. As demais
@@ -41,8 +43,8 @@ não imagens estáticas do projeto.
 
 - Públicas, sem layout administrativo: `/login` e `/pre-cadastro`.
 - Cliente autenticada: `/completar-cadastro` e `/portal`.
-- Compartilhadas e autenticadas: `/anamnese/facial?agendamento=ID` e
-  `/anamnese/corporal?agendamento=ID`.
+- Compartilhada e autenticada: `/anamnese?agendamento=ID`, ficha única vinculada
+  ao agendamento.
 - Administração: `/dashboard`, `/clientes`, `/servicos`, `/agendamentos`,
   `/agendamentos/:id`, `/oportunidades`.
 - `/` encaminha ao dashboard; os guards encaminham clientes ao portal ou à
@@ -98,11 +100,10 @@ O servidor deve validar as entradas, autorização e propriedade dos registros.
 Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `POST /clientes` | `{ nome, email, telefone }` -> `Cliente`; backend define mecanismo de convite |
 | `PUT /clientes/me/perfil` | `{ cpf, nasc, endereco }` -> `Cliente` com conclusão calculada no servidor |
-| `GET /servicos` | `Servico[]`, incluindo inativos para consulta histórica |
-| `GET /servicos/:id` | `Servico`; permitido ao dono de agendamento vinculado |
-| `POST /servicos` | `SalvarServico` -> `Servico` |
-| `PUT /servicos/:id` | `SalvarServico` -> `Servico` |
-| `PATCH /servicos/:id/ativo` | `{ ativo: false }` -> `Servico` |
+| `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
+| `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |
+| `POST /functions/updateServico` | `{ id, ...SalvarServico }` -> `Servico`; somente admin |
+| `POST /functions/deactivateServico` | `{ id }` -> `Servico` inativado; somente admin |
 | `GET /clinica/agenda` | `ConfiguracaoAgenda` com fuso IANA, janelas de expediente e profissionais |
 | `GET /agendamentos?inicio=ISO&fim=ISO` | `Agendamento[]`; intervalo `[inicio, fim)`, incluindo eventos que interceptem a janela |
 | `GET /agendamentos/:id` | `Agendamento`; admin ou cliente proprietária |
@@ -110,11 +111,9 @@ Datas de eventos devem ser ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `POST /agendamentos/:id/cancelar` | `{}` -> `Agendamento` cancelado |
 | `POST /agendamentos/:id/concluir` | `{ metodoPagamento, anotacoesFinais, fotoResultadoUrl? }` -> `Agendamento` concluído |
 | `POST /agendamentos/:id/foto` | Multipart `foto` -> `{ url: "https://..." }`; upload autorizado para Storage |
-| `GET /anamnese/facial?agendamento=ID` | `AnamneseFacial` ou `null` se ainda não preenchida |
-| `PUT /anamnese/facial/:idAgendamento` | `RespostasFacial` -> `AnamneseFacial` |
-| `GET /anamnese/corporal?agendamento=ID` | `AnamneseCorporal` ou `null` |
-| `PUT /anamnese/corporal/:idAgendamento` | `RespostasCorporal` -> `AnamneseCorporal` |
-| `GET /clientes/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, com nome e tipo do serviço |
+| `GET /anamnese?agendamento=ID` | `Anamnese` única ou `null` se ainda não preenchida |
+| `PUT /anamnese/:idAgendamento` | Respostas da ficha única -> `Anamnese` |
+| `GET /clientes/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
 | `GET /dashboard` | `{ agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades }` |
 | `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, cliente, servico }` |
 

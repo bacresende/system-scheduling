@@ -128,14 +128,15 @@
             type="tel"
             formControlName="telefone"
             autocomplete="tel"
-            placeholder="5511999999999"
+            mask="(00) 00000-0000"
+            placeholder="(61) 99999-9999"
             class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
             [invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
             [attr.aria-invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
             aria-describedby="telefone-hint telefone-error"
           />
           <p id="telefone-hint" class="mt-2 text-xs leading-relaxed">
-            Inclua o código do país e o DDD, sem espaços. Ex.: 5511999999999.
+            Inclua o código do país e o DDD. Ex.: (61) 99999-9999.
           </p>
           <app-field-error id="telefone-error" [control]="form.controls.telefone" />
         </div>
@@ -162,7 +163,7 @@
               [text]="true"
               severity="secondary"
               (onClick)="togglePassword()"
-              styleClass="absolute right-1 top-1 min-h-10 min-w-10 text-estetica-text"
+              styleClass="absolute right-1 top-1 min-h-10 min-w-10 text-estetica-text hover:text-white"
             />
           </div>
           <app-field-error id="senha-error" [control]="form.controls.senha" />

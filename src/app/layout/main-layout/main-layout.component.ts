@@ -17,9 +17,11 @@ export class MainLayoutComponent {
   protected readonly state = inject(RequestState);
   private readonly router = inject(Router);
   protected readonly navItems = [
-    { label: 'Dashboard', path: '/dashboard' }, { label: 'Agendamentos', path: '/agendamentos' },
-    { label: 'Clientes', path: '/clientes' }, { label: 'Serviços', path: '/servicos' },
-    { label: 'Oportunidades', path: '/oportunidades' }
+    { label: 'Dashboard', mobileLabel: 'Painel', icon: 'pi pi-chart-pie', path: '/dashboard' },
+    { label: 'Agendamentos', mobileLabel: 'Agenda', icon: 'pi pi-calendar', path: '/agendamentos' },
+    { label: 'Clientes', mobileLabel: 'Clientes', icon: 'pi pi-users', path: '/clientes' },
+    { label: 'Serviços', mobileLabel: 'Serviços', icon: 'pi pi-briefcase', path: '/servicos' },
+    { label: 'Oportunidades', mobileLabel: 'Retornos', icon: 'pi pi-refresh', path: '/oportunidades' },
   ];
   protected logout(): void {
     void this.state.run(async () => {

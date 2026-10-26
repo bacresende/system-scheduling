@@ -1,16 +1,56 @@
 <div class="min-h-dvh bg-estetica-bg text-estetica-text md:flex">
-  <a href="#conteudo" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4">Pular para conteúdo</a>
-  <aside class="border-b border-estetica-secondary bg-white p-4 md:w-64 md:shrink-0 md:border-r">
-    <p class="mb-4 text-xl font-bold">Clínica de estética</p>
-    <nav aria-label="Navegação principal" class="flex flex-wrap gap-2 md:flex-col">
+  <a
+    href="#conteudo"
+    class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-4"
+    >Pular para conteúdo</a
+  >
+  <aside
+    class="flex items-center justify-between border-b border-estetica-secondary bg-white p-4 md:min-h-dvh md:w-64 md:shrink-0 md:flex-col md:items-stretch md:justify-start md:border-r md:border-b-0 md:p-5"
+  >
+    <p class="text-lg font-semibold tracking-tight md:mb-8 md:text-xl">Clínica de estética</p>
+    <nav aria-label="Navegação principal" class="hidden gap-2 md:flex md:flex-col">
       @for (item of navItems; track item.path) {
-        <a [routerLink]="item.path" routerLinkActive="bg-estetica-secondary" ariaCurrentWhenActive="page" class="rounded-xl p-3 hover:bg-estetica-secondary focus-visible:outline-2 focus-visible:outline-estetica-text">{{ item.label }}</a>
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-estetica-secondary"
+          ariaCurrentWhenActive="page"
+          class="flex items-center gap-3 rounded-xl p-3 hover:bg-estetica-secondary focus-visible:outline-2 focus-visible:outline-estetica-text"
+        >
+          <i [class]="item.icon" aria-hidden="true"></i>
+          <span>{{ item.label }}</span>
+        </a>
       }
     </nav>
-    <p-button label="Sair" severity="secondary" (onClick)="logout()" [disabled]="state.busy()" styleClass="mt-4 w-full md:w-auto" />
-    <app-request-feedback />
+    <p-button
+      label="Sair"
+      icon="pi pi-sign-out"
+      severity="danger"
+      [outlined]="true"
+      (onClick)="logout()"
+      [disabled]="state.busy()"
+      styleClass="md:fixed md:bottom-5 md:left-5 md:z-20 md:w-[13.5rem]"
+    />
   </aside>
-  <main id="conteudo" tabindex="-1" class="min-w-0 flex-1 p-4 md:p-8">
+  <main id="conteudo" tabindex="-1" class="min-w-0 flex-1 p-4 pb-24 md:p-8">
+    <app-request-feedback />
     <router-outlet />
   </main>
+  <nav
+    aria-label="Navegação principal"
+    class="fixed inset-x-0 bottom-0 z-40 border-t border-estetica-secondary bg-white/95 px-2 pt-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-18px_rgba(74,74,74,0.35)] backdrop-blur md:hidden"
+  >
+    <div class="grid grid-cols-5 gap-1">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-estetica-secondary text-estetica-text"
+          ariaCurrentWhenActive="page"
+          class="flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-estetica-text/70 transition-colors hover:bg-estetica-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-text"
+        >
+          <i [class]="item.icon" class="text-base" aria-hidden="true"></i>
+          <span class="text-[0.65rem] font-medium leading-tight">{{ item.mobileLabel }}</span>
+        </a>
+      }
+    </div>
+  </nav>
 </div>

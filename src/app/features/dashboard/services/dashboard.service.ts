@@ -10,5 +10,7 @@ export interface ResumoDashboard {
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
   private readonly api = inject(ApiClient);
-  get(): Promise<ResumoDashboard> { return this.api.request('GET', '/dashboard'); }
+  get(): Promise<ResumoDashboard> {
+    return this.api.request('GET', '/dashboard');
+  }
 }

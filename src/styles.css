@@ -7,6 +7,7 @@
 /* 1. O seu "Painel de Controlo" de cores através de variáveis nativas do CSS */
 :root {
   --cor-primaria: #E5989B;
+  --cor-primaria-escura: color-mix(in srgb, var(--cor-primaria) 55%, var(--cor-texto));
   --cor-secundaria: #F6EBEC;
   --cor-terciaria: #9EB3A6;
   --cor-fundo: #FCFAFA;
@@ -16,6 +17,7 @@
 /* 2. Ensinando o Tailwind v4 a ler o seu painel de controlo */
 @theme {
   --color-estetica-primary: var(--cor-primaria);
+  --color-estetica-primary-dark: var(--cor-primaria-escura);
   --color-estetica-secondary: var(--cor-secundaria);
   --color-estetica-tertiary: var(--cor-terciaria);
   --color-estetica-bg: var(--cor-fundo);

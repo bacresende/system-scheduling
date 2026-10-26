@@ -9,9 +9,7 @@ import { AgendamentoDetailPageComponent } from './features/agendamentos/pages/ag
 import { ClienteListPageComponent } from './features/clientes/pages/cliente-list-page/cliente-list-page.component';
 import { ServicoListPageComponent } from './features/servicos/pages/servico-list-page/servico-list-page.component';
 import { OportunidadePageComponent } from './features/oportunidades/pages/oportunidade-page/oportunidade-page.component';
-import { AnamneseFacialPageComponent } from './features/anamnese/pages/anamnese-facial-page/anamnese-facial-page.component';
-import { AnamneseCorporalPageComponent } from './features/anamnese/pages/anamnese-corporal-page/anamnese-corporal-page.component';
-import { AnamnesePendentePage } from './features/anamnese/pages/anamnese-pendente-page';
+import { AnamnesePageComponent } from './features/anamnese/pages/anamnese-page/anamnese-page.component';
 import { PortalPage } from './features/portal/pages/portal-page';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { NotFoundPage } from './not-found-page';
@@ -30,14 +28,15 @@ export const routes: Routes = [
         component: PortalPage,
         canActivate: [clientGuard],
       },
-      { path: 'anamnese/facial', component: AnamneseFacialPageComponent },
-      { path: 'anamnese/corporal', component: AnamneseCorporalPageComponent },
-      { path: 'anamnese/capilar', component: AnamnesePendentePage },
-      { path: 'anamnese/sobrancelha', component: AnamnesePendentePage },
+      { path: 'anamnese/facial', pathMatch: 'full', redirectTo: 'anamnese' },
+      { path: 'anamnese/corporal', pathMatch: 'full', redirectTo: 'anamnese' },
+      { path: 'anamnese/capilar', pathMatch: 'full', redirectTo: 'anamnese' },
+      { path: 'anamnese/sobrancelha', pathMatch: 'full', redirectTo: 'anamnese' },
+      { path: 'anamnese', component: AnamnesePageComponent },
       {
         path: '',
         component: MainLayoutComponent,
-        canActivateChild: [adminGuard],
+        //canActivateChild: [adminGuard],
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           { path: 'dashboard', component: DashboardPageComponent },

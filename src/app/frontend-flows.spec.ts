@@ -7,7 +7,7 @@ import { PreCadastroPage } from './features/auth/pages/pre-cadastro-page/pre-cad
 import { ClienteListPageComponent } from './features/clientes/pages/cliente-list-page/cliente-list-page.component';
 import { AgendamentoDetailPageComponent } from './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component';
 import { AgendamentosService } from './features/agendamentos/services/agendamentos.service';
-import { AnamneseFacialPageComponent } from './features/anamnese/pages/anamnese-facial-page/anamnese-facial-page.component';
+import { AnamnesePageComponent } from './features/anamnese/pages/anamnese-page/anamnese-page.component';
 import { AuthService } from './features/auth/services/auth.service';
 import { Agendamento } from './features/agendamentos/models/agendamento.model';
 
@@ -21,7 +21,7 @@ describe('Frontend forms and clinical flows', () => {
     dataHora: '2026-10-20T10:00:00-03:00', status: 'Pendente', valor: 100, duracaoMinutos: 60
   };
   const service = {
-    id: 's', nome: 'Facial', ativo: true, tipoAnamneseExigida: 'FACIAL', preco: 100, duracaoMinutos: 60
+    id: 's', nome: 'Facial', ativo: true, preco: 100, duracaoMinutos: 60
   };
   async function setup<T>(component: Type<T>) {
     TestBed.configureTestingModule({
@@ -34,7 +34,14 @@ describe('Frontend forms and clinical flows', () => {
         } }
       ]
     });
-    vi.spyOn(TestBed.inject(AuthService), 'session').mockReturnValue({ id: 'admin', nome: 'Admin', papel: 'ADMIN' });
+    vi.spyOn(TestBed.inject(AuthService), 'session').mockReturnValue({
+      id: 'admin',
+      nome: 'Admin',
+      telefone: '',
+      email: '',
+      cadastroCompleto: true,
+      perfil: 'ADMIN',
+    });
     const fixture = TestBed.createComponent(component);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -47,7 +54,7 @@ describe('Frontend forms and clinical flows', () => {
       if (path === '/clientes') return Promise.resolve([]);
       if (path === '/servicos') return Promise.resolve([service]);
       if (path === '/servicos/s') return Promise.resolve(service);
-      if (path.startsWith('/anamnese/facial?')) return Promise.resolve(null);
+      if (path.startsWith('/anamnese?')) return Promise.resolve(null);
       return Promise.reject(new Error(`Unexpected request: ${path}`));
     });
   });
@@ -144,9 +151,13 @@ describe('Frontend forms and clinical flows', () => {
     });
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
-  it('requires acids to be specified when the facial response is affirmative', async () => {
-    const fixture = await setup(AnamneseFacialPageComponent);
+  it('requires acids to be specified when the response is affirmative', async () => {
+    const fixture = await setup(AnamnesePageComponent);
     const root: HTMLElement = fixture.nativeElement;
+    expect(root.querySelector('#varizes')).not.toBeNull();
+    expect(root.querySelector('#cirurgia')).not.toBeNull();
+    expect(root.querySelector('#atividade')).not.toBeNull();
+    expect(root.querySelector('#alergia')).not.toBeNull();
     const checkbox = root.querySelector<HTMLInputElement>('#acidos');
     if (!checkbox) throw new Error('Checkbox not found');
     checkbox.click(); await fixture.whenStable();
@@ -155,13 +166,12 @@ describe('Frontend forms and clinical flows', () => {
     expect(root.textContent).toContain('Informe quais ácidos');
     expect(request).not.toHaveBeenCalled();
   });
-  it('does not allow overwriting a facial record after failing to load it', async () => {
+  it('does not allow overwriting the record after failing to load it', async () => {
     request.mockImplementation((_method, path) => {
       if (path === '/agendamentos/a') return Promise.resolve(booking);
-      if (path === '/servicos/s') return Promise.resolve(service);
       return Promise.reject(new Error('Ficha indisponível'));
     });
-    const fixture = await setup(AnamneseFacialPageComponent);
+    const fixture = await setup(AnamnesePageComponent);
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Ficha indisponível');
     expect(root.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);

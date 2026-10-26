@@ -6,14 +6,11 @@ export interface AnamneseBase {
   dataPreenchimento: Date | string;
 }
 
-export interface AnamneseFacial extends AnamneseBase {
+export interface Anamnese extends AnamneseBase {
   tipoPele: 'Seca' | 'Oleosa' | 'Mista' | 'Normal';
   usaAcidos: boolean;
   quaisAcidos?: string;
   sensibilidadeSol: boolean;
-}
-
-export interface AnamneseCorporal extends AnamneseBase {
   temVarizes: boolean;
   fezCirurgiaRecente: boolean;
   praticaAtividadeFisica: boolean;

@@ -1,5 +1,3 @@
-export type TipoAnamnese = 'FACIAL' | 'CORPORAL' | 'CAPILAR' | 'SOBRANCELHA';
-
 export interface Servico {
   id: string;
   nome: string;
@@ -7,7 +5,6 @@ export interface Servico {
   preco: number;
   duracaoMinutos: number;
   ativo: boolean;
-  tipoAnamneseExigida: TipoAnamnese;
   diasParaRetorno?: number;
 }
 

@@ -1,0 +1,76 @@
+<h1 class="mb-2 font-serif text-4xl tracking-tight">Ficha de anamnese</h1>
+<p class="mb-6 text-sm text-estetica-text/75">Responda às perguntas para que a clínica prepare seu atendimento.</p>
+<app-request-feedback />
+<form
+  [formGroup]="form"
+  (ngSubmit)="save()"
+  class="flex flex-col gap-6 rounded-2xl border border-estetica-secondary bg-white p-5 sm:p-7"
+  novalidate
+>
+  <fieldset class="flex flex-col gap-4">
+    <legend class="mb-1 text-lg font-semibold">Cuidados com a pele</legend>
+    <div>
+      <label for="pele" class="mb-2 block text-sm font-medium">Como você considera seu tipo de pele?</label>
+      <p-select
+        inputId="pele"
+        formControlName="tipoPele"
+        [options]="tipos"
+        styleClass="w-full md:w-72"
+      />
+      <app-field-error [control]="form.controls.tipoPele" />
+    </div>
+    <label for="acidos" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="acidos" formControlName="usaAcidos" [binary]="true" />
+      <span>Usa ácidos na pele?</span>
+    </label>
+    @if (form.controls.usaAcidos.value) {
+      <div>
+        <label for="quais-acidos" class="mb-2 block text-sm font-medium">Quais ácidos utiliza?</label>
+        <input
+          pInputText
+          id="quais-acidos"
+          formControlName="quaisAcidos"
+          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text"
+          [attr.aria-invalid]="form.hasError('acidos') && form.controls.quaisAcidos.touched"
+          aria-describedby="acidos-error"
+        />
+        @if (form.hasError('acidos') && (form.controls.quaisAcidos.dirty || form.controls.quaisAcidos.touched)) {
+          <p id="acidos-error" role="alert" class="mt-1 text-sm text-red-800">Informe quais ácidos utiliza.</p>
+        }
+      </div>
+    }
+    <label for="sol" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="sol" formControlName="sensibilidadeSol" [binary]="true" />
+      <span>Tem sensibilidade ao sol?</span>
+    </label>
+  </fieldset>
+
+  <fieldset class="flex flex-col gap-3 border-t border-estetica-secondary pt-5">
+    <legend class="mb-1 text-lg font-semibold">Saúde e rotina</legend>
+    <label for="varizes" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="varizes" formControlName="temVarizes" [binary]="true" />
+      <span>Tem varizes?</span>
+    </label>
+    <label for="cirurgia" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="cirurgia" formControlName="fezCirurgiaRecente" [binary]="true" />
+      <span>Fez cirurgia recentemente?</span>
+    </label>
+    <label for="atividade" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="atividade" formControlName="praticaAtividadeFisica" [binary]="true" />
+      <span>Pratica atividade física?</span>
+    </label>
+    <label for="alergia" class="flex min-h-11 items-center gap-3">
+      <p-checkbox inputId="alergia" formControlName="alergiaCosmeticos" [binary]="true" />
+      <span>Tem alergia a cosméticos?</span>
+    </label>
+  </fieldset>
+
+  <p-button
+    type="submit"
+    label="Salvar ficha"
+    icon="pi pi-check"
+    [loading]="state.busy()"
+    [disabled]="!context.editable()"
+    styleClass="w-full bg-estetica-primary text-estetica-text border-estetica-primary sm:w-auto"
+  />
+</form>

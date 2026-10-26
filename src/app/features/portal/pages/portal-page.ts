@@ -13,12 +13,10 @@ import { TimelineModule } from 'primeng/timeline';
 import { Agendamento } from '../../agendamentos/models/agendamento.model';
 import { AuthService } from '../../auth/services/auth.service';
 import { ApiClient } from '../../../core/api/api-client';
-import { TipoAnamnese } from '../../servicos/models/servico.model';
 import { RequestFeedback, RequestState } from '../../../shared/ui/request-feedback';
 
 export interface AtendimentoPortal extends Agendamento {
   nomeServico: string;
-  tipoAnamneseExigida: TipoAnamnese;
 }
 
 @Component({
