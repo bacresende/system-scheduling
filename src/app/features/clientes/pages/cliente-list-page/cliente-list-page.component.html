@@ -168,7 +168,15 @@
         >
           <div class="min-w-0">
             <dt class="text-xs text-estetica-text/70">E-mail</dt>
-            <dd class="mt-1 break-all text-sm font-medium">{{ cliente.email }}</dd>
+            <dd class="mt-1 break-all text-sm font-medium">
+              <a
+                [href]="'mailto:' + cliente.email"
+                [attr.aria-label]="'Enviar e-mail para ' + cliente.nome + ': ' + cliente.email"
+                class="text-estetica-primary-dark underline decoration-estetica-primary/70 underline-offset-2 hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+              >
+                {{ cliente.email }}
+              </a>
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
@@ -267,7 +275,7 @@
       <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
       <p class="mt-1 text-sm text-estetica-text/70">
         {{ clientes().length }}
-        {{ clientes().length === 1 ? 'cliente cadastrada' : 'clientes cadastradas' }}
+        {{ clientes().length === 1 ? 'cliente' : 'clientes' }}
       </p>
     </div>
 
