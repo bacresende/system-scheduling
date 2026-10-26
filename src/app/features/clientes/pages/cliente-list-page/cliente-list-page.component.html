@@ -172,7 +172,22 @@
           </div>
           <div>
             <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
-            <dd class="mt-1 text-sm font-medium">{{ cliente.telefone | telefone }}</dd>
+            <dd class="mt-1 text-sm font-medium">
+              @if (whatsappUrl(cliente.telefone); as url) {
+                <a
+                  [href]="url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  [attr.aria-label]="'Abrir conversa no WhatsApp com ' + cliente.nome"
+                  class="text-estetica-primary-dark underline decoration-estetica-primary/70 underline-offset-2 hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                >
+                  {{ cliente.telefone | telefone }}
+                  <span class="sr-only">(abre em nova aba)</span>
+                </a>
+              } @else {
+                {{ cliente.telefone | telefone }}
+              }
+            </dd>
           </div>
           <div>
             <dt class="text-xs text-estetica-text/70">CPF</dt>

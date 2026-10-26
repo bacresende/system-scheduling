@@ -82,6 +82,12 @@ export class ClienteListPageComponent implements OnInit {
   protected handleDetailsDialogClick(event: MouseEvent): void {
     if (event.target === event.currentTarget) this.closeDetails();
   }
+  protected whatsappUrl(phone?: string): string | null {
+    const digits = phone?.replace(/\D/g, '') ?? '';
+    if (/^\d{10,11}$/.test(digits)) return `https://wa.me/55${digits}`;
+    if (/^55\d{10,11}$/.test(digits)) return `https://wa.me/${digits}`;
+    return null;
+  }
   protected reset(): void {
     this.form.reset();
     const dialog = this.dialogRef()?.nativeElement;
