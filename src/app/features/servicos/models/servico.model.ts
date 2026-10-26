@@ -6,8 +6,10 @@ export interface Servico {
   duracaoMinutos: number;
   ativo: boolean;
   diasParaRetorno?: number;
+  sessoesDisponiveis?: number[];
 }
 
-export type SalvarServico = Omit<Servico, 'id' | 'diasParaRetorno'> & {
+export type SalvarServico = Omit<Servico, 'id' | 'diasParaRetorno' | 'sessoesDisponiveis'> & {
   diasParaRetorno?: number | null;
+  sessoesDisponiveis: number[];
 };

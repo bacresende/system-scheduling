@@ -16,4 +16,7 @@ export class ServicosService {
   deactivate(id: string): Promise<Servico> {
     return this.api.request('POST', '/deactivateServico', { id });
   }
+  delete(id: string): Promise<{ id: string }> {
+    return this.api.request('POST', '/deleteServico', { id });
+  }
 }
