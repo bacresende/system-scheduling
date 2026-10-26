@@ -15,6 +15,10 @@ import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 import { Usuario } from '../../../usuarios/models/usuario.model';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
+import { CepPipe } from '../../../../shared/pipes/cep.pipe';
+import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
+import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
+import { BirthdatePipe } from '../../../../shared/pipes/birthdate.pipe';
 
 @Component({
   selector: 'app-cliente-list-page',
@@ -25,6 +29,10 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
     InputTextModule,
     FieldError,
     RequestFeedback,
+    CepPipe,
+    TelefonePipe,
+    CpfPipe,
+    BirthdatePipe,
   ],
   providers: [RequestState, provideNgxMask()],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,10 +44,13 @@ export class ClienteListPageComponent implements OnInit {
   private readonly api = inject(UsuariosService);
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('clientDialog');
   protected readonly clientes = signal<Usuario[]>([]);
+  protected readonly selectedClient = signal<Usuario | null>(null);
+  private readonly detailsDialogRef =
+    viewChild<ElementRef<HTMLDialogElement>>('clientDetailsDialog');
   protected readonly form = inject(FormBuilder).nonNullable.group({
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
-    telefone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{9,14}$/)]],
+    telefone: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
   });
   ngOnInit(): void {
     this.load();
@@ -53,6 +64,23 @@ export class ClienteListPageComponent implements OnInit {
     this.form.reset();
     const dialog = this.dialogRef()?.nativeElement;
     if (dialog && !dialog.open) dialog.showModal();
+  }
+  protected showDetails(cliente: Usuario): void {
+    this.selectedClient.set(cliente);
+    const dialog = this.detailsDialogRef()?.nativeElement;
+    if (dialog && !dialog.open) dialog.showModal();
+  }
+  protected closeDetails(): void {
+    const dialog = this.detailsDialogRef()?.nativeElement;
+    if (dialog?.open) dialog.close();
+    this.selectedClient.set(null);
+  }
+  protected handleDetailsDialogCancel(event: Event): void {
+    event.preventDefault();
+    this.closeDetails();
+  }
+  protected handleDetailsDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.closeDetails();
   }
   protected reset(): void {
     this.form.reset();

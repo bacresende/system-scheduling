@@ -101,15 +101,15 @@
           type="tel"
           formControlName="telefone"
           autocomplete="tel"
-          mask="(00) 00000-0000"
-          placeholder="(61) 99999-9999"
+          mask="(00) 0 0000-0000"
+          placeholder="(61) 9 9999-9999"
           class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
           [invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
           [attr.aria-invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
           aria-describedby="telefone-cliente-hint telefone-cliente-error"
         />
         <p id="telefone-cliente-hint" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
-          Inclua o código do país e o DDD.
+          Informe o DDD e os 9 dígitos do celular.
         </p>
         <app-field-error id="telefone-cliente-error" [control]="form.controls.telefone" />
       </div>
@@ -133,6 +133,120 @@
     </form>
   </dialog>
 
+  <dialog
+    #clientDetailsDialog
+    aria-labelledby="cliente-detalhes-title"
+    (cancel)="handleDetailsDialogCancel($event)"
+    (click)="handleDetailsDialogClick($event)"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+  >
+    @if (selectedClient(); as cliente) {
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+            Informações do cliente
+          </p>
+          <h2 id="cliente-detalhes-title" class="break-words font-serif text-2xl sm:text-3xl">
+            {{ cliente.nome }}
+          </h2>
+        </div>
+        <p-button
+          icon="pi pi-times"
+          [text]="true"
+          ariaLabel="Fechar detalhes do cliente"
+          (onClick)="closeDetails()"
+          styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+        />
+      </div>
+
+      <section aria-labelledby="cliente-dados-contato-title">
+        <h3 id="cliente-dados-contato-title" class="mb-3 text-sm font-semibold">
+          Dados pessoais e contato
+        </h3>
+        <dl
+          class="grid gap-4 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:grid-cols-2"
+        >
+          <div class="min-w-0">
+            <dt class="text-xs text-estetica-text/70">E-mail</dt>
+            <dd class="mt-1 break-all text-sm font-medium">{{ cliente.email }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
+            <dd class="mt-1 text-sm font-medium">{{ cliente.telefone | telefone }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-estetica-text/70">CPF</dt>
+            <dd class="mt-1 text-sm font-medium">{{ cliente.cpf | cpf }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-estetica-text/70">Data de nascimento</dt>
+            <dd class="mt-1 text-sm font-medium">{{ cliente.nasc | birthdate }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-estetica-text/70">Ocupação profissional</dt>
+            <dd class="mt-1 text-sm font-medium">
+              {{ cliente.ocupacaoProfissional || 'Não informado' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-xs text-estetica-text/70">Cadastro</dt>
+            <dd class="mt-1 text-sm font-medium">
+              {{ cliente.cadastroCompleto ? 'Completo' : 'Pendente' }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="mt-6" aria-labelledby="cliente-endereco-title">
+        <h3 id="cliente-endereco-title" class="mb-3 text-sm font-semibold">Endereço</h3>
+        @if (cliente.endereco; as endereco) {
+          <dl
+            class="grid gap-4 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:grid-cols-2"
+          >
+            <div>
+              <dt class="text-xs text-estetica-text/70">CEP</dt>
+              <dd class="mt-1 text-sm font-medium">{{ endereco.cep | cep }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">Logradouro</dt>
+              <dd class="mt-1 text-sm font-medium">
+                {{ endereco.logradouro }}, {{ endereco.numeroResidencia }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">Bairro</dt>
+              <dd class="mt-1 text-sm font-medium">{{ endereco.bairro }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">Complemento</dt>
+              <dd class="mt-1 text-sm font-medium">
+                {{ endereco.complemento || 'Não informado' }}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">Cidade</dt>
+              <dd class="mt-1 text-sm font-medium">{{ endereco.cidade }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">Estado</dt>
+              <dd class="mt-1 text-sm font-medium">{{ endereco.estado }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-estetica-text/70">País</dt>
+              <dd class="mt-1 text-sm font-medium">{{ endereco.pais }}</dd>
+            </div>
+          </dl>
+        } @else {
+          <p
+            class="rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 text-sm text-estetica-text/75"
+          >
+            Endereço não informado.
+          </p>
+        }
+      </section>
+    }
+  </dialog>
+
   <section aria-labelledby="lista-clientes-title">
     <div class="mb-4">
       <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
@@ -148,6 +262,12 @@
           <article
             class="group relative overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
           >
+            <button
+              type="button"
+              class="absolute inset-0 z-10 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+              [attr.aria-label]="'Ver todas as informações de ' + item.nome"
+              (click)="showDetails(item)"
+            ></button>
             <div
               aria-hidden="true"
               class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
@@ -198,7 +318,7 @@
                 <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
                 <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
                   <i class="pi pi-phone text-estetica-primary-dark" aria-hidden="true"></i>
-                  {{ item.telefone }}
+                  {{ item.telefone | telefone }}
                 </dd>
               </div>
             </dl>
