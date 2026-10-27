@@ -11,6 +11,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { SkeletonModule } from 'primeng/skeleton';
 import { UsuariosService } from '../../../usuarios/services/usuarios.service';
 import { Usuario } from '../../../usuarios/models/usuario.model';
 import { FieldError } from '../../../../shared/ui/field-error';
@@ -27,6 +28,7 @@ import { BirthdatePipe } from '../../../../shared/pipes/birthdate.pipe';
     NgxMaskDirective,
     ButtonModule,
     InputTextModule,
+    SkeletonModule,
     FieldError,
     RequestFeedback,
     CepPipe,
@@ -44,6 +46,7 @@ export class ClienteListPageComponent implements OnInit {
   private readonly api = inject(UsuariosService);
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('clientDialog');
   protected readonly clientes = signal<Usuario[]>([]);
+  protected readonly loadCycle = signal(0);
   protected readonly selectedClient = signal<Usuario | null>(null);
   private readonly detailsDialogRef =
     viewChild<ElementRef<HTMLDialogElement>>('clientDetailsDialog');
@@ -56,6 +59,7 @@ export class ClienteListPageComponent implements OnInit {
     this.load();
   }
   protected load(): void {
+    this.loadCycle.update((cycle) => cycle + 1);
     void this.state.run(async () => {
       this.clientes.set(await this.api.listByProfile('CLIENTE'));
     });
