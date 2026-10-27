@@ -13,6 +13,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { ServicosService } from '../../services/servicos.service';
 import { Servico } from '../../models/servico.model';
@@ -28,6 +29,7 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
     InputTextModule,
     InputNumberModule,
     CheckboxModule,
+    SkeletonModule,
     TableModule,
     FieldError,
     RequestFeedback,
@@ -44,6 +46,7 @@ export class ServicoListPageComponent implements OnInit {
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('serviceDialog');
   private readonly deleteDialogRef = viewChild<ElementRef<HTMLDialogElement>>('deleteDialog');
   protected readonly servicos = signal<Servico[]>([]);
+  protected readonly loadCycle = signal(0);
   protected readonly editing = signal<string | undefined>(undefined);
   protected readonly pendingDelete = signal<Servico | null>(null);
   protected readonly novaSessaoControl = new FormControl<number | null>(null, [
@@ -75,6 +78,7 @@ export class ServicoListPageComponent implements OnInit {
   }
 
   protected load(): void {
+    this.loadCycle.update((cycle) => cycle + 1);
     void this.state.run(async () => {
       this.servicos.set(await this.api.list());
     });
@@ -82,12 +86,7 @@ export class ServicoListPageComponent implements OnInit {
 
   protected addSessao(): void {
     const valor = this.novaSessaoControl.value;
-    if (
-      this.novaSessaoControl.invalid ||
-      valor === null ||
-      !Number.isInteger(valor) ||
-      valor < 1
-    ) {
+    if (this.novaSessaoControl.invalid || valor === null || !Number.isInteger(valor) || valor < 1) {
       this.novaSessaoControl.markAsTouched();
       this.novaSessaoControl.setErrors({ invalidSession: true });
       return;

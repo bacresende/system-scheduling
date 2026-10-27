@@ -1,4 +1,4 @@
-<app-request-feedback />
+﻿<app-request-feedback />
 <section aria-labelledby="servicos-title" class="mx-auto max-w-7xl">
   <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
     <div>
@@ -268,150 +268,255 @@
   </dialog>
 
   <section aria-labelledby="catalogo-title">
-    <div class="mb-4 flex items-center justify-between gap-4">
-      <div>
-        <h2 id="catalogo-title" class="text-lg font-semibold">Catálogo de serviços</h2>
-        <p class="mt-1 text-sm text-estetica-text/70">
-          {{ servicos().length }}
-          {{ servicos().length === 1 ? 'serviço' : 'serviços' }}
-        </p>
-      </div>
-    </div>
-
-    @if (servicos().length) {
-      <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        @for (item of servicos(); track item.id) {
-          <article
-            class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
-          >
-            <div
-              aria-hidden="true"
-              class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
-            ></div>
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0">
-                <span
-                  class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-                  [class]="
-                    item.ativo
-                      ? 'bg-estetica-tertiary/20 text-estetica-text'
-                      : 'bg-estetica-secondary text-estetica-text/70'
-                  "
-                >
-                  <span
-                    aria-hidden="true"
-                    class="size-2 rounded-full"
-                    [class]="item.ativo ? 'bg-estetica-tertiary' : 'bg-estetica-text/40'"
-                  ></span>
-                  {{ item.ativo ? 'Ativo' : 'Inativo' }}
-                </span>
-                <h3 class="break-words text-xl font-semibold tracking-tight">{{ item.nome }}</h3>
-              </div>
-              <div class="shrink-0 text-right">
-                <p class="text-xl font-semibold">
-                  {{ item.preco | currency: 'BRL' }}
-                </p>
-                <span class="block text-xs text-estetica-text/70">por sessão</span>
-              </div>
-            </div>
-
-            <p class="mt-3 min-h-10 text-sm leading-relaxed text-estetica-text/75">
-              {{ item.descricao || 'Sem descrição cadastrada.' }}
+    @for (cycle of [loadCycle()]; track cycle) {
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <div>
+          <h2 id="catalogo-title" class="text-lg font-semibold">Catálogo de serviços</h2>
+          @defer (when !state.busy()) {
+            <p class="mt-1 text-sm text-estetica-text/70">
+              {{ servicos().length }}
+              {{ servicos().length === 1 ? 'serviço' : 'serviços' }}
             </p>
+          } @placeholder {
+            <p-skeleton
+              width="4.5rem"
+              height="1.125rem"
+              borderRadius="0.375rem"
+              styleClass="mt-1"
+            />
+          }
+        </div>
+      </div>
 
-            <dl
-              class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
-            >
-              <div>
-                <dt class="text-xs text-estetica-text/70">Duração</dt>
-                <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
-                  <i class="pi pi-clock text-estetica-text/70" aria-hidden="true"></i>
-                  {{ item.duracaoMinutos }} min
-                </dd>
-              </div>
-              @if (item.diasParaRetorno) {
-                <div>
-                  <dt class="text-xs text-estetica-text/70">Sugestão de retorno</dt>
-                  <dd class="mt-1 text-sm font-medium">{{ item.diasParaRetorno }} dias</dd>
-                </div>
-              }
-              <div class="col-span-2 border-t border-estetica-secondary pt-3">
-                <dt class="text-xs text-estetica-text/70">Opções de sessões</dt>
-                <dd class="mt-2 flex flex-wrap gap-1.5">
-                  @for (sessao of sessoesDoServico(item); track sessao) {
+      @defer (when !state.busy()) {
+        @if (servicos().length) {
+          <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+            @for (item of servicos(); track item.id) {
+              <article
+                class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+              >
+                <div
+                  aria-hidden="true"
+                  class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
+                ></div>
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
                     <span
-                      class="inline-flex items-center rounded-full border border-estetica-primary/50 bg-white px-2.5 py-0.5 text-xs font-bold text-estetica-text shadow-2xs"
+                      class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                      [class]="
+                        item.ativo
+                          ? 'bg-estetica-tertiary/20 text-estetica-text'
+                          : 'bg-estetica-secondary text-estetica-text/70'
+                      "
                     >
-                      {{ sessao }} {{ sessao === 1 ? 'sessão' : 'sessões' }}
+                      <span
+                        aria-hidden="true"
+                        class="size-2 rounded-full"
+                        [class]="item.ativo ? 'bg-estetica-tertiary' : 'bg-estetica-text/40'"
+                      ></span>
+                      {{ item.ativo ? 'Ativo' : 'Inativo' }}
                     </span>
-                  }
-                </dd>
-              </div>
-            </dl>
+                    <h3 class="break-words text-xl font-semibold tracking-tight">
+                      {{ item.nome }}
+                    </h3>
+                  </div>
+                  <div class="shrink-0 text-right">
+                    <p class="text-xl font-semibold">
+                      {{ item.preco | currency: 'BRL' }}
+                    </p>
+                    <span class="block text-xs text-estetica-text/70">por sessão</span>
+                  </div>
+                </div>
 
-            <div
-              class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-estetica-secondary pt-4"
-            >
-              <div class="flex flex-wrap items-center gap-2">
-                <p-button
-                  label="Editar"
-                  icon="pi pi-pencil"
-                  [outlined]="true"
-                  [ariaLabel]="'Editar serviço ' + item.nome"
-                  (onClick)="edit(item)"
-                  [disabled]="state.busy()"
-                  styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
-                />
-                @if (item.ativo) {
+                <p class="mt-3 min-h-10 text-sm leading-relaxed text-estetica-text/75">
+                  {{ item.descricao || 'Sem descrição cadastrada.' }}
+                </p>
+
+                <dl
+                  class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+                >
+                  <div>
+                    <dt class="text-xs text-estetica-text/70">Duração</dt>
+                    <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
+                      <i class="pi pi-clock text-estetica-text/70" aria-hidden="true"></i>
+                      {{ item.duracaoMinutos }} min
+                    </dd>
+                  </div>
+                  @if (item.diasParaRetorno) {
+                    <div>
+                      <dt class="text-xs text-estetica-text/70">Sugestão de retorno</dt>
+                      <dd class="mt-1 text-sm font-medium">{{ item.diasParaRetorno }} dias</dd>
+                    </div>
+                  }
+                  <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                    <dt class="text-xs text-estetica-text/70">Opções de sessões</dt>
+                    <dd class="mt-2 flex flex-wrap gap-1.5">
+                      @for (sessao of sessoesDoServico(item); track sessao) {
+                        <span
+                          class="inline-flex items-center rounded-full border border-estetica-primary/50 bg-white px-2.5 py-0.5 text-xs font-bold text-estetica-text shadow-2xs"
+                        >
+                          {{ sessao }} {{ sessao === 1 ? 'sessão' : 'sessões' }}
+                        </span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+
+                <div
+                  class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-estetica-secondary pt-4"
+                >
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p-button
+                      label="Editar"
+                      icon="pi pi-pencil"
+                      [outlined]="true"
+                      [ariaLabel]="'Editar serviço ' + item.nome"
+                      (onClick)="edit(item)"
+                      [disabled]="state.busy()"
+                      styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+                    />
+                    @if (item.ativo) {
+                      <p-button
+                        label="Inativar"
+                        icon="pi pi-ban"
+                        severity="warn"
+                        [text]="true"
+                        [ariaLabel]="'Inativar serviço ' + item.nome"
+                        (onClick)="deactivate(item)"
+                        [disabled]="state.busy()"
+                        styleClass="text-amber-700 hover:bg-amber-50"
+                      />
+                    }
+                  </div>
                   <p-button
-                    label="Inativar"
-                    icon="pi pi-ban"
-                    severity="warn"
-                    [text]="true"
-                    [ariaLabel]="'Inativar serviço ' + item.nome"
-                    (onClick)="deactivate(item)"
+                    label="Excluir"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [outlined]="true"
+                    [ariaLabel]="'Excluir serviço ' + item.nome"
+                    (onClick)="requestDelete(item)"
                     [disabled]="state.busy()"
-                    styleClass="text-amber-700 hover:bg-amber-50"
+                    styleClass="ml-auto border-red-200 text-red-600 hover:bg-red-50"
                   />
-                }
-              </div>
-              <p-button
-                label="Excluir"
-                icon="pi pi-trash"
-                severity="danger"
-                [outlined]="true"
-                [ariaLabel]="'Excluir serviço ' + item.nome"
-                (onClick)="requestDelete(item)"
-                [disabled]="state.busy()"
-                styleClass="ml-auto border-red-200 text-red-600 hover:bg-red-50"
-              />
-            </div>
-          </article>
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div
+            class="rounded-2xl border border-dashed border-estetica-secondary bg-white px-6 py-12 text-center"
+          >
+            <span
+              aria-hidden="true"
+              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary"
+            >
+              <i class="pi pi-sparkles text-xl"></i>
+            </span>
+            <h3 class="text-lg font-semibold">Seu catálogo começa aqui</h3>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+              Cadastre seus serviços para organizar valores, duração e informações importantes para
+              os atendimentos.
+            </p>
+            <p-button
+              label="Incluir primeiro serviço"
+              icon="pi pi-plus"
+              (onClick)="newService()"
+              [disabled]="state.busy()"
+              styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
+            />
+          </div>
         }
-      </div>
-    } @else {
-      <div
-        class="rounded-2xl border border-dashed border-estetica-secondary bg-white px-6 py-12 text-center"
-      >
-        <span
-          aria-hidden="true"
-          class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary"
+      } @placeholder {
+        <div
+          aria-busy="true"
+          aria-label="Carregando catálogo de serviços"
+          class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3"
         >
-          <i class="pi pi-sparkles text-xl"></i>
-        </span>
-        <h3 class="text-lg font-semibold">Seu catálogo começa aqui</h3>
-        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
-          Cadastre seus serviços para organizar valores, duração e informações importantes para os
-          atendimentos.
-        </p>
-        <p-button
-          label="Incluir primeiro serviço"
-          icon="pi pi-plus"
-          (onClick)="newService()"
-          [disabled]="state.busy()"
-          styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
-        />
-      </div>
+          @for (card of [1, 2, 3]; track card) {
+            <article
+              aria-hidden="true"
+              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/25 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.2)] sm:p-6"
+            >
+              <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                  <p-skeleton
+                    width="4.5rem"
+                    height="1.5rem"
+                    borderRadius="9999px"
+                    styleClass="mb-3"
+                  />
+                  <p-skeleton width="11rem" height="1.75rem" borderRadius="0.5rem" />
+                </div>
+                <div class="shrink-0 text-right">
+                  <p-skeleton
+                    width="6rem"
+                    height="1.75rem"
+                    borderRadius="0.5rem"
+                    styleClass="mb-1"
+                  />
+                  <p-skeleton
+                    width="4rem"
+                    height="0.875rem"
+                    borderRadius="0.375rem"
+                    styleClass="ml-auto"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-3 min-h-10 space-y-2">
+                <p-skeleton width="85%" height="0.875rem" borderRadius="0.375rem" />
+                <p-skeleton width="60%" height="0.875rem" borderRadius="0.375rem" />
+              </div>
+
+              <div
+                class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4"
+              >
+                <div>
+                  <p-skeleton
+                    width="3.5rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <p-skeleton width="4.5rem" height="1rem" borderRadius="0.375rem" />
+                </div>
+                <div>
+                  <p-skeleton
+                    width="6.5rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <p-skeleton width="4rem" height="1rem" borderRadius="0.375rem" />
+                </div>
+                <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                  <p-skeleton
+                    width="6rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <div class="flex flex-wrap gap-1.5">
+                    <p-skeleton width="4.5rem" height="1.375rem" borderRadius="9999px" />
+                    <p-skeleton width="4.5rem" height="1.375rem" borderRadius="9999px" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="mt-auto flex items-center justify-between gap-2 border-t border-estetica-secondary pt-4"
+              >
+                <div class="flex items-center gap-2">
+                  <p-skeleton width="5.5rem" height="2.5rem" borderRadius="0.75rem" />
+                  <p-skeleton width="5.5rem" height="2.5rem" borderRadius="0.75rem" />
+                </div>
+                <p-skeleton width="5.5rem" height="2.5rem" borderRadius="0.75rem" />
+              </div>
+            </article>
+          }
+        </div>
+      }
     }
   </section>
 </section>
