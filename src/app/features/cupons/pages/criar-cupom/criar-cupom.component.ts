@@ -129,6 +129,28 @@ export class CriarCupomComponent implements OnInit {
     }
   }
 
+  protected gerarCodigo(): void {
+    const alfabeto = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const codigosExistentes = new Set(
+      this.cupons().map((cupom) => cupom.codigo.toUpperCase()),
+    );
+
+    for (let tentativa = 0; tentativa < 20; tentativa++) {
+      const bytes = globalThis.crypto.getRandomValues(new Uint8Array(10));
+      const codigo = Array.from(bytes, (byte) => alfabeto[byte & 31]).join('');
+
+      if (!codigosExistentes.has(codigo)) {
+        this.form.controls.codigo.setValue(codigo);
+        this.form.controls.codigo.markAsDirty();
+        this.state.error.set('');
+        this.state.success.set('');
+        return;
+      }
+    }
+
+    this.state.error.set('Não foi possível gerar um código disponível. Tente novamente.');
+  }
+
   protected novoCupom(): void {
     this.limparFormulario();
 

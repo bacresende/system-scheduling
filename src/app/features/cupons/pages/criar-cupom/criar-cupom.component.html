@@ -77,19 +77,31 @@
       <fieldset [disabled]="state.busy()" class="grid min-w-0 gap-5 border-0 p-0 sm:grid-cols-2">
         <div class="sm:col-span-2">
           <label for="codigo-cupom" class="mb-2 block text-sm font-semibold">Nome do cupom</label>
-          <input
-            pInputText
-            id="codigo-cupom"
-            formControlName="codigo"
-            autocomplete="off"
-            placeholder="Ex.: BEMVINDA10"
-            autofocus
-            class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-            [invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
-            [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
-            aria-describedby="codigo-cupom-ajuda codigo-cupom-erro"
-            (input)="normalizarCodigo($event)"
-          />
+
+          <div class="flex w-full">
+            <input
+              pInputText
+              id="codigo-cupom"
+              formControlName="codigo"
+              autocomplete="off"
+              placeholder="Ex.: BEMVINDA10"
+              autofocus
+              class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+              [invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+              [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+              aria-describedby="codigo-cupom-ajuda codigo-cupom-erro"
+              (input)="normalizarCodigo($event)"
+            />
+
+            <p-button
+              type="button"
+              label="Gerar"
+              icon="pi pi-sparkles"
+              ariaLabel="Gerar código de cupom"
+              (onClick)="gerarCodigo()"
+              styleClass="min-h-12 rounded-r-xl rounded-l-none border-estetica-primary text-estetica-bg hover:bg-estetica-primary hover:text-white"
+            />
+          </div>
           <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
             Use letras, números, hífen ou sublinhado.
           </p>
@@ -116,7 +128,7 @@
 
         <div>
           <label for="valor-desconto" class="mb-2 block text-sm font-semibold">
-            Valor do desconto (R$)
+            Valor do desconto
           </label>
           <p-inputnumber
             inputId="valor-desconto"
@@ -206,10 +218,12 @@
                     styleClass="w-full"
                     inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
                     [invalid]="
-                      form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                      form.controls.limitePorCliente.invalid &&
+                      form.controls.limitePorCliente.touched
                     "
                     [attr.aria-invalid]="
-                      form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                      form.controls.limitePorCliente.invalid &&
+                      form.controls.limitePorCliente.touched
                     "
                   />
                   @if (
@@ -228,7 +242,9 @@
             >
               <legend class="px-1 text-sm font-semibold">Limite global de usos</legend>
               <div class="flex items-center justify-between gap-4">
-                <label for="limitar-global" class="text-sm">Limitar quantidade global de usos?</label>
+                <label for="limitar-global" class="text-sm"
+                  >Limitar quantidade global de usos?</label
+                >
                 <p-toggleswitch inputId="limitar-global" formControlName="limitarGlobal" />
               </div>
               @if (form.controls.limitarGlobal.value) {
@@ -250,7 +266,9 @@
                       form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
                     "
                   />
-                  @if (form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched) {
+                  @if (
+                    form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
+                  ) {
                     <p class="mt-1 text-sm text-red-700" role="alert">
                       Informe um limite de pelo menos 1.
                     </p>
@@ -267,7 +285,10 @@
                 <label for="restringir-servicos" class="text-sm">
                   Restringir a serviços específicos?
                 </label>
-                <p-toggleswitch inputId="restringir-servicos" formControlName="restringirServicos" />
+                <p-toggleswitch
+                  inputId="restringir-servicos"
+                  formControlName="restringirServicos"
+                />
               </div>
               @if (form.controls.restringirServicos.value) {
                 <div class="mt-6 mb-3">
@@ -302,7 +323,9 @@
               @if (form.controls.restringirSessoes.value) {
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label for="minimo-sessoes" class="mb-2 block text-sm font-semibold">Mínimo</label>
+                    <label for="minimo-sessoes" class="mb-2 block text-sm font-semibold"
+                      >Mínimo</label
+                    >
                     <p-inputnumber
                       inputId="minimo-sessoes"
                       formControlName="minimoSessoes"
@@ -317,12 +340,18 @@
                         form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
                       "
                     />
-                    @if (form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched) {
-                      <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                    @if (
+                      form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
+                    ) {
+                      <p class="mt-1 text-sm text-red-700" role="alert">
+                        Informe pelo menos 1 sessão.
+                      </p>
                     }
                   </div>
                   <div>
-                    <label for="maximo-sessoes" class="mb-2 block text-sm font-semibold">Máximo</label>
+                    <label for="maximo-sessoes" class="mb-2 block text-sm font-semibold"
+                      >Máximo</label
+                    >
                     <p-inputnumber
                       inputId="maximo-sessoes"
                       formControlName="maximoSessoes"
@@ -337,14 +366,17 @@
                         form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
                       "
                     />
-                    @if (form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched) {
-                      <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                    @if (
+                      form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
+                    ) {
+                      <p class="mt-1 text-sm text-red-700" role="alert">
+                        Informe pelo menos 1 sessão.
+                      </p>
                     }
                   </div>
                 </div>
               }
             </fieldset>
-
           </div>
         </p-panel>
 
