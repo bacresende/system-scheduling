@@ -1,0 +1,606 @@
+@if (!modalAberto()) {
+  <app-request-feedback />
+}
+
+<section aria-labelledby="cupons-title" class="mx-auto max-w-7xl">
+  <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-text/70 uppercase">
+        Benefícios da clínica
+      </p>
+      <h1 id="cupons-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+        Cupons
+      </h1>
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-estetica-text/80">
+        Gerencie os cupons de desconto e as condições de uso disponíveis para seus clientes.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <p-button
+        label="Atualizar"
+        icon="pi pi-refresh"
+        [outlined]="true"
+        (onClick)="loadEndpoints()"
+        [disabled]="state.busy()"
+        styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+      />
+      <p-button
+        label="Incluir cupom"
+        icon="pi pi-plus"
+        (onClick)="novoCupom()"
+        [disabled]="state.busy()"
+        styleClass="bg-estetica-primary border-estetica-primary text-estetica-text"
+      />
+    </div>
+  </header>
+
+  <dialog
+    #cupomDialog
+    aria-labelledby="cupom-form-title"
+    (cancel)="handleDialogCancel($event)"
+    (click)="handleDialogClick($event)"
+    (close)="handleDialogClose()"
+    [attr.aria-busy]="state.busy()"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+  >
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+          Novo benefício
+        </p>
+        <h2 id="cupom-form-title" class="font-serif text-2xl sm:text-3xl">Criar cupom</h2>
+        <p class="mt-2 text-sm leading-relaxed text-estetica-text/75">
+          Configure o desconto e ative somente as regras que deseja aplicar.
+        </p>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        [text]="true"
+        ariaLabel="Fechar formulário de cupom"
+        (onClick)="cancelar()"
+        [disabled]="state.busy()"
+        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+      />
+    </div>
+
+    <app-request-feedback />
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="save()"
+      [attr.aria-busy]="state.busy()"
+      class="grid gap-5"
+      novalidate
+    >
+      <fieldset [disabled]="state.busy()" class="grid min-w-0 gap-5 border-0 p-0 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <label for="codigo-cupom" class="mb-2 block text-sm font-semibold">Nome do cupom</label>
+          <input
+            pInputText
+            id="codigo-cupom"
+            formControlName="codigo"
+            autocomplete="off"
+            placeholder="Ex.: BEMVINDA10"
+            autofocus
+            class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+            [invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+            [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
+            aria-describedby="codigo-cupom-ajuda codigo-cupom-erro"
+            (input)="normalizarCodigo($event)"
+          />
+          <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
+            Use letras, números, hífen ou sublinhado.
+          </p>
+          @if (form.controls.codigo.invalid && form.controls.codigo.touched) {
+            <p id="codigo-cupom-erro" class="mt-1 text-sm text-red-700" role="alert">
+              Informe um código válido para o cupom.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="tipo-desconto" class="mb-2 block text-sm font-semibold">
+            Tipo de desconto
+          </label>
+          <p-select
+            inputId="tipo-desconto"
+            formControlName="tipoDesconto"
+            [options]="tiposDesconto"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="min-h-12 w-full items-center"
+          />
+        </div>
+
+        <div>
+          <label for="valor-desconto" class="mb-2 block text-sm font-semibold">
+            Valor do desconto
+          </label>
+          <p-inputnumber
+            inputId="valor-desconto"
+            formControlName="valor"
+            [min]="0"
+            [maxFractionDigits]="2"
+            [suffix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '%' : ''"
+            locale="pt-BR"
+            styleClass="w-full"
+            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+            [invalid]="form.controls.valor.invalid && form.controls.valor.touched"
+            [attr.aria-invalid]="form.controls.valor.invalid && form.controls.valor.touched"
+          />
+          @if (form.controls.valor.invalid && form.controls.valor.touched) {
+            <p class="mt-1 text-sm text-red-700" role="alert">
+              Informe um valor de desconto maior que zero.
+            </p>
+          }
+        </div>
+
+        <div>
+          <label for="data-minima" class="mb-2 block text-sm font-semibold">
+            Data mínima <span class="font-normal text-estetica-text/70">(opcional)</span>
+          </label>
+          <p-datepicker
+            inputId="data-minima"
+            formControlName="dataMinima"
+            dateFormat="dd/mm/yy"
+            placeholder="dd/mm/aaaa"
+            [maxDate]="form.controls.dataMaxima.value"
+            [minDate]="hoje"
+            [showIcon]="true"
+            iconDisplay="input"
+            [showButtonBar]="true"
+            [showClear]="true"
+            styleClass="w-full"
+            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          />
+        </div>
+
+        <div>
+          <label for="data-maxima" class="mb-2 block text-sm font-semibold">
+            Data máxima <span class="font-normal text-estetica-text/70">(opcional)</span>
+          </label>
+          <p-datepicker
+            inputId="data-maxima"
+            formControlName="dataMaxima"
+            dateFormat="dd/mm/yy"
+            placeholder="dd/mm/aaaa"
+            [minDate]="form.controls.dataMinima.value ?? hoje"
+            [showIcon]="true"
+            iconDisplay="input"
+            [showButtonBar]="true"
+            [showClear]="true"
+            styleClass="w-full"
+            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          />
+        </div>
+
+        <fieldset
+          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+        >
+          <legend class="px-1 text-sm font-semibold">Limite por cliente</legend>
+          <div class="flex items-center justify-between gap-4">
+            <label for="limitar-cliente" class="text-sm">Limitar usos por cliente?</label>
+            <p-toggleswitch inputId="limitar-cliente" formControlName="limitarPorCliente" />
+          </div>
+          @if (form.controls.limitarPorCliente.value) {
+            <div class="mt-4">
+              <label for="limite-por-cliente" class="mb-2 block text-sm font-semibold">
+                Usos permitidos por cliente
+              </label>
+              <p-inputnumber
+                inputId="limite-por-cliente"
+                formControlName="limitePorCliente"
+                [min]="1"
+                [useGrouping]="false"
+                styleClass="w-full"
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                [invalid]="
+                  form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                "
+                [attr.aria-invalid]="
+                  form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                "
+              />
+              @if (
+                form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+              ) {
+                <p class="mt-1 text-sm text-red-700" role="alert">
+                  Informe um limite de pelo menos 1.
+                </p>
+              }
+            </div>
+          }
+        </fieldset>
+
+        <fieldset
+          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+        >
+          <legend class="px-1 text-sm font-semibold">Limite global de usos</legend>
+          <div class="flex items-center justify-between gap-4">
+            <label for="limitar-global" class="text-sm">Limitar quantidade global de usos?</label>
+            <p-toggleswitch inputId="limitar-global" formControlName="limitarGlobal" />
+          </div>
+          @if (form.controls.limitarGlobal.value) {
+            <div class="mt-4">
+              <label for="limite-uso-global" class="mb-2 block text-sm font-semibold">
+                Quantidade máxima de usos
+              </label>
+              <p-inputnumber
+                inputId="limite-uso-global"
+                formControlName="limiteUsoGlobal"
+                [min]="1"
+                [useGrouping]="false"
+                styleClass="w-full"
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                [invalid]="
+                  form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
+                "
+                [attr.aria-invalid]="
+                  form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
+                "
+              />
+              @if (form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched) {
+                <p class="mt-1 text-sm text-red-700" role="alert">
+                  Informe um limite de pelo menos 1.
+                </p>
+              }
+            </div>
+          }
+        </fieldset>
+
+        <fieldset
+          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+        >
+          <legend class="px-1 text-sm font-semibold">Serviços válidos</legend>
+          <div class="flex items-center justify-between gap-4">
+            <label for="restringir-servicos" class="text-sm">
+              Restringir a serviços específicos?
+            </label>
+            <p-toggleswitch inputId="restringir-servicos" formControlName="restringirServicos" />
+          </div>
+          @if (form.controls.restringirServicos.value) {
+            <div class="mt-6 mb-3">
+              <label for="servicos-validos" class="mb-2 block text-sm font-semibold">
+                Selecione os serviços
+              </label>
+              <p-multiselect
+                inputId="servicos-validos"
+                formControlName="servicosValidos"
+                [options]="servicos()"
+                optionLabel="nome"
+                optionValue="id"
+                placeholder="Escolha um ou mais serviços"
+                display="chip"
+                styleClass="min-h-12 w-full items-center"
+                panelStyleClass="my-2 [&_.p-multiselect-list]:my-2 [&_.p-multiselect-option]:my-1"
+              />
+            </div>
+          }
+        </fieldset>
+
+        <fieldset
+          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+        >
+          <legend class="px-1 text-sm font-semibold">Quantidade de sessões</legend>
+          <div class="flex items-center justify-between gap-4">
+            <label for="restringir-sessoes" class="text-sm">
+              Restringir por quantidade de sessões?
+            </label>
+            <p-toggleswitch inputId="restringir-sessoes" formControlName="restringirSessoes" />
+          </div>
+          @if (form.controls.restringirSessoes.value) {
+            <div class="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <label for="minimo-sessoes" class="mb-2 block text-sm font-semibold">Mínimo</label>
+                <p-inputnumber
+                  inputId="minimo-sessoes"
+                  formControlName="minimoSessoes"
+                  [min]="1"
+                  [useGrouping]="false"
+                  styleClass="w-full"
+                  inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                  [invalid]="
+                    form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
+                  "
+                  [attr.aria-invalid]="
+                    form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
+                  "
+                />
+                @if (form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched) {
+                  <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                }
+              </div>
+              <div>
+                <label for="maximo-sessoes" class="mb-2 block text-sm font-semibold">Máximo</label>
+                <p-inputnumber
+                  inputId="maximo-sessoes"
+                  formControlName="maximoSessoes"
+                  [min]="1"
+                  [useGrouping]="false"
+                  styleClass="w-full"
+                  inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                  [invalid]="
+                    form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
+                  "
+                  [attr.aria-invalid]="
+                    form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
+                  "
+                />
+                @if (form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched) {
+                  <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                }
+              </div>
+            </div>
+          }
+        </fieldset>
+
+        <div class="flex items-center gap-3 rounded-xl bg-estetica-bg px-4 py-3 sm:col-span-2">
+          <p-toggleswitch inputId="cupom-ativo" formControlName="ativo" />
+          <label for="cupom-ativo" class="text-sm font-medium">
+            Cupom ativo e disponível para utilização
+          </label>
+        </div>
+
+        <div class="flex flex-col-reverse gap-3 pt-1 sm:col-span-2 sm:flex-row sm:justify-end">
+          <p-button
+            type="button"
+            label="Cancelar"
+            [outlined]="true"
+            (onClick)="cancelar()"
+            [disabled]="state.busy()"
+            styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+          />
+          <p-button
+            type="submit"
+            label="Salvar Cupom"
+            icon="pi pi-check"
+            [loading]="state.busy()"
+            styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"
+          />
+        </div>
+      </fieldset>
+    </form>
+  </dialog>
+
+  <section aria-labelledby="lista-cupons-title">
+    @for (cycle of [loadCycle()]; track cycle) {
+      <div class="mb-4 flex items-center justify-between gap-4">
+        <div>
+          <h2 id="lista-cupons-title" class="text-lg font-semibold">Cupons cadastrados</h2>
+          @defer (when !state.busy()) {
+            <p class="mt-1 text-sm text-estetica-text/70">
+              {{ cupons().length }} {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
+            </p>
+          } @placeholder {
+            <p-skeleton
+              width="4.5rem"
+              height="1.125rem"
+              borderRadius="0.375rem"
+              styleClass="mt-1"
+            />
+          }
+        </div>
+      </div>
+
+      @defer (when !state.busy()) {
+        @if (cupons().length) {
+          <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+            @for (cupom of cupons(); track cupom.id) {
+              <article
+                class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+              >
+                <div
+                  aria-hidden="true"
+                  class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
+                ></div>
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0">
+                    <span
+                      class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                      [class]="
+                        cupom.ativo
+                          ? 'bg-estetica-tertiary/20 text-estetica-text'
+                          : 'bg-estetica-secondary text-estetica-text/70'
+                      "
+                    >
+                      <span
+                        aria-hidden="true"
+                        class="size-2 rounded-full"
+                        [class]="cupom.ativo ? 'bg-estetica-tertiary' : 'bg-estetica-text/40'"
+                      ></span>
+                      {{ cupom.ativo ? 'Ativo' : 'Inativo' }}
+                    </span>
+                    <h3 class="break-words text-xl font-semibold tracking-tight">
+                      {{ cupom.codigo }}
+                    </h3>
+                  </div>
+                  <div class="shrink-0 text-right">
+                    <p class="text-xl font-semibold">{{ descontoFormatado(cupom) }}</p>
+                    <span class="block text-xs text-estetica-text/70">de desconto</span>
+                  </div>
+                </div>
+
+                <p class="mt-3 min-h-10 text-sm leading-relaxed text-estetica-text/75">
+                  {{
+                    cupom.tipoDesconto === 'PORCENTAGEM'
+                      ? 'Desconto percentual'
+                      : 'Desconto em valor fixo'
+                  }}
+                </p>
+
+                <dl
+                  class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+                >
+                  <div>
+                    <dt class="text-xs text-estetica-text/70">Limite global</dt>
+                    <dd class="mt-1 text-sm font-medium">
+                      {{ cupom.limiteUsoGlobal ?? 'Ilimitado' }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs text-estetica-text/70">Por cliente</dt>
+                    <dd class="mt-1 text-sm font-medium">
+                      {{ cupom.limitePorCliente ?? 'Ilimitado' }}
+                    </dd>
+                  </div>
+                  @if (cupom.dataMinima || cupom.dataMaxima) {
+                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                      <dt class="text-xs text-estetica-text/70">Período de validade</dt>
+                      <dd class="mt-1 text-sm font-medium">
+                        {{ (cupom.dataMinima | date: 'dd/MM/yyyy') ?? 'Sem data mínima' }} até
+                        {{ (cupom.dataMaxima | date: 'dd/MM/yyyy') ?? 'sem data máxima' }}
+                      </dd>
+                    </div>
+                  }
+                  @if (cupom.servicosValidos.length) {
+                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                      <dt class="text-xs text-estetica-text/70">Serviços válidos</dt>
+                      <dd class="mt-2 flex flex-wrap gap-1.5">
+                        @for (nome of servicosDoCupom(cupom); track nome) {
+                          <span
+                            class="inline-flex items-center rounded-full border border-estetica-primary/50 bg-white px-2.5 py-0.5 text-xs font-bold text-estetica-text shadow-2xs"
+                          >
+                            {{ nome }}
+                          </span>
+                        }
+                      </dd>
+                    </div>
+                  }
+                  @if (cupom.minimoSessoes !== null || cupom.maximoSessoes !== null) {
+                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                      <dt class="text-xs text-estetica-text/70">Quantidade de sessões</dt>
+                      <dd class="mt-1 text-sm font-medium">
+                        {{ cupom.minimoSessoes ?? 'Sem mínimo' }} a
+                        {{ cupom.maximoSessoes ?? 'sem máximo' }}
+                      </dd>
+                    </div>
+                  }
+                </dl>
+
+                <div
+                  class="mt-auto flex items-center justify-end border-t border-estetica-secondary pt-4"
+                >
+                  <p-button
+                    [label]="cupom.ativo ? 'Inativar' : 'Ativar'"
+                    [icon]="cupom.ativo ? 'pi pi-ban' : 'pi pi-check'"
+                    [outlined]="true"
+                    [ariaLabel]="(cupom.ativo ? 'Inativar cupom ' : 'Ativar cupom ') + cupom.codigo"
+                    (onClick)="alternarAtivo(cupom)"
+                    styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+                  />
+                </div>
+              </article>
+            }
+          </div>
+        } @else {
+          <div
+            class="rounded-2xl border border-dashed border-estetica-secondary bg-white px-6 py-12 text-center"
+          >
+            <span
+              aria-hidden="true"
+              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary"
+            >
+              <i class="pi pi-ticket text-xl"></i>
+            </span>
+            <h3 class="text-lg font-semibold">Sua lista de cupons começa aqui</h3>
+            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+              Crie cupons de desconto para oferecer benefícios e fidelizar seus clientes.
+            </p>
+            <p-button
+              label="Incluir primeiro cupom"
+              icon="pi pi-plus"
+              (onClick)="novoCupom()"
+              [disabled]="state.busy()"
+              styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
+            />
+          </div>
+        }
+      } @placeholder {
+        <div
+          aria-busy="true"
+          aria-label="Carregando lista de cupons"
+          class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3"
+        >
+          @for (card of [1, 2, 3]; track card) {
+            <article
+              aria-hidden="true"
+              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/25 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.2)] sm:p-6"
+            >
+              <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
+              <div class="flex items-start justify-between gap-4">
+                <div class="min-w-0 flex-1">
+                  <p-skeleton
+                    width="4.5rem"
+                    height="1.5rem"
+                    borderRadius="9999px"
+                    styleClass="mb-3"
+                  />
+                  <p-skeleton width="9.5rem" height="1.75rem" borderRadius="0.5rem" />
+                </div>
+                <div class="shrink-0 text-right">
+                  <p-skeleton
+                    width="5.5rem"
+                    height="1.75rem"
+                    borderRadius="0.5rem"
+                    styleClass="mb-1"
+                  />
+                  <p-skeleton
+                    width="4.5rem"
+                    height="0.875rem"
+                    borderRadius="0.375rem"
+                    styleClass="ml-auto"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-3 min-h-10">
+                <p-skeleton width="65%" height="0.875rem" borderRadius="0.375rem" />
+              </div>
+
+              <div
+                class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4"
+              >
+                <div>
+                  <p-skeleton
+                    width="5rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <p-skeleton width="4rem" height="1rem" borderRadius="0.375rem" />
+                </div>
+                <div>
+                  <p-skeleton
+                    width="4.5rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <p-skeleton width="4rem" height="1rem" borderRadius="0.375rem" />
+                </div>
+                <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                  <p-skeleton
+                    width="6rem"
+                    height="0.75rem"
+                    borderRadius="0.25rem"
+                    styleClass="mb-2"
+                  />
+                  <div class="flex flex-wrap gap-1.5">
+                    <p-skeleton width="6.5rem" height="1.375rem" borderRadius="9999px" />
+                    <p-skeleton width="6.5rem" height="1.375rem" borderRadius="9999px" />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="mt-auto flex items-center justify-end border-t border-estetica-secondary pt-4"
+              >
+                <p-skeleton width="6rem" height="2.5rem" borderRadius="0.75rem" />
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+</section>

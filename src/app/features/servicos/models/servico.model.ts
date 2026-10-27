@@ -13,3 +13,5 @@ export type SalvarServico = Omit<Servico, 'id' | 'diasParaRetorno' | 'sessoesDis
   diasParaRetorno?: number | null;
   sessoesDisponiveis: number[];
 };
+
+export type ServicoCupom = Pick<Servico, 'id' | 'nome'>;

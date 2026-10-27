@@ -13,6 +13,7 @@ import { AnamnesePageComponent } from './features/anamnese/pages/anamnese-page/a
 import { PortalPage } from './features/portal/pages/portal-page';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { NotFoundPage } from './not-found-page';
+import { CriarCupomComponent } from './features/cupons/pages/criar-cupom/criar-cupom.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginPageComponent },
@@ -49,6 +50,7 @@ export const routes: Routes = [
           { path: 'clientes', component: ClienteListPageComponent },
           { path: 'servicos', component: ServicoListPageComponent },
           { path: 'oportunidades', component: OportunidadePageComponent },
+          { path: 'cupons', component: CriarCupomComponent },
         ],
       },
     ],
