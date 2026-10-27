@@ -138,204 +138,215 @@
           }
         </div>
 
-        <div>
-          <label for="data-minima" class="mb-2 block text-sm font-semibold">
-            Data mínima <span class="font-normal text-estetica-text/70">(opcional)</span>
-          </label>
-          <p-datepicker
-            inputId="data-minima"
-            formControlName="dataMinima"
-            dateFormat="dd/mm/yy"
-            placeholder="dd/mm/aaaa"
-            [maxDate]="form.controls.dataMaxima.value"
-            [minDate]="hoje"
-            [showIcon]="true"
-            iconDisplay="input"
-            [showButtonBar]="true"
-            [showClear]="true"
-            styleClass="w-full"
-            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-          />
-        </div>
-
-        <div>
-          <label for="data-maxima" class="mb-2 block text-sm font-semibold">
-            Data máxima <span class="font-normal text-estetica-text/70">(opcional)</span>
-          </label>
-          <p-datepicker
-            inputId="data-maxima"
-            formControlName="dataMaxima"
-            dateFormat="dd/mm/yy"
-            placeholder="dd/mm/aaaa"
-            [minDate]="form.controls.dataMinima.value ?? hoje"
-            [showIcon]="true"
-            iconDisplay="input"
-            [showButtonBar]="true"
-            [showClear]="true"
-            styleClass="w-full"
-            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-          />
-        </div>
-
-        <fieldset
-          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+        <p-panel
+          header="Opções avançadas"
+          [toggleable]="true"
+          [collapsed]="painelAvancadoRecolhido()"
+          (collapsedChange)="atualizarPainelAvancado($event)"
+          styleClass="sm:col-span-2"
         >
-          <legend class="px-1 text-sm font-semibold">Limite por cliente</legend>
-          <div class="flex items-center justify-between gap-4">
-            <label for="limitar-cliente" class="text-sm">Limitar usos por cliente?</label>
-            <p-toggleswitch inputId="limitar-cliente" formControlName="limitarPorCliente" />
-          </div>
-          @if (form.controls.limitarPorCliente.value) {
-            <div class="mt-4">
-              <label for="limite-por-cliente" class="mb-2 block text-sm font-semibold">
-                Usos permitidos por cliente
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="data-minima" class="mb-2 block text-sm font-semibold">
+                Data mínima <span class="font-normal text-estetica-text/70">(opcional)</span>
               </label>
-              <p-inputnumber
-                inputId="limite-por-cliente"
-                formControlName="limitePorCliente"
-                [min]="1"
-                [useGrouping]="false"
+              <p-datepicker
+                inputId="data-minima"
+                formControlName="dataMinima"
+                dateFormat="dd/mm/yy"
+                placeholder="dd/mm/aaaa"
+                [maxDate]="form.controls.dataMaxima.value"
+                [minDate]="hoje"
+                [showIcon]="true"
+                iconDisplay="input"
+                [showButtonBar]="true"
+                [showClear]="true"
                 styleClass="w-full"
-                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-                [invalid]="
-                  form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
-                "
-                [attr.aria-invalid]="
-                  form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
-                "
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
               />
-              @if (
-                form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
-              ) {
-                <p class="mt-1 text-sm text-red-700" role="alert">
-                  Informe um limite de pelo menos 1.
-                </p>
-              }
             </div>
-          }
-        </fieldset>
 
-        <fieldset
-          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
-        >
-          <legend class="px-1 text-sm font-semibold">Limite global de usos</legend>
-          <div class="flex items-center justify-between gap-4">
-            <label for="limitar-global" class="text-sm">Limitar quantidade global de usos?</label>
-            <p-toggleswitch inputId="limitar-global" formControlName="limitarGlobal" />
-          </div>
-          @if (form.controls.limitarGlobal.value) {
-            <div class="mt-4">
-              <label for="limite-uso-global" class="mb-2 block text-sm font-semibold">
-                Quantidade máxima de usos
+            <div>
+              <label for="data-maxima" class="mb-2 block text-sm font-semibold">
+                Data máxima <span class="font-normal text-estetica-text/70">(opcional)</span>
               </label>
-              <p-inputnumber
-                inputId="limite-uso-global"
-                formControlName="limiteUsoGlobal"
-                [min]="1"
-                [useGrouping]="false"
+              <p-datepicker
+                inputId="data-maxima"
+                formControlName="dataMaxima"
+                dateFormat="dd/mm/yy"
+                placeholder="dd/mm/aaaa"
+                [minDate]="form.controls.dataMinima.value ?? hoje"
+                [showIcon]="true"
+                iconDisplay="input"
+                [showButtonBar]="true"
+                [showClear]="true"
                 styleClass="w-full"
-                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-                [invalid]="
-                  form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
-                "
-                [attr.aria-invalid]="
-                  form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
-                "
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
               />
-              @if (form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched) {
-                <p class="mt-1 text-sm text-red-700" role="alert">
-                  Informe um limite de pelo menos 1.
-                </p>
+            </div>
+
+            <fieldset
+              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+            >
+              <legend class="px-1 text-sm font-semibold">Limite por cliente</legend>
+              <div class="flex items-center justify-between gap-4">
+                <label for="limitar-cliente" class="text-sm">Limitar usos por cliente?</label>
+                <p-toggleswitch inputId="limitar-cliente" formControlName="limitarPorCliente" />
+              </div>
+              @if (form.controls.limitarPorCliente.value) {
+                <div class="mt-4">
+                  <label for="limite-por-cliente" class="mb-2 block text-sm font-semibold">
+                    Usos permitidos por cliente
+                  </label>
+                  <p-inputnumber
+                    inputId="limite-por-cliente"
+                    formControlName="limitePorCliente"
+                    [min]="1"
+                    [useGrouping]="false"
+                    styleClass="w-full"
+                    inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                    [invalid]="
+                      form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                    "
+                    [attr.aria-invalid]="
+                      form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                    "
+                  />
+                  @if (
+                    form.controls.limitePorCliente.invalid && form.controls.limitePorCliente.touched
+                  ) {
+                    <p class="mt-1 text-sm text-red-700" role="alert">
+                      Informe um limite de pelo menos 1.
+                    </p>
+                  }
+                </div>
               }
-            </div>
-          }
-        </fieldset>
+            </fieldset>
 
-        <fieldset
-          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
-        >
-          <legend class="px-1 text-sm font-semibold">Serviços válidos</legend>
-          <div class="flex items-center justify-between gap-4">
-            <label for="restringir-servicos" class="text-sm">
-              Restringir a serviços específicos?
-            </label>
-            <p-toggleswitch inputId="restringir-servicos" formControlName="restringirServicos" />
-          </div>
-          @if (form.controls.restringirServicos.value) {
-            <div class="mt-6 mb-3">
-              <label for="servicos-validos" class="mb-2 block text-sm font-semibold">
-                Selecione os serviços
-              </label>
-              <p-multiselect
-                inputId="servicos-validos"
-                formControlName="servicosValidos"
-                [options]="servicos()"
-                optionLabel="nome"
-                optionValue="id"
-                placeholder="Escolha um ou mais serviços"
-                display="chip"
-                styleClass="min-h-12 w-full items-center"
-                panelStyleClass="my-2 [&_.p-multiselect-list]:my-2 [&_.p-multiselect-option]:my-1"
-              />
-            </div>
-          }
-        </fieldset>
+            <fieldset
+              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+            >
+              <legend class="px-1 text-sm font-semibold">Limite global de usos</legend>
+              <div class="flex items-center justify-between gap-4">
+                <label for="limitar-global" class="text-sm">Limitar quantidade global de usos?</label>
+                <p-toggleswitch inputId="limitar-global" formControlName="limitarGlobal" />
+              </div>
+              @if (form.controls.limitarGlobal.value) {
+                <div class="mt-4">
+                  <label for="limite-uso-global" class="mb-2 block text-sm font-semibold">
+                    Quantidade máxima de usos
+                  </label>
+                  <p-inputnumber
+                    inputId="limite-uso-global"
+                    formControlName="limiteUsoGlobal"
+                    [min]="1"
+                    [useGrouping]="false"
+                    styleClass="w-full"
+                    inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                    [invalid]="
+                      form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
+                    "
+                    [attr.aria-invalid]="
+                      form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
+                    "
+                  />
+                  @if (form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched) {
+                    <p class="mt-1 text-sm text-red-700" role="alert">
+                      Informe um limite de pelo menos 1.
+                    </p>
+                  }
+                </div>
+              }
+            </fieldset>
 
-        <fieldset
-          class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
-        >
-          <legend class="px-1 text-sm font-semibold">Quantidade de sessões</legend>
-          <div class="flex items-center justify-between gap-4">
-            <label for="restringir-sessoes" class="text-sm">
-              Restringir por quantidade de sessões?
-            </label>
-            <p-toggleswitch inputId="restringir-sessoes" formControlName="restringirSessoes" />
+            <fieldset
+              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+            >
+              <legend class="px-1 text-sm font-semibold">Serviços válidos</legend>
+              <div class="flex items-center justify-between gap-4">
+                <label for="restringir-servicos" class="text-sm">
+                  Restringir a serviços específicos?
+                </label>
+                <p-toggleswitch inputId="restringir-servicos" formControlName="restringirServicos" />
+              </div>
+              @if (form.controls.restringirServicos.value) {
+                <div class="mt-6 mb-3">
+                  <label for="servicos-validos" class="mb-2 block text-sm font-semibold">
+                    Selecione os serviços
+                  </label>
+                  <p-multiselect
+                    inputId="servicos-validos"
+                    formControlName="servicosValidos"
+                    [options]="servicos()"
+                    optionLabel="nome"
+                    optionValue="id"
+                    placeholder="Escolha um ou mais serviços"
+                    display="chip"
+                    styleClass="min-h-12 w-full items-center"
+                    panelStyleClass="my-2 [&_.p-multiselect-list]:my-2 [&_.p-multiselect-option]:my-1"
+                  />
+                </div>
+              }
+            </fieldset>
+
+            <fieldset
+              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+            >
+              <legend class="px-1 text-sm font-semibold">Quantidade de sessões</legend>
+              <div class="flex items-center justify-between gap-4">
+                <label for="restringir-sessoes" class="text-sm">
+                  Restringir por quantidade de sessões?
+                </label>
+                <p-toggleswitch inputId="restringir-sessoes" formControlName="restringirSessoes" />
+              </div>
+              @if (form.controls.restringirSessoes.value) {
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label for="minimo-sessoes" class="mb-2 block text-sm font-semibold">Mínimo</label>
+                    <p-inputnumber
+                      inputId="minimo-sessoes"
+                      formControlName="minimoSessoes"
+                      [min]="1"
+                      [useGrouping]="false"
+                      styleClass="w-full"
+                      inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                      [invalid]="
+                        form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
+                      "
+                      [attr.aria-invalid]="
+                        form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
+                      "
+                    />
+                    @if (form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched) {
+                      <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                    }
+                  </div>
+                  <div>
+                    <label for="maximo-sessoes" class="mb-2 block text-sm font-semibold">Máximo</label>
+                    <p-inputnumber
+                      inputId="maximo-sessoes"
+                      formControlName="maximoSessoes"
+                      [min]="1"
+                      [useGrouping]="false"
+                      styleClass="w-full"
+                      inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                      [invalid]="
+                        form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
+                      "
+                      [attr.aria-invalid]="
+                        form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
+                      "
+                    />
+                    @if (form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched) {
+                      <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
+                    }
+                  </div>
+                </div>
+              }
+            </fieldset>
+
           </div>
-          @if (form.controls.restringirSessoes.value) {
-            <div class="mt-4 grid gap-4 sm:grid-cols-2">
-              <div>
-                <label for="minimo-sessoes" class="mb-2 block text-sm font-semibold">Mínimo</label>
-                <p-inputnumber
-                  inputId="minimo-sessoes"
-                  formControlName="minimoSessoes"
-                  [min]="1"
-                  [useGrouping]="false"
-                  styleClass="w-full"
-                  inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-                  [invalid]="
-                    form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
-                  "
-                  [attr.aria-invalid]="
-                    form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
-                  "
-                />
-                @if (form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched) {
-                  <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
-                }
-              </div>
-              <div>
-                <label for="maximo-sessoes" class="mb-2 block text-sm font-semibold">Máximo</label>
-                <p-inputnumber
-                  inputId="maximo-sessoes"
-                  formControlName="maximoSessoes"
-                  [min]="1"
-                  [useGrouping]="false"
-                  styleClass="w-full"
-                  inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-                  [invalid]="
-                    form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
-                  "
-                  [attr.aria-invalid]="
-                    form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
-                  "
-                />
-                @if (form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched) {
-                  <p class="mt-1 text-sm text-red-700" role="alert">Informe pelo menos 1 sessão.</p>
-                }
-              </div>
-            </div>
-          }
-        </fieldset>
+        </p-panel>
 
         <div class="flex items-center gap-3 rounded-xl bg-estetica-bg px-4 py-3 sm:col-span-2">
           <p-toggleswitch inputId="cupom-ativo" formControlName="ativo" />

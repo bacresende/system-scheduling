@@ -17,6 +17,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { PanelModule } from 'primeng/panel';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -37,6 +38,7 @@ import { localDay } from '../../../../shared/utils/date';
     InputNumberModule,
     InputTextModule,
     MultiSelectModule,
+    PanelModule,
     SelectModule,
     SkeletonModule,
     ToggleSwitchModule,
@@ -59,6 +61,7 @@ export class CriarCupomComponent implements OnInit {
   protected readonly loadCycle = signal(0);
   protected readonly hoje = new Date(new Date().setHours(0, 0, 0, 0));
   protected readonly modalAberto = signal(false);
+  protected readonly painelAvancadoRecolhido = signal(true);
   protected readonly editing = signal<string | null>(null);
   protected readonly pendingDelete = signal<Cupom | null>(null);
 
@@ -138,6 +141,15 @@ export class CriarCupomComponent implements OnInit {
 
   protected edit(cupom: Cupom): void {
     this.editing.set(cupom.id);
+    this.painelAvancadoRecolhido.set(
+      !cupom.dataMinima &&
+        !cupom.dataMaxima &&
+        cupom.limiteUsoGlobal === null &&
+        cupom.limitePorCliente === null &&
+        cupom.servicosValidos.length === 0 &&
+        cupom.minimoSessoes === null &&
+        cupom.maximoSessoes === null,
+    );
     this.form.reset({
       codigo: cupom.codigo,
       tipoDesconto: cupom.tipoDesconto,
@@ -227,6 +239,10 @@ export class CriarCupomComponent implements OnInit {
     if (event.target === event.currentTarget) this.cancelar();
   }
 
+  protected atualizarPainelAvancado(recolhido: boolean | undefined): void {
+    this.painelAvancadoRecolhido.set(recolhido ?? true);
+  }
+
   protected deactivate(cupom: Cupom): void {
     void this.state.run(async () => {
       const saved = await this.apiCupons.deactivate(cupom.id);
@@ -283,6 +299,7 @@ export class CriarCupomComponent implements OnInit {
 
   private limparFormulario(): void {
     this.editing.set(null);
+    this.painelAvancadoRecolhido.set(true);
     this.form.reset({
       codigo: '',
       tipoDesconto: 'PORCENTAGEM',
