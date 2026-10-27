@@ -46,9 +46,11 @@
     <div class="mb-6 flex items-start justify-between gap-4">
       <div>
         <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
-          Novo benefício
+          {{ editing() ? 'Atualização de benefício' : 'Novo benefício' }}
         </p>
-        <h2 id="cupom-form-title" class="font-serif text-2xl sm:text-3xl">Criar cupom</h2>
+        <h2 id="cupom-form-title" class="font-serif text-2xl sm:text-3xl">
+          {{ editing() ? 'Editar cupom' : 'Criar cupom' }}
+        </h2>
         <p class="mt-2 text-sm leading-relaxed text-estetica-text/75">
           Configure o desconto e ative somente as regras que deseja aplicar.
         </p>
@@ -114,13 +116,14 @@
 
         <div>
           <label for="valor-desconto" class="mb-2 block text-sm font-semibold">
-            Valor do desconto
+            Valor do desconto (R$)
           </label>
           <p-inputnumber
             inputId="valor-desconto"
             formControlName="valor"
             [min]="0"
             [maxFractionDigits]="2"
+            [prefix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '' : 'R$ '"
             [suffix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '%' : ''"
             locale="pt-BR"
             styleClass="w-full"
@@ -352,7 +355,7 @@
           />
           <p-button
             type="submit"
-            label="Salvar Cupom"
+            [label]="editing() ? 'Salvar alterações' : 'Salvar Cupom'"
             icon="pi pi-check"
             [loading]="state.busy()"
             styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"
@@ -362,11 +365,64 @@
     </form>
   </dialog>
 
+  <dialog
+    #deleteCupomDialog
+    aria-labelledby="delete-cupom-title"
+    (cancel)="handleDeleteDialogCancel($event)"
+    (click)="handleDeleteDialogClick($event)"
+    (close)="handleDeleteDialogClose()"
+    [attr.aria-busy]="state.busy()"
+    class="m-auto w-[calc(100vw-2rem)] max-w-md rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-6"
+  >
+    <div class="mb-4 flex items-start justify-between gap-4">
+      <div>
+        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+          Confirmação
+        </p>
+        <h2 id="delete-cupom-title" class="font-serif text-2xl">Excluir cupom</h2>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        [text]="true"
+        ariaLabel="Fechar confirmação de exclusão"
+        (onClick)="cancelDelete()"
+        [disabled]="state.busy()"
+        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+      />
+    </div>
+
+    <p class="text-sm leading-relaxed text-estetica-text/80">
+      Tem certeza de que deseja excluir permanentemente o cupom
+      <strong class="font-semibold text-estetica-text">{{ pendingDelete()?.codigo }}</strong
+      >? Esta ação não pode ser desfeita.
+    </p>
+
+    <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <p-button
+        type="button"
+        label="Cancelar"
+        [outlined]="true"
+        (onClick)="cancelDelete()"
+        [disabled]="state.busy()"
+        styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+      />
+      <p-button
+        type="button"
+        label="Confirmar exclusão"
+        icon="pi pi-trash"
+        severity="danger"
+        (onClick)="confirmDelete()"
+        [loading]="state.busy()"
+        styleClass="w-full sm:w-auto"
+      />
+    </div>
+  </dialog>
+
   <section aria-labelledby="lista-cupons-title">
     @for (cycle of [loadCycle()]; track cycle) {
       <div class="mb-4 flex items-center justify-between gap-4">
         <div>
-          <h2 id="lista-cupons-title" class="text-lg font-semibold">Cupons cadastrados</h2>
+          <h2 id="lista-cupons-title" class="text-lg font-semibold">Cupons criados</h2>
           @defer (when !state.busy()) {
             <p class="mt-1 text-sm text-estetica-text/70">
               {{ cupons().length }} {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
@@ -478,15 +534,40 @@
                 </dl>
 
                 <div
-                  class="mt-auto flex items-center justify-end border-t border-estetica-secondary pt-4"
+                  class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-estetica-secondary pt-4"
                 >
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p-button
+                      label="Editar"
+                      icon="pi pi-pencil"
+                      [outlined]="true"
+                      [ariaLabel]="'Editar cupom ' + cupom.codigo"
+                      (onClick)="edit(cupom)"
+                      [disabled]="state.busy()"
+                      styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+                    />
+                    @if (cupom.ativo) {
+                      <p-button
+                        label="Inativar"
+                        icon="pi pi-ban"
+                        severity="warn"
+                        [text]="true"
+                        [ariaLabel]="'Inativar cupom ' + cupom.codigo"
+                        (onClick)="deactivate(cupom)"
+                        [disabled]="state.busy()"
+                        styleClass="text-amber-700 hover:bg-amber-50"
+                      />
+                    }
+                  </div>
                   <p-button
-                    [label]="cupom.ativo ? 'Inativar' : 'Ativar'"
-                    [icon]="cupom.ativo ? 'pi pi-ban' : 'pi pi-check'"
+                    label="Excluir"
+                    icon="pi pi-trash"
+                    severity="danger"
                     [outlined]="true"
-                    [ariaLabel]="(cupom.ativo ? 'Inativar cupom ' : 'Ativar cupom ') + cupom.codigo"
-                    (onClick)="alternarAtivo(cupom)"
-                    styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+                    [ariaLabel]="'Excluir cupom ' + cupom.codigo"
+                    (onClick)="requestDelete(cupom)"
+                    [disabled]="state.busy()"
+                    styleClass="ml-auto border-red-200 text-red-600 hover:bg-red-50"
                   />
                 </div>
               </article>

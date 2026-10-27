@@ -53,11 +53,14 @@ export class CriarCupomComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('cupomDialog');
+  private readonly deleteDialogRef = viewChild<ElementRef<HTMLDialogElement>>('deleteCupomDialog');
 
   protected readonly cupons = signal<Cupom[]>([]);
   protected readonly loadCycle = signal(0);
   protected readonly hoje = new Date(new Date().setHours(0, 0, 0, 0));
   protected readonly modalAberto = signal(false);
+  protected readonly editing = signal<string | null>(null);
+  protected readonly pendingDelete = signal<Cupom | null>(null);
 
   protected readonly tiposDesconto = [
     { label: 'Porcentagem', value: 'PORCENTAGEM' as const },
@@ -133,12 +136,82 @@ export class CriarCupomComponent implements OnInit {
     }
   }
 
+  protected edit(cupom: Cupom): void {
+    this.editing.set(cupom.id);
+    this.form.reset({
+      codigo: cupom.codigo,
+      tipoDesconto: cupom.tipoDesconto,
+      valor: cupom.valor,
+      dataMinima: this.dateForForm(cupom.dataMinima),
+      dataMaxima: this.dateForForm(cupom.dataMaxima),
+      limitarGlobal: cupom.limiteUsoGlobal !== null,
+      limiteUsoGlobal: cupom.limiteUsoGlobal,
+      limitarPorCliente: cupom.limitePorCliente !== null,
+      limitePorCliente: cupom.limitePorCliente,
+      restringirServicos: cupom.servicosValidos.length > 0,
+      servicosValidos: [...cupom.servicosValidos],
+      restringirSessoes: cupom.minimoSessoes !== null || cupom.maximoSessoes !== null,
+      minimoSessoes: cupom.minimoSessoes,
+      maximoSessoes: cupom.maximoSessoes,
+      ativo: cupom.ativo,
+    });
+
+    const dialog = this.dialogRef()?.nativeElement;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+      this.modalAberto.set(true);
+    }
+  }
+
   protected cancelar(): void {
     if (this.state.busy()) return;
     this.limparFormulario();
     const dialog = this.dialogRef()?.nativeElement;
     if (dialog?.open) dialog.close();
     this.modalAberto.set(false);
+  }
+
+  protected requestDelete(cupom: Cupom): void {
+    this.pendingDelete.set(cupom);
+    const dialog = this.deleteDialogRef()?.nativeElement;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+      this.modalAberto.set(true);
+    }
+  }
+
+  protected cancelDelete(): void {
+    if (this.state.busy()) return;
+    this.pendingDelete.set(null);
+    const dialog = this.deleteDialogRef()?.nativeElement;
+    if (dialog?.open) dialog.close();
+    this.modalAberto.set(false);
+  }
+
+  protected handleDeleteDialogCancel(event: Event): void {
+    event.preventDefault();
+    this.cancelDelete();
+  }
+
+  protected handleDeleteDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) this.cancelDelete();
+  }
+
+  protected handleDeleteDialogClose(): void {
+    this.modalAberto.set(false);
+  }
+
+  protected confirmDelete(): void {
+    const cupom = this.pendingDelete();
+    if (!cupom) return;
+
+    void this.state.run(async () => {
+      await this.apiCupons.delete(cupom.id);
+      this.cupons.update((items) => items.filter((item) => item.id !== cupom.id));
+      this.pendingDelete.set(null);
+      const dialog = this.deleteDialogRef()?.nativeElement;
+      if (dialog?.open) dialog.close();
+    }, 'Cupom excluído.');
   }
 
   protected handleDialogCancel(event: Event): void {
@@ -154,10 +227,13 @@ export class CriarCupomComponent implements OnInit {
     if (event.target === event.currentTarget) this.cancelar();
   }
 
-  protected alternarAtivo(cupom: Cupom): void {
-    this.cupons.update((items) =>
-      items.map((item) => (item.id === cupom.id ? { ...item, ativo: !item.ativo } : item)),
-    );
+  protected deactivate(cupom: Cupom): void {
+    void this.state.run(async () => {
+      const saved = await this.apiCupons.deactivate(cupom.id);
+      this.cupons.update((items) =>
+        items.map((item) => (item.id === saved.id ? saved : item)),
+      );
+    }, 'Cupom inativado.');
   }
 
   protected servicosDoCupom(cupom: Cupom): string[] {
@@ -193,16 +269,20 @@ export class CriarCupomComponent implements OnInit {
 
     void this.state.run(async () => {
       this.loadCycle.update((cycle) => cycle + 1);
-      const saved = await this.apiCupons.create(payload);
+      const id = this.editing();
+      const saved = id
+        ? await this.apiCupons.update(id, payload)
+        : await this.apiCupons.create(payload);
       this.cupons.update((items) => [...items.filter((item) => item.id !== saved.id), saved]);
 
       this.limparFormulario();
       const dialog = this.dialogRef()?.nativeElement;
       if (dialog?.open) dialog.close();
-    }, 'Cupom salvo.');
+    }, this.editing() ? 'Cupom atualizado.' : 'Cupom salvo.');
   }
 
   private limparFormulario(): void {
+    this.editing.set(null);
     this.form.reset({
       codigo: '',
       tipoDesconto: 'PORCENTAGEM',
@@ -220,6 +300,13 @@ export class CriarCupomComponent implements OnInit {
       maximoSessoes: null,
       ativo: true,
     });
+  }
+
+  private dateForForm(value: string | null | undefined): Date | null {
+    if (!value) return null;
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return Number.isNaN(date.getTime()) ? null : date;
   }
 
   private configurarCampoCondicional(

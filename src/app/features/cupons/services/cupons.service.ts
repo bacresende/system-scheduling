@@ -17,10 +17,26 @@ export class CuponsService {
       .then((cupom) => this.normalizeCupom(cupom));
   }
 
+  update(id: string, payload: NovoCupomPayload): Promise<Cupom> {
+    return this.api
+      .request<CupomApiResponse>('POST', '/updateCupom', { ...payload, id })
+      .then((cupom) => this.normalizeCupom(cupom));
+  }
+
   list(): Promise<Cupom[]> {
     return this.api
       .request<CupomApiResponse[]>('POST', '/listCupons')
       .then((cupons) => cupons.map((cupom) => this.normalizeCupom(cupom)));
+  }
+
+  delete(id: string): Promise<{ id: string }> {
+    return this.api.request('POST', '/deleteCupom', { id });
+  }
+
+  deactivate(id: string): Promise<Cupom> {
+    return this.api
+      .request<CupomApiResponse>('POST', '/deactivateCupom', { id })
+      .then((cupom) => this.normalizeCupom(cupom));
   }
 
   private normalizeCupom(cupom: CupomApiResponse): Cupom {
