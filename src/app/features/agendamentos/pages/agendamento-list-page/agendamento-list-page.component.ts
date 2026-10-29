@@ -742,7 +742,7 @@ export class AgendamentoListPageComponent implements OnInit {
           `Configure seu dispositivo no fuso da clínica (${loadedConfig.fusoHorario}) para operar a agenda.`,
         );
       }
-      debugger;
+
       this.config.set(loadedConfig);
       if (clientesResult.status === 'fulfilled') {
         this.clientes.set(clientesResult.value);
