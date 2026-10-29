@@ -420,6 +420,41 @@ export class AgendamentoListPageComponent implements OnInit {
     );
   });
 
+  protected readonly sessoesDoPacoteSelecionado = computed<Agendamento[]>(() => {
+    const atual = this.selectedBooking();
+    if (!atual) return [];
+    const todas = this.bookings();
+
+    if (atual.idPacote) {
+      return todas
+        .filter((b) => b.idPacote === atual.idPacote)
+        .sort((a, b) => (a.sessaoNumero ?? 1) - (b.sessaoNumero ?? 1));
+    }
+
+    if ((atual.totalSessoes ?? 1) > 1) {
+      return todas
+        .filter(
+          (b) =>
+            b.idCliente === atual.idCliente &&
+            b.idServico === atual.idServico &&
+            b.totalSessoes === atual.totalSessoes,
+        )
+        .sort((a, b) => (a.sessaoNumero ?? 1) - (b.sessaoNumero ?? 1));
+    }
+
+    return [];
+  });
+
+  protected readonly progressoPacoteSelecionado = computed(() => {
+    const sessoes = this.sessoesDoPacoteSelecionado();
+    const total = sessoes.length || (this.selectedBooking()?.totalSessoes ?? 1);
+    const concluidas = sessoes.filter((s) => s.status === 'Concluido').length;
+    const emAberto = sessoes.filter(
+      (s) => s.dataDefinida === false && s.status !== 'Cancelado',
+    ).length;
+    return { total, concluidas, emAberto };
+  });
+
   constructor() {
     this.form.controls.idServico.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1295,6 +1330,24 @@ export class AgendamentoListPageComponent implements OnInit {
 
   protected alternarPainelDetalhe(painel: PainelDetalheAgendamento): void {
     this.detalhePainelAtivo.update((atual) => (atual === painel ? 'nenhum' : painel));
+  }
+
+  protected selecionarSessaoDoPacote(sessao: Agendamento): void {
+    const painel: PainelDetalheAgendamento =
+      sessao.dataDefinida === false && this.isAtendimentoAtivo(sessao.status)
+        ? 'reagendar'
+        : 'nenhum';
+    this.abrirDetalhes(sessao, painel);
+  }
+
+  protected irParaDataSessaoDoPacote(sessao: Agendamento, event: Event): void {
+    event.stopPropagation();
+    if (sessao.dataDefinida === false) {
+      this.abrirDetalhes(sessao, 'reagendar');
+      return;
+    }
+    this.fecharDetalhes();
+    this.jumpToBookingDate(sessao);
   }
 
   protected onFileSelected(event: Event): void {

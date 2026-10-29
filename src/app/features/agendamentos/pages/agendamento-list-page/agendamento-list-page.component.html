@@ -1719,6 +1719,128 @@
         }
       </div>
 
+      <!-- CARD DE SESSÕES VINCULADAS DO PACOTE -->
+      @if (sessoesDoPacoteSelecionado().length > 1) {
+        <div
+          class="mt-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-medium text-[#2D2224]">Sessões deste pacote</h3>
+              <p class="text-xs text-estetica-text/75">
+                Clique em outra sessão para consultar detalhes, definir horário ou reagendar.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span
+                class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]"
+              >
+                {{ progressoPacoteSelecionado().concluidas }}/{{
+                  progressoPacoteSelecionado().total
+                }}
+                concluídas
+              </span>
+              @if (progressoPacoteSelecionado().emAberto > 0) {
+                <span
+                  class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-900"
+                >
+                  {{ progressoPacoteSelecionado().emAberto }} em aberto
+                </span>
+              }
+            </div>
+          </div>
+
+          <div class="relative ml-2 space-y-2.5 border-l-2 border-[#E2C6CB] pl-5">
+            @for (sessao of sessoesDoPacoteSelecionado(); track sessao.id) {
+              <div class="relative">
+                <span
+                  aria-hidden="true"
+                  class="absolute -left-[1.6rem] top-4 size-3.5 rounded-full border-2 border-[#9E4758]"
+                  [class]="
+                    sessao.id === item.id || sessao.status === 'Concluido'
+                      ? 'bg-[#9E4758]'
+                      : 'bg-white'
+                  "
+                ></span>
+
+                <div
+                  (click)="selecionarSessaoDoPacote(sessao)"
+                  (keydown.enter)="selecionarSessaoDoPacote(sessao)"
+                  (keydown.space)="selecionarSessaoDoPacote(sessao); $event.preventDefault()"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-current]="sessao.id === item.id ? 'true' : null"
+                  [class]="
+                    sessao.id === item.id
+                      ? 'border-[#9E4758] bg-[#F6E4E7]/50 ring-1 ring-[#9E4758]/25'
+                      : 'border-[#E8D5D8] bg-white hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                  "
+                  class="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl border p-3 transition"
+                >
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="text-sm font-medium text-[#2D2224]">
+                        {{ sessao.sessaoNumero ?? 1 }}ª sessão
+                      </span>
+                      <span
+                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                        [class]="statusBadgeClass(sessao.status)"
+                      >
+                        {{ statusLabel(sessao.status) }}
+                      </span>
+                      @if (sessao.id === item.id) {
+                        <span
+                          class="rounded-full bg-[#9E4758] px-2.5 py-0.5 text-[10px] font-medium text-white"
+                        >
+                          Visualizando agora
+                        </span>
+                      }
+                    </div>
+
+                    <p class="mt-1 text-xs text-estetica-text/80">
+                      @if (sessao.dataDefinida === false) {
+                        <span class="font-medium text-amber-800">
+                          Data e horário em aberto (clique para definir)
+                        </span>
+                      } @else {
+                        {{ formatarResumoHorario(sessao.dataHora, sessao.duracaoMinutos) }}
+                      }
+                    </p>
+                  </div>
+
+                  <div class="flex shrink-0 items-center gap-2">
+                    @if (sessao.dataDefinida === false && isAtendimentoAtivo(sessao.status)) {
+                      <span
+                        class="rounded-lg bg-[#9E4758] px-2.5 py-1 text-xs font-medium text-white shadow-2xs"
+                      >
+                        Definir horário
+                      </span>
+                    } @else if (sessao.id !== item.id) {
+                      <span
+                        class="rounded-lg border border-[#E8D5D8] bg-estetica-bg px-2.5 py-1 text-xs font-medium text-[#9E4758]"
+                      >
+                        Ver sessão
+                      </span>
+                    }
+                    @if (sessao.dataDefinida !== false) {
+                      <button
+                        type="button"
+                        (click)="irParaDataSessaoDoPacote(sessao, $event)"
+                        aria-label="Ir para o dia desta sessão na agenda"
+                        title="Ir para este dia na agenda"
+                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-white text-[#9E4758] transition hover:bg-[#F6E4E7]"
+                      >
+                        <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <!-- PAINEL EXPANSÍVEL 1: CONCLUIR ATENDIMENTO -->
       @if (isAtendimentoAtivo(item.status) && detalhePainelAtivo() === 'concluir') {
         <form
