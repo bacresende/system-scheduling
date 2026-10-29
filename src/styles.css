@@ -1,17 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "tailwindcss-primeui";
-@import "primeicons/primeicons.css";
-
+@import 'primeicons/primeicons.css';
 
 /* 1. O seu "Painel de Controlo" de cores através de variáveis nativas do CSS */
 :root {
-  --cor-primaria: #E5989B;
-  --cor-primaria-escura: color-mix(in srgb, var(--cor-primaria) 55%, var(--cor-texto));
-  --cor-secundaria: #F6EBEC;
-  --cor-terciaria: #9EB3A6;
-  --cor-fundo: #FCFAFA;
-  --cor-texto: #4A4A4A;
+  --cor-primaria: #9e4758;
+  --cor-primaria-escura: color-mix(in srgb, var(#e5989b) 55%, var(--cor-texto));
+  --cor-secundaria: #f6ebec;
+  --cor-terciaria: #9eb3a6;
+  --cor-fundo: #fcfafa;
+  --cor-texto: #4a4a4a;
 }
 
 /* 2. Ensinando o Tailwind v4 a ler o seu painel de controlo */

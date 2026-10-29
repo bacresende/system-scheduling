@@ -1,31 +1,2041 @@
-<h1 class="mb-4 text-3xl font-bold">Agenda</h1>
-<app-request-feedback />
-<form [formGroup]="filter" (ngSubmit)="refresh()" class="mb-6 flex flex-col gap-3 md:flex-row md:items-end">
-  <div><label for="dia">Data de referência</label><p-datepicker inputId="dia" formControlName="data" dateFormat="dd/mm/yy" styleClass="mt-1 w-full" /></div>
-  <div><label for="modo">Visão</label><p-select inputId="modo" formControlName="modo" [options]="modos" optionLabel="label" optionValue="value" styleClass="mt-1 w-full" /></div>
-  <p-button type="submit" label="Consultar" [disabled]="state.busy()" styleClass="w-full md:w-auto" />
-</form>
-<section aria-label="Calendário" class="mb-8 grid grid-cols-1 gap-3 lg:grid-cols-7">
-  @for (day of days(); track day.date.getTime()) {
-    <article class="min-w-0 rounded-xl border border-estetica-secondary bg-white p-3" [class.lg:col-span-7]="mode() === 'dia'">
-      <h2 class="mb-3 font-bold">{{ day.date | date:'dd/MM/yyyy' }}</h2>
-      @for (item of day.items; track item.id) {
-        <a [routerLink]="['/agendamentos', item.id]" class="mb-3 block rounded-lg border-l-4 border-estetica-primary bg-estetica-secondary p-3 underline">
-          <span class="block font-semibold">{{ item.dataHora | date:'HH:mm' }}–{{ endTime(item.dataHora, item.duracaoMinutos) | date:'HH:mm' }}</span>
-          <span class="block">{{ clientName(item.idCliente) }}</span>
-          <span class="block">{{ serviceName(item.idServico) }}</span>
-          <span>{{ item.status }}</span>
-        </a>
-      } @empty { <p>Sem agendamentos.</p> }
-    </article>
+@if (!modalAberto()) {
+  <app-request-feedback />
+}
+
+<section aria-labelledby="agenda-title" class="mx-auto max-w-7xl">
+  <!-- Cabeçalho principal -->
+  <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-[#9E4758] uppercase">
+        Rotina da clínica
+      </p>
+      <h1
+        id="agenda-title"
+        class="font-serif text-4xl leading-tight tracking-tight text-[#2D2224] sm:text-5xl"
+      >
+        Agenda
+      </h1>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-estetica-text/80">
+        Gerencie os horários da clínica, confirme solicitações de clientes, reagende sessões e
+        registre a conclusão dos atendimentos.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <p-button
+        label="Atualizar"
+        icon="pi pi-refresh"
+        [outlined]="true"
+        (onClick)="loadAll()"
+        [disabled]="state.busy()"
+        styleClass="border-[#D8B8BE] bg-white text-[#7A3B48] shadow-xs hover:bg-[#F6E4E7]"
+      />
+      <p-button
+        label="Novo agendamento"
+        icon="pi pi-plus"
+        (onClick)="abrirNovoAgendamento(selectedDay())"
+        [disabled]="state.busy()"
+        styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
+      />
+    </div>
+  </header>
+
+  <!-- Fila de Atenção do Admin: Confirmações Pendentes e Reagendamentos de Clientes -->
+  @if (pendingAttentionBookings().length) {
+    <section
+      aria-labelledby="alertas-agenda-title"
+      class="mb-6 rounded-2xl border border-amber-300 bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(180,83,9,0.16),0_4px_12px_-2px_rgba(74,50,55,0.08)]"
+    >
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            class="flex size-9 items-center justify-center rounded-full bg-amber-100 text-amber-800"
+          >
+            <i class="pi pi-bell text-sm"></i>
+          </span>
+          <div>
+            <h2 id="alertas-agenda-title" class="text-sm font-medium text-[#2D2224]">
+              Solicitações e alterações aguardando sua atenção ({{
+                pendingAttentionBookings().length
+              }})
+            </h2>
+            <p class="text-xs text-estetica-text/75">
+              Confirme os horários solicitados ou tome ciência dos reagendamentos realizados.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-2">
+        @for (alerta of pendingAttentionBookings(); track alerta.id) {
+          <article
+            class="flex flex-col justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs sm:flex-row sm:items-center"
+          >
+            <div class="min-w-0">
+              <div class="mb-1 flex flex-wrap items-center gap-2">
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900"
+                >
+                  @if (alerta.reagendado) {
+                    <i class="pi pi-sync text-[10px]" aria-hidden="true"></i>
+                    Reagendado pela cliente
+                  } @else {
+                    <i class="pi pi-clock text-[10px]" aria-hidden="true"></i>
+                    Aguardando confirmação
+                  }
+                </span>
+                @if (alerta.totalSessoes && alerta.totalSessoes > 1) {
+                  <span
+                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#9E4758]"
+                  >
+                    Sessão {{ alerta.sessaoNumero ?? 1 }}/{{ alerta.totalSessoes }}
+                  </span>
+                }
+              </div>
+              <p class="truncate text-sm font-medium text-[#2D2224]">
+                {{ clientName(alerta.idCliente) }} • {{ serviceName(alerta.idServico) }}
+              </p>
+              <p class="mt-0.5 text-xs text-estetica-text/80">
+                @if (alerta.reagendado && alerta.dataHoraAnterior) {
+                  De
+                  <span class="line-through">{{
+                    alerta.dataHoraAnterior | date: 'dd/MM HH:mm'
+                  }}</span>
+                  para
+                  <strong class="font-semibold text-[#2D2224]">{{
+                    alerta.dataHora | date: 'dd/MM/yyyy HH:mm'
+                  }}</strong>
+                } @else {
+                  Horário solicitado:
+                  <strong class="font-semibold text-[#2D2224]">{{
+                    alerta.dataHora | date: 'dd/MM/yyyy HH:mm'
+                  }}</strong>
+                }
+              </p>
+            </div>
+
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
+              @if (alerta.status === 'AguardandoConfirmacao') {
+                <p-button
+                  label="Confirmar"
+                  icon="pi pi-check"
+                  size="small"
+                  (onClick)="confirmarAgendamento(alerta)"
+                  [disabled]="state.busy()"
+                  styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white text-xs"
+                />
+              } @else {
+                <p-button
+                  label="Ciente"
+                  icon="pi pi-check"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="marcarAlertaVisto(alerta)"
+                  [disabled]="state.busy()"
+                  styleClass="border-[#9E4758] text-[#9E4758] text-xs"
+                />
+              }
+              <p-button
+                label="Ajustar"
+                icon="pi pi-calendar"
+                size="small"
+                [outlined]="true"
+                (onClick)="abrirDetalhes(alerta, 'reagendar')"
+                [disabled]="state.busy()"
+                styleClass="border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#F6E4E7] text-xs"
+              />
+              <p-button
+                icon="pi pi-arrow-right"
+                size="small"
+                [text]="true"
+                ariaLabel="Ir para a data deste agendamento"
+                (onClick)="jumpToBookingDate(alerta)"
+                styleClass="text-[#9E4758]"
+              />
+            </div>
+          </article>
+        }
+      </div>
+    </section>
   }
+
+  <!-- Sessões de Pacotes com Data em Aberto -->
+  @if (openSessionBookings().length) {
+    <section
+      aria-labelledby="sessoes-aberto-title"
+      class="mb-6 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+    >
+      <div class="mb-3.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            class="flex size-8 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+          >
+            <i class="pi pi-calendar-plus text-xs"></i>
+          </span>
+          <div>
+            <h2 id="sessoes-aberto-title" class="text-sm font-medium text-[#2D2224]">
+              Sessões de pacotes em aberto ({{ openSessionBookings().length }})
+            </h2>
+            <p class="text-xs text-estetica-text/75">
+              Sessões flexíveis aguardando definição de dia e horário.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-2.5">
+        @for (aberta of openSessionBookings(); track aberta.id) {
+          <div
+            class="inline-flex items-center gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs shadow-2xs"
+          >
+            <div>
+              <span class="font-medium text-[#2D2224]">{{ clientName(aberta.idCliente) }}</span>
+              <span class="mx-1 text-estetica-text/50">·</span>
+              <span class="font-medium text-estetica-text">{{
+                serviceName(aberta.idServico)
+              }}</span>
+              <span
+                class="ml-2 rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#9E4758]"
+              >
+                {{ aberta.sessaoNumero ?? 1 }}ª de {{ aberta.totalSessoes ?? 1 }}
+              </span>
+            </div>
+            <button
+              type="button"
+              (click)="abrirDetalhes(aberta, 'reagendar')"
+              class="cursor-pointer rounded-lg bg-[#9E4758] px-3 py-1.5 font-semibold text-white shadow-2xs transition hover:bg-[#873B4A]"
+            >
+              Definir horário
+            </button>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Barra de Controle: Navegação de Data, Alternador Diária/Semanal e Filtro de Status -->
+  <section
+    aria-label="Controles da agenda"
+    class="mb-6 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+  >
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <!-- Navegador de Data -->
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        <div class="inline-flex items-center rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-1">
+          <button
+            type="button"
+            (click)="navigatePeriod(-1)"
+            [disabled]="state.busy()"
+            aria-label="Período anterior"
+            class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+          >
+            <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            (click)="goToToday()"
+            [disabled]="state.busy()"
+            class="cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-medium text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+          >
+            Hoje
+          </button>
+          <button
+            type="button"
+            (click)="navigatePeriod(1)"
+            [disabled]="state.busy()"
+            aria-label="Próximo período"
+            class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+          >
+            <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <div class="w-44 sm:w-48">
+          <label for="dia-referencia" class="sr-only">Data de referência</label>
+          <p-datepicker
+            inputId="dia-referencia"
+            [ngModel]="selectedDay()"
+            (ngModelChange)="onDateSelected($event)"
+            dateFormat="dd/mm/yy"
+            [showIcon]="true"
+            iconDisplay="input"
+            styleClass="w-full"
+            inputStyleClass="min-h-10 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224] shadow-2xs"
+          />
+        </div>
+
+        <div class="hidden sm:block">
+          @if (mode() === 'dia' && days()[0]; as currentDay) {
+            <p class="text-sm font-medium text-[#2D2224]">
+              {{ currentDay.longLabel }}, {{ currentDay.date | date: 'dd/MM/yyyy' }}
+            </p>
+            <p class="text-xs text-estetica-text/70">
+              Expediente: {{ currentDay.expedienteLabel }}
+            </p>
+          } @else if (days().length === 7) {
+            <p class="text-sm font-medium text-[#2D2224]">
+              Semana de {{ days()[0].date | date: 'dd/MM' }} a
+              {{ days()[6].date | date: 'dd/MM/yyyy' }}
+            </p>
+            <p class="text-xs text-estetica-text/70">Visão semanal completa</p>
+          }
+        </div>
+      </div>
+
+      <!-- Alternador de Visão (Diária / Semanal) -->
+      <div class="flex items-center justify-between gap-3 sm:justify-end">
+        <div
+          role="group"
+          aria-label="Modo de visualização da agenda"
+          class="inline-flex rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-1"
+        >
+          @for (item of modos; track item.value) {
+            <button
+              type="button"
+              (click)="setMode(item.value)"
+              [attr.aria-pressed]="mode() === item.value"
+              [class]="
+                mode() === item.value
+                  ? 'bg-[#9E4758] text-white shadow-sm'
+                  : 'text-[#2D2224]/75 hover:text-[#2D2224]'
+              "
+              class="cursor-pointer rounded-lg px-4 py-1.5 text-xs font-medium transition"
+            >
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros rápidos por Status e Contadores -->
+    <div
+      class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#F0E2E4] pt-3.5"
+    >
+      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por status">
+        <button
+          type="button"
+          (click)="setStatusFilter('TODOS')"
+          [class]="
+            statusFilter() === 'TODOS'
+              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+          "
+          class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
+        >
+          Todos ({{ periodCounters().total }})
+        </button>
+        <button
+          type="button"
+          (click)="setStatusFilter('AGUARDANDO')"
+          [class]="
+            statusFilter() === 'AGUARDANDO'
+              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+          "
+          class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
+        >
+          Aguardando confirmação ({{ periodCounters().aguardando }})
+        </button>
+        <button
+          type="button"
+          (click)="setStatusFilter('CONFIRMADO')"
+          [class]="
+            statusFilter() === 'CONFIRMADO'
+              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+          "
+          class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
+        >
+          Confirmados ({{ periodCounters().confirmados }})
+        </button>
+        <button
+          type="button"
+          (click)="setStatusFilter('CONCLUIDO')"
+          [class]="
+            statusFilter() === 'CONCLUIDO'
+              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+          "
+          class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
+        >
+          Concluídos ({{ periodCounters().concluidos }})
+        </button>
+        <button
+          type="button"
+          (click)="setStatusFilter('CANCELADO')"
+          [class]="
+            statusFilter() === 'CANCELADO'
+              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+          "
+          class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
+        >
+          Cancelados ({{ periodCounters().cancelados }})
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calendário / Lista de Agendamentos -->
+  <section aria-label="Calendário de agendamentos" class="mb-8">
+    @for (cycle of [loadCycle()]; track cycle) {
+      @defer (when !state.busy()) {
+        @if (mode() === 'dia') {
+          <!-- VISÃO DIÁRIA -->
+          @for (day of days(); track day.dayKey) {
+            @if (day.items.length) {
+              <div class="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
+                @for (item of day.items; track item.id) {
+                  <article
+                    class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-[#9E4758]/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] sm:p-6"
+                  >
+                    <div
+                      aria-hidden="true"
+                      class="absolute inset-y-0 left-0 w-1.5"
+                      [class]="cardAccentClass(item.status)"
+                    ></div>
+
+                    <!-- Topo do Card: Badges e Valor -->
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <span
+                          class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                          [class]="statusBadgeClass(item.status)"
+                        >
+                          <span
+                            aria-hidden="true"
+                            class="size-2 rounded-full"
+                            [class]="statusDotClass(item.status)"
+                          ></span>
+                          {{ statusLabel(item.status) }}
+                        </span>
+
+                        @if (item.totalSessoes && item.totalSessoes > 1) {
+                          <span
+                            class="inline-flex items-center rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]"
+                          >
+                            {{ item.sessaoNumero ?? 1 }}ª de {{ item.totalSessoes }} sessões
+                          </span>
+                        }
+
+                        @if (item.reagendado) {
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900"
+                          >
+                            <i class="pi pi-sync text-[10px]" aria-hidden="true"></i>
+                            Reagendado
+                          </span>
+                        }
+                      </div>
+
+                      <div class="shrink-0 text-right">
+                        <p class="text-lg font-medium text-[#2D2224]">
+                          {{ item.valor | currency: 'BRL' }}
+                        </p>
+                        @if (item.codigoCupom) {
+                          <span
+                            class="inline-block rounded-full bg-[#F6E4E7] px-2 py-0.5 text-[10px] font-semibold text-[#9E4758]"
+                          >
+                            {{ item.codigoCupom }}
+                          </span>
+                        } @else if (item.valorDesconto && item.valorDesconto > 0) {
+                          <span class="block text-[11px] text-estetica-text/70">c/ desconto</span>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Horário em Pílula Rosa e Cliente -->
+                    <div class="mt-4">
+                      <div
+                        class="inline-flex items-center gap-2 rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#7A3B48]"
+                      >
+                        <i class="pi pi-clock text-[11px]" aria-hidden="true"></i>
+                        <span>
+                          {{ item.dataHora | date: 'HH:mm' }} –
+                          {{ endTime(item.dataHora, item.duracaoMinutos) | date: 'HH:mm' }}
+                        </span>
+                        <span>·</span>
+                        <span>{{ item.duracaoMinutos }} min</span>
+                      </div>
+
+                      <h3
+                        class="mt-3 break-words text-xl font-medium tracking-tight text-[#2D2224]"
+                      >
+                        {{ clientName(item.idCliente) }}
+                      </h3>
+                      <p class="mt-0.5 text-sm font-medium text-estetica-text/80">
+                        {{ serviceName(item.idServico) }}
+                      </p>
+                    </div>
+
+                    <!-- Metadados do Agendamento -->
+                    <dl
+                      class="mt-4 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3.5 text-xs"
+                    >
+                      <div>
+                        <dt class="text-estetica-text/70">Profissional</dt>
+                        <dd class="mt-0.5 font-semibold text-[#2D2224]">
+                          {{ professionalName(item.idFuncionario) }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-estetica-text/70">Pagamento</dt>
+                        <dd class="mt-0.5 font-semibold text-[#2D2224]">
+                          {{ item.metodoPagamento || 'No fechamento' }}
+                        </dd>
+                      </div>
+                      @if (item.reagendado && item.dataHoraAnterior) {
+                        <div class="col-span-2 border-t border-[#E8D5D8] pt-2">
+                          <dt class="text-estetica-text/70">Horário anterior</dt>
+                          <dd class="mt-0.5 font-medium text-estetica-text/85">
+                            {{ item.dataHoraAnterior | date: 'dd/MM/yyyy HH:mm' }}
+                          </dd>
+                        </div>
+                      }
+                    </dl>
+
+                    <!-- Rodapé de Ações do Card -->
+                    <div
+                      class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[#F0E2E4] pt-4"
+                    >
+                      <div class="flex flex-wrap items-center gap-2">
+                        @if (item.status === 'AguardandoConfirmacao') {
+                          <p-button
+                            label="Confirmar"
+                            icon="pi pi-check"
+                            size="small"
+                            (onClick)="confirmarAgendamento(item)"
+                            [disabled]="state.busy()"
+                            styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white"
+                          />
+                        }
+                        @if (isAtendimentoAtivo(item.status)) {
+                          <p-button
+                            label="Concluir"
+                            icon="pi pi-check-circle"
+                            size="small"
+                            [outlined]="true"
+                            (onClick)="abrirDetalhes(item, 'concluir')"
+                            [disabled]="state.busy()"
+                            styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
+                          />
+                          <p-button
+                            label="Reagendar"
+                            icon="pi pi-calendar"
+                            size="small"
+                            [text]="true"
+                            (onClick)="abrirDetalhes(item, 'reagendar')"
+                            [disabled]="state.busy()"
+                            styleClass="text-[#2D2224] hover:bg-[#FAF4F5]"
+                          />
+                        }
+                      </div>
+
+                      <div class="flex items-center gap-1.5">
+                        @if (whatsappReminderUrl(item); as waUrl) {
+                          <a
+                            [href]="waUrl"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            [attr.aria-label]="
+                              'Enviar mensagem no WhatsApp para ' + clientName(item.idCliente)
+                            "
+                            class="inline-flex size-9 items-center justify-center rounded-full border border-[#E8D5D8] bg-[#FAF4F5] text-[#9E4758] transition hover:bg-[#F6E4E7]"
+                          >
+                            <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
+                          </a>
+                        }
+                        <p-button
+                          label="Detalhes"
+                          icon="pi pi-eye"
+                          size="small"
+                          [text]="true"
+                          (onClick)="abrirDetalhes(item, 'nenhum')"
+                          styleClass="text-[#9E4758] hover:bg-[#F6E4E7]"
+                        />
+                      </div>
+                    </div>
+                  </article>
+                }
+              </div>
+            } @else {
+              <!-- Empty State Diário com Sombra Elevada -->
+              <div
+                class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+              >
+                <span
+                  aria-hidden="true"
+                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758]"
+                >
+                  <i class="pi pi-calendar text-xl"></i>
+                </span>
+                <h2 class="text-lg font-medium text-[#2D2224]">Nenhum atendimento neste dia</h2>
+                <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+                  A agenda de {{ day.date | date: 'dd/MM/yyyy' }} está livre para este filtro.
+                  Reserve um novo horário para começar.
+                </p>
+                <p-button
+                  label="Agendar neste dia"
+                  icon="pi pi-plus"
+                  (onClick)="abrirNovoAgendamento(day.date)"
+                  [disabled]="state.busy()"
+                  styleClass="mt-5 !bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.45)]"
+                />
+              </div>
+            }
+          }
+        } @else {
+          <!-- VISÃO SEMANAL -->
+          <div class="mb-4 flex gap-1.5 overflow-x-auto pb-1 lg:hidden">
+            <button
+              type="button"
+              (click)="toggleMobileWeekDay(null)"
+              [class]="
+                mobileWeekDayIndex() === null
+                  ? 'bg-[#9E4758] text-white shadow-xs'
+                  : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
+              "
+              class="shrink-0 cursor-pointer rounded-xl px-3.5 py-2 text-xs font-semibold"
+            >
+              Semana toda
+            </button>
+            @for (day of days(); track day.dayKey; let idx = $index) {
+              <button
+                type="button"
+                (click)="toggleMobileWeekDay(idx)"
+                [class]="
+                  mobileWeekDayIndex() === idx
+                    ? 'bg-[#9E4758] text-white shadow-xs'
+                    : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
+                "
+                class="flex shrink-0 cursor-pointer flex-col items-center rounded-xl px-3 py-1.5 text-xs"
+              >
+                <span class="font-semibold">{{ day.shortLabel }}</span>
+                <span class="text-[11px]">{{ day.date | date: 'dd/MM' }}</span>
+                <span
+                  class="mt-0.5 rounded-full bg-[#F6E4E7] px-1.5 text-[10px] font-medium text-[#9E4758]"
+                >
+                  {{ day.items.length }}
+                </span>
+              </button>
+            }
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-7">
+            @for (day of visibleDays(); track day.dayKey) {
+              <article
+                class="flex min-h-72 min-w-0 flex-col rounded-2xl border bg-estetica-bg p-3.5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+                [class]="
+                  day.isToday
+                    ? 'border-2 border-[#9E4758] ring-2 ring-[#9E4758]/15'
+                    : 'border-[#E8D5D8]'
+                "
+              >
+                <!-- Cabeçalho do Dia na Semana -->
+                <div
+                  class="mb-3 flex items-center justify-between gap-2 rounded-xl bg-[#FAF4F5] px-3 py-2"
+                >
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-medium tracking-wide text-[#9E4758] uppercase">
+                        {{ day.shortLabel }}
+                      </span>
+                      @if (day.isToday) {
+                        <span
+                          class="rounded-full bg-[#9E4758] px-2 py-0.5 text-[10px] font-medium text-white"
+                        >
+                          Hoje
+                        </span>
+                      }
+                    </div>
+                    <h2 class="text-base font-medium text-[#2D2224]">
+                      {{ day.date | date: 'dd/MM' }}
+                    </h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    (click)="abrirNovoAgendamento(day.date)"
+                    [attr.aria-label]="'Novo agendamento em ' + (day.date | date: 'dd/MM/yyyy')"
+                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758] transition hover:bg-[#9E4758] hover:text-white"
+                  >
+                    <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <!-- Lista Compacta de Agendamentos do Dia -->
+                <div class="flex flex-1 flex-col gap-2.5">
+                  @for (item of day.items; track item.id) {
+                    <button
+                      type="button"
+                      (click)="abrirDetalhes(item, 'nenhum')"
+                      class="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-[#E8D5D8] bg-[#FAF4F5]/70 p-2.5 pl-3.5 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-[#9E4758] hover:bg-white hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#9E4758]"
+                    >
+                      <span
+                        aria-hidden="true"
+                        class="absolute inset-y-0 left-0 w-1.5"
+                        [class]="cardAccentClass(item.status)"
+                      ></span>
+
+                      <div class="flex items-center justify-between gap-1">
+                        <span class="text-xs font-medium text-[#9E4758]">
+                          {{ item.dataHora | date: 'HH:mm' }}–{{
+                            endTime(item.dataHora, item.duracaoMinutos) | date: 'HH:mm'
+                          }}
+                        </span>
+                        @if (item.totalSessoes && item.totalSessoes > 1) {
+                          <span
+                            class="rounded-full bg-[#F6E4E7] px-1.5 py-0.5 text-[10px] font-medium text-[#9E4758]"
+                          >
+                            {{ item.sessaoNumero ?? 1 }}/{{ item.totalSessoes }}
+                          </span>
+                        }
+                      </div>
+
+                      <p class="mt-1 truncate text-xs font-medium text-[#2D2224]">
+                        {{ clientName(item.idCliente) }}
+                      </p>
+                      <p class="truncate text-[11px] text-estetica-text/75">
+                        {{ serviceName(item.idServico) }}
+                      </p>
+
+                      <div class="mt-1.5 flex flex-wrap items-center gap-1">
+                        <span
+                          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          [class]="statusBadgeClass(item.status)"
+                        >
+                          {{ statusLabel(item.status) }}
+                        </span>
+                        @if (item.reagendado) {
+                          <span
+                            class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-900"
+                          >
+                            Reagendado
+                          </span>
+                        }
+                      </div>
+                    </button>
+                  } @empty {
+                    <div
+                      class="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5]/40 p-3 text-center"
+                    >
+                      <p class="text-xs font-medium text-estetica-text/60">Sem horários</p>
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          </div>
+        }
+      } @placeholder {
+        <!-- Skeleton de Carregamento -->
+        <div
+          aria-busy="true"
+          aria-label="Carregando agenda"
+          class="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3"
+        >
+          @for (card of [1, 2, 3]; track card) {
+            <article
+              aria-hidden="true"
+              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16)] sm:p-6"
+            >
+              <div class="flex items-start justify-between gap-4">
+                <p-skeleton width="6rem" height="1.5rem" borderRadius="9999px" />
+                <p-skeleton width="4.5rem" height="1.5rem" borderRadius="0.5rem" />
+              </div>
+              <div class="mt-4 space-y-2">
+                <p-skeleton width="7rem" height="1rem" borderRadius="0.375rem" />
+                <p-skeleton width="11rem" height="1.5rem" borderRadius="0.5rem" />
+                <p-skeleton width="8rem" height="1rem" borderRadius="0.375rem" />
+              </div>
+              <div class="mt-5 rounded-xl bg-[#FAF4F5] p-4">
+                <p-skeleton width="100%" height="2.25rem" borderRadius="0.5rem" />
+              </div>
+            </article>
+          }
+        </div>
+      }
+    }
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: NOVO AGENDAMENTO (INSPIRADO NO DESIGN DE REFERÊNCIA)            -->
+  <!-- ========================================================================= -->
+  <dialog
+    #novoAgendamentoDialog
+    aria-labelledby="novo-agendamento-title"
+    (cancel)="handleNovoDialogCancel($event)"
+    (click)="handleNovoDialogClick($event)"
+    (close)="handleDialogClose()"
+    [attr.aria-busy]="state.busy()"
+    class="m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-3xl lg:max-w-4xl overflow-y-auto rounded-3xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-[#2D2224]/45 sm:p-7"
+  >
+    <!-- Cabeçalho Limpo igual à Referência -->
+    <div class="mb-6 flex items-start justify-between gap-4">
+      <div>
+        <h2
+          id="novo-agendamento-title"
+          class="font-serif text-3xl leading-tight font-semibold tracking-tight text-[#2D2224]"
+        >
+          Novo agendamento
+        </h2>
+        <p class="mt-1 text-sm text-estetica-text/75">
+          Escolha o serviço, o horário e o pacote de sessões.
+        </p>
+      </div>
+      <button
+        type="button"
+        aria-label="Fechar modal de novo agendamento"
+        (click)="fecharNovoAgendamento()"
+        [disabled]="state.busy()"
+        class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-[#9E4758] disabled:opacity-50"
+      >
+        <i class="pi pi-times text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <app-request-feedback />
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="grid gap-4" novalidate>
+      <fieldset [disabled]="state.busy()" class="grid min-w-0 gap-4 border-0 p-0">
+        <!-- PASSO 1: SERVIÇO, CLIENTE E PROFISSIONAL -->
+        <div
+          class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="mb-4 flex items-center gap-3">
+            <span
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+            >
+              1
+            </span>
+            <h3 class="text-base font-bold text-[#2D2224]">Serviço e identificação</h3>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label
+                for="cliente"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Cliente
+              </label>
+              <p-select
+                inputId="cliente"
+                formControlName="idCliente"
+                [options]="clientes()"
+                optionLabel="nome"
+                optionValue="id"
+                [filter]="true"
+                filterBy="nome,email,telefone"
+                placeholder="Selecione a cliente"
+                styleClass="min-h-11 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+              />
+              <app-field-error [control]="form.controls.idCliente" />
+            </div>
+
+            <div>
+              <label
+                for="funcionario"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Profissional
+              </label>
+              <p-select
+                inputId="funcionario"
+                formControlName="idFuncionario"
+                [options]="config()?.funcionarios ?? []"
+                optionLabel="nome"
+                optionValue="id"
+                placeholder="Selecione a profissional"
+                styleClass="min-h-11 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+              />
+              <app-field-error [control]="form.controls.idFuncionario" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label
+                for="servico"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Serviço
+              </label>
+              <p-select
+                inputId="servico"
+                formControlName="idServico"
+                [options]="servicos()"
+                optionLabel="nome"
+                optionValue="id"
+                [filter]="true"
+                filterBy="nome,descricao"
+                placeholder="Escolha o procedimento estético"
+                styleClass="min-h-12 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+              />
+              <app-field-error [control]="form.controls.idServico" />
+
+              @if (servicoSelecionado(); as srv) {
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <span
+                    class="rounded-full bg-[#F6E4E7] px-3.5 py-1 text-xs font-semibold text-[#7A3B48]"
+                  >
+                    {{ srv.preco | currency: 'BRL' }} por sessão
+                  </span>
+                  <span
+                    class="rounded-full bg-[#F6E4E7] px-3.5 py-1 text-xs font-semibold text-[#7A3B48]"
+                  >
+                    {{ srv.duracaoMinutos }} min
+                  </span>
+                  @if (srv.diasParaRetorno) {
+                    <span
+                      class="rounded-full bg-[#F6E4E7] px-3.5 py-1 text-xs font-semibold text-[#7A3B48]"
+                    >
+                      Retorno sugerido em {{ srv.diasParaRetorno }} dias
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- PASSO 2: QUANTIDADE DE SESSÕES -->
+        <div
+          class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="mb-4 flex items-center gap-3">
+            <span
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+            >
+              2
+            </span>
+            <h3 class="text-base font-bold text-[#2D2224]">Quantidade de sessões</h3>
+          </div>
+
+          <div
+            class="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
+            role="group"
+            aria-label="Opções de sessões"
+          >
+            @for (qtd of opcoesSessoesServico(); track qtd) {
+              <button
+                type="button"
+                (click)="selecionarQuantidadeSessoes(qtd)"
+                [attr.aria-pressed]="formTotalSessoes() === qtd"
+                [class]="
+                  formTotalSessoes() === qtd
+                    ? 'border-[#9E4758] bg-[#9E4758] text-white font-semibold shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]'
+                    : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                "
+                class="min-h-11 cursor-pointer rounded-xl border px-3 py-2 text-xs transition sm:text-sm"
+              >
+                {{ qtd }} {{ qtd === 1 ? 'sessão' : 'sessões' }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- PASSO 3: DATA E HORÁRIO DA 1ª SESSÃO (AGRUPADO EM MANHÃ E TARDE) -->
+        <div
+          class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="mb-4 flex items-center gap-3">
+            <span
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+            >
+              3
+            </span>
+            <h3 class="text-base font-bold text-[#2D2224]">
+              {{
+                formTotalSessoes() > 1
+                  ? 'Data e horário da 1ª sessão'
+                  : 'Data e horário do atendimento'
+              }}
+            </h3>
+          </div>
+
+          <!-- Linha Topo: DATA + Box SELECIONADO -->
+          <div class="grid gap-3.5 sm:grid-cols-2 sm:items-end">
+            <div>
+              <label
+                for="inicio"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Data
+              </label>
+              <p-datepicker
+                inputId="inicio"
+                [ngModel]="formDataHora()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onPrimeiraSessaoDiaChange($event)"
+                dateFormat="dd/mm/yy"
+                placeholder="dd/mm/aaaa"
+                [showIcon]="true"
+                iconDisplay="input"
+                styleClass="w-full"
+                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224]"
+              />
+              <app-field-error [control]="form.controls.dataHora" />
+            </div>
+
+            <div class="flex min-h-12 flex-col justify-center rounded-xl bg-[#F4E6E8] px-4 py-2.5">
+              <span class="text-[10px] font-medium tracking-wider text-[#8C5E66] uppercase">
+                Selecionado
+              </span>
+              @if (formDataHora() && servicoSelecionado(); as srv) {
+                @if (validacaoPrimeiraSessao(); as erroSlot) {
+                  <span class="mt-0.5 text-xs font-semibold text-red-700" role="alert">
+                    {{ erroSlot }}
+                  </span>
+                } @else {
+                  <span class="mt-0.5 text-sm font-medium text-[#2D2224]">
+                    {{ formatarResumoHorario(formDataHora(), srv.duracaoMinutos) }}
+                  </span>
+                }
+              } @else {
+                <span class="mt-0.5 text-xs font-medium text-[#8C5E66]">
+                  Escolha o serviço e a data
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Grade de Chips MANHÃ e TARDE -->
+          <div class="mt-5">
+            @if (!servicoSelecionado()) {
+              <p
+                class="rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5] px-4 py-3 text-xs text-estetica-text/75"
+              >
+                Selecione um <strong>Serviço</strong> no passo 1 para visualizar os horários
+                disponíveis.
+              </p>
+            } @else if (!formDataHora()) {
+              <p
+                class="rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5] px-4 py-3 text-xs text-estetica-text/75"
+              >
+                Selecione uma <strong>Data</strong> acima para listar os horários disponíveis.
+              </p>
+            } @else if (horariosDisponiveisPrimeiraSessao().length) {
+              @if (horariosManhaPrimeiraSessao().length) {
+                <div>
+                  <span
+                    class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                  >
+                    Manhã
+                  </span>
+                  <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                    @for (slot of horariosManhaPrimeiraSessao(); track slot.label) {
+                      <button
+                        type="button"
+                        (click)="selecionarHorarioPrimeiraSessao(slot.date)"
+                        [attr.aria-pressed]="isMesmoHorario(formDataHora(), slot.date)"
+                        [class]="
+                          isMesmoHorario(formDataHora(), slot.date)
+                            ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                        "
+                        class="h-10 cursor-pointer rounded-xl border text-xs transition"
+                      >
+                        {{ slot.label }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (horariosTardePrimeiraSessao().length) {
+                <div [class.mt-4]="horariosManhaPrimeiraSessao().length > 0">
+                  <span
+                    class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                  >
+                    Tarde
+                  </span>
+                  <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                    @for (slot of horariosTardePrimeiraSessao(); track slot.label) {
+                      <button
+                        type="button"
+                        (click)="selecionarHorarioPrimeiraSessao(slot.date)"
+                        [attr.aria-pressed]="isMesmoHorario(formDataHora(), slot.date)"
+                        [class]="
+                          isMesmoHorario(formDataHora(), slot.date)
+                            ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                        "
+                        class="h-10 cursor-pointer rounded-xl border text-xs transition"
+                      >
+                        {{ slot.label }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            } @else {
+              <p
+                role="alert"
+                class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-medium text-red-700"
+              >
+                Não há horários disponíveis nesta data ({{
+                  expedienteDoDiaLabel(formDataHora()!)
+                }}). Selecione outro dia.
+              </p>
+            }
+          </div>
+        </div>
+
+        <!-- PASSO 4: PRÓXIMAS SESSÕES COM LINHA DO TEMPO IGUAL À REFERÊNCIA -->
+        @if (formTotalSessoes() > 1) {
+          <div
+            class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          >
+            <div class="mb-4 flex items-center gap-3">
+              <span
+                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+              >
+                4
+              </span>
+              <h3 class="text-base font-bold text-[#2D2224]">Próximas sessões</h3>
+            </div>
+
+            <!-- Seletor de Modo das Próximas Sessões -->
+            <div class="mb-5">
+              <label
+                for="modo-repeticao-pacote"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Preenchimento das próximas sessões
+              </label>
+              <p-select
+                inputId="modo-repeticao-pacote"
+                [ngModel]="modoRepeticaoPacote()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onModoRepeticaoChange($event)"
+                [options]="opcoesRepeticaoPacote"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="min-h-11 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+              />
+            </div>
+
+            <!-- Linha do Tempo das Sessões (1ª sessão + demais sessões) -->
+            <div class="relative ml-2 border-l-2 border-[#E2C6CB] pl-5 space-y-5">
+              <!-- Item 1ª Sessão na Timeline -->
+              <div class="relative">
+                <span
+                  aria-hidden="true"
+                  class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-white bg-[#9E4758] shadow-2xs"
+                ></span>
+                <p class="text-sm font-medium text-[#2D2224]">1ª sessão</p>
+                <p class="text-xs text-estetica-text/75">
+                  @if (formDataHora() && servicoSelecionado(); as srv) {
+                    {{ formatarResumoHorario(formDataHora(), srv.duracaoMinutos) }}
+                  } @else {
+                    Defina o horário no passo 3 acima.
+                  }
+                </p>
+              </div>
+
+              <!-- Itens 2ª a Nª Sessão na Timeline -->
+              @for (sessao of sessoesExtras(); track sessao.sessaoNumero) {
+                <div class="relative">
+                  <span
+                    aria-hidden="true"
+                    class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-[#9E4758]"
+                    [class]="sessao.definirDepois ? 'bg-white' : 'bg-[#9E4758]'"
+                  ></span>
+
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p class="text-sm font-medium text-[#2D2224]">
+                        {{ sessao.sessaoNumero }}ª sessão
+                      </p>
+                      <p class="text-xs text-estetica-text/75">
+                        @if (sessao.definirDepois) {
+                          Ficará em aberto para agendar depois.
+                        } @else if (sessao.dataHora && servicoSelecionado(); as srv) {
+                          {{ formatarResumoHorario(sessao.dataHora, srv.duracaoMinutos) }}
+                        } @else {
+                          Selecione a data e o horário abaixo.
+                        }
+                      </p>
+                    </div>
+
+                    <div class="flex items-center gap-2.5">
+                      <label
+                        [for]="'definir-depois-' + sessao.sessaoNumero"
+                        class="text-xs font-medium text-[#2D2224]"
+                      >
+                        Definir data depois
+                      </label>
+                      <p-toggleswitch
+                        [inputId]="'definir-depois-' + sessao.sessaoNumero"
+                        [ngModel]="sessao.definirDepois"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="alternarDefinirDepoisSessao(sessao.sessaoNumero, $event)"
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Se Definir Depois estiver DESATIVADO, expande Data + Chips de Horários -->
+                  @if (!sessao.definirDepois) {
+                    <div
+                      class="mt-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3.5 shadow-2xs"
+                    >
+                      <div class="sm:max-w-xs">
+                        <label
+                          class="mb-1 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                        >
+                          Data da {{ sessao.sessaoNumero }}ª sessão
+                        </label>
+                        <p-datepicker
+                          [ngModel]="sessao.dataHora"
+                          [ngModelOptions]="{ standalone: true }"
+                          (ngModelChange)="onSessaoExtraDiaChange(sessao.sessaoNumero, $event)"
+                          dateFormat="dd/mm/yy"
+                          placeholder="dd/mm/aaaa"
+                          [showIcon]="true"
+                          iconDisplay="input"
+                          styleClass="w-full"
+                          inputStyleClass="min-h-10 w-full rounded-xl border-[#E8D5D8] bg-white px-3 text-xs font-semibold text-[#2D2224]"
+                        />
+                      </div>
+
+                      @if (sessao.dataHora) {
+                        <div class="mt-3">
+                          @if (horariosDisponiveisSessaoExtra(sessao); as slotsExtra) {
+                            @if (slotsExtra.length) {
+                              @if (horariosManhaSessaoExtra(sessao).length) {
+                                <span
+                                  class="mb-1.5 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                                >
+                                  Manhã
+                                </span>
+                                <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+                                  @for (
+                                    slot of horariosManhaSessaoExtra(sessao);
+                                    track slot.label
+                                  ) {
+                                    <button
+                                      type="button"
+                                      (click)="
+                                        selecionarHorarioSessaoExtra(sessao.sessaoNumero, slot.date)
+                                      "
+                                      [attr.aria-pressed]="
+                                        isMesmoHorario(sessao.dataHora, slot.date)
+                                      "
+                                      [class]="
+                                        isMesmoHorario(sessao.dataHora, slot.date)
+                                          ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-xs'
+                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50'
+                                      "
+                                      class="h-9 cursor-pointer rounded-lg border text-xs transition"
+                                    >
+                                      {{ slot.label }}
+                                    </button>
+                                  }
+                                </div>
+                              }
+
+                              @if (horariosTardeSessaoExtra(sessao).length) {
+                                <span
+                                  class="mt-2.5 mb-1.5 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                                >
+                                  Tarde
+                                </span>
+                                <div class="grid grid-cols-3 gap-1.5 sm:grid-cols-6">
+                                  @for (
+                                    slot of horariosTardeSessaoExtra(sessao);
+                                    track slot.label
+                                  ) {
+                                    <button
+                                      type="button"
+                                      (click)="
+                                        selecionarHorarioSessaoExtra(sessao.sessaoNumero, slot.date)
+                                      "
+                                      [attr.aria-pressed]="
+                                        isMesmoHorario(sessao.dataHora, slot.date)
+                                      "
+                                      [class]="
+                                        isMesmoHorario(sessao.dataHora, slot.date)
+                                          ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-xs'
+                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50'
+                                      "
+                                      class="h-9 cursor-pointer rounded-lg border text-xs transition"
+                                    >
+                                      {{ slot.label }}
+                                    </button>
+                                  }
+                                </div>
+                              }
+                            } @else {
+                              <p class="text-xs font-medium text-red-700" role="alert">
+                                Nenhum horário livre neste dia ({{
+                                  expedienteDoDiaLabel(sessao.dataHora)
+                                }}).
+                              </p>
+                            }
+                          }
+
+                          @if (validarDataSessaoExtra(sessao); as erroExtra) {
+                            <p class="mt-2 text-xs font-semibold text-red-700" role="alert">
+                              {{ erroExtra }}
+                            </p>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- PASSO 5: BENEFÍCIO OU DESCONTO (OPCIONAL) -->
+        <div
+          class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span
+                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+              >
+                {{ formTotalSessoes() > 1 ? 5 : 4 }}
+              </span>
+              <h3 class="text-base font-bold text-[#2D2224]">Benefício ou desconto</h3>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <label for="usar-desconto-manual" class="text-xs font-medium text-[#2D2224]">
+                Desconto manual
+              </label>
+              <p-toggleswitch inputId="usar-desconto-manual" formControlName="usarDescontoManual" />
+            </div>
+          </div>
+
+          @if (!formUsarDescontoManual()) {
+            <div>
+              <label
+                for="cupom-agendamento"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Cupom de desconto (opcional)
+              </label>
+              <p-select
+                inputId="cupom-agendamento"
+                formControlName="codigoCupom"
+                [options]="cuponsAtivos()"
+                optionLabel="codigo"
+                optionValue="codigo"
+                [filter]="true"
+                filterBy="codigo"
+                [showClear]="true"
+                placeholder="Selecione ou pesquise um cupom ativo (ex.: BEMVINDA10)"
+                styleClass="min-h-11 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+              />
+              @if (erroValidacaoCupom(); as msgCupom) {
+                <p class="mt-2 text-xs font-semibold text-red-700" role="alert">
+                  {{ msgCupom }}
+                </p>
+              } @else if (cupomSelecionado(); as cupom) {
+                <p class="mt-2 text-xs font-semibold text-[#9E4758]">
+                  Cupom <strong>{{ cupom.codigo }}</strong> aplicado ({{
+                    cupom.tipoDesconto === 'PORCENTAGEM'
+                      ? cupom.valor + '%'
+                      : (cupom.valor | currency: 'BRL')
+                  }}
+                  de desconto).
+                </p>
+              }
+            </div>
+          } @else {
+            <div class="grid gap-3.5 sm:grid-cols-2">
+              <div>
+                <label
+                  for="tipo-desconto-manual"
+                  class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                >
+                  Formato do desconto
+                </label>
+                <p-select
+                  inputId="tipo-desconto-manual"
+                  formControlName="tipoDescontoManual"
+                  [options]="tiposDescontoManual"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="min-h-11 w-full items-center rounded-xl border-[#E8D5D8] bg-white"
+                />
+              </div>
+              <div>
+                <label
+                  for="valor-desconto-manual"
+                  class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                >
+                  Valor do desconto
+                </label>
+                <p-inputnumber
+                  inputId="valor-desconto-manual"
+                  formControlName="valorDescontoManual"
+                  [min]="0"
+                  [maxFractionDigits]="2"
+                  [prefix]="formTipoDescontoManual() === 'PORCENTAGEM' ? '' : 'R$ '"
+                  [suffix]="formTipoDescontoManual() === 'PORCENTAGEM' ? '%' : ''"
+                  locale="pt-BR"
+                  placeholder="0,00"
+                  styleClass="w-full"
+                  inputStyleClass="min-h-11 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-sm font-semibold text-[#2D2224]"
+                />
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- RESUMO FINAL DO AGENDAMENTO -->
+        <div
+          class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span class="text-[10px] font-bold tracking-wider text-[#9E4758] uppercase">
+                Resumo do pacote
+              </span>
+              <p class="mt-0.5 text-sm font-medium text-[#2D2224]">
+                {{ resumoSessoesPacote().total }}
+                {{ resumoSessoesPacote().total === 1 ? 'sessão' : 'sessões' }}
+                @if (resumoSessoesPacote().total > 1) {
+                  <span class="font-normal text-estetica-text/75">
+                    ({{ resumoSessoesPacote().definidas }} agendada{{
+                      resumoSessoesPacote().definidas === 1 ? '' : 's'
+                    }}
+                    · {{ resumoSessoesPacote().emAberto }} em aberto)
+                  </span>
+                }
+              </p>
+              @if (resumoFinanceiro().valorDesconto > 0) {
+                <p class="mt-0.5 text-xs font-semibold text-emerald-700">
+                  De {{ resumoFinanceiro().valorOriginal | currency: 'BRL' }} por
+                  {{ resumoFinanceiro().valorFinal | currency: 'BRL' }} (-{{
+                    resumoFinanceiro().valorDesconto | currency: 'BRL'
+                  }})
+                </p>
+              }
+            </div>
+
+            <div class="text-right">
+              <span
+                class="block text-[10px] font-bold tracking-wider text-estetica-text/65 uppercase"
+              >
+                Total final
+              </span>
+              <p class="text-2xl font-medium text-[#9E4758]">
+                {{ resumoFinanceiro().valorFinal | currency: 'BRL' }}
+              </p>
+              @if (resumoSessoesPacote().total > 1) {
+                <span class="block text-[11px] text-estetica-text/70">
+                  {{ resumoFinanceiro().valorPorSessao | currency: 'BRL' }} por sessão
+                </span>
+              }
+            </div>
+          </div>
+
+          <div
+            class="mt-5 flex flex-col-reverse gap-2.5 border-t border-[#F0E2E4] pt-4 sm:flex-row sm:justify-end"
+          >
+            <p-button
+              type="button"
+              label="Cancelar"
+              [outlined]="true"
+              (onClick)="fecharNovoAgendamento()"
+              [disabled]="state.busy()"
+              styleClass="w-full border-[#D8B8BE] text-[#7A3B48] hover:bg-[#FAF4F5] sm:w-auto"
+            />
+            <p-button
+              type="submit"
+              label="Confirmar agendamento"
+              icon="pi pi-check"
+              [loading]="state.busy()"
+              [disabled]="!config()"
+              styleClass="w-full !bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.55)] hover:!bg-[#873B4A] sm:w-auto"
+            />
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: DETALHES, CONFIRMAÇÃO, REAGENDAMENTO, CONCLUSÃO E CANCELAMENTO   -->
+  <!-- ========================================================================= -->
+  <dialog
+    #detalhesAgendamentoDialog
+    aria-labelledby="detalhes-agendamento-title"
+    (cancel)="handleDetalhesDialogCancel($event)"
+    (click)="handleDetalhesDialogClick($event)"
+    (close)="handleDialogClose()"
+    [attr.aria-busy]="state.busy()"
+    class="m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-3xl lg:max-w-4xl overflow-y-auto rounded-3xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-[#2D2224]/45 sm:p-7"
+  >
+    @if (selectedBooking(); as item) {
+      <div class="mb-5 flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="mb-2 flex flex-wrap items-center gap-2">
+            <span
+              class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+              [class]="statusBadgeClass(item.status)"
+            >
+              <span
+                aria-hidden="true"
+                class="size-2 rounded-full"
+                [class]="statusDotClass(item.status)"
+              ></span>
+              {{ statusLabel(item.status) }}
+            </span>
+
+            @if (item.totalSessoes && item.totalSessoes > 1) {
+              <span class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]">
+                Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
+              </span>
+            }
+
+            @if (item.reagendado) {
+              <span
+                class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900"
+              >
+                Reagendado
+              </span>
+            }
+          </div>
+
+          <h2
+            id="detalhes-agendamento-title"
+            class="break-words font-serif text-2xl font-semibold text-[#2D2224] sm:text-3xl"
+          >
+            {{ clientName(item.idCliente) }}
+          </h2>
+          <p class="mt-0.5 text-sm font-medium text-estetica-text/80">
+            {{ serviceName(item.idServico) }}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Fechar detalhes do agendamento"
+          (click)="fecharDetalhes()"
+          [disabled]="state.busy()"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-[#9E4758] disabled:opacity-50"
+        >
+          <i class="pi pi-times text-sm" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <app-request-feedback />
+
+      <!-- Card Principal de Informações do Agendamento -->
+      <div
+        class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+      >
+        <dl class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              Data e horário
+            </dt>
+            <dd class="mt-1 text-sm font-medium text-[#2D2224]">
+              @if (item.dataDefinida === false) {
+                <span class="text-amber-800">Horário em aberto (a definir)</span>
+              } @else {
+                {{ formatarResumoHorario(item.dataHora, item.duracaoMinutos) }}
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              Duração reservada
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+              {{ item.duracaoMinutos }} minutos
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              Profissional responsável
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+              {{ professionalName(item.idFuncionario) }}
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              Valor da sessão
+            </dt>
+            <dd class="mt-1 text-sm font-medium text-[#9E4758]">
+              {{ item.valor | currency: 'BRL' }}
+              @if (item.codigoCupom) {
+                <span class="ml-1 text-xs font-medium text-estetica-text/75">
+                  (Cupom {{ item.codigoCupom }})
+                </span>
+              } @else if (item.valorDesconto && item.valorDesconto > 0) {
+                <span class="ml-1 text-xs font-medium text-estetica-text/75">
+                  (Desconto {{ item.valorDesconto | currency: 'BRL' }})
+                </span>
+              }
+            </dd>
+          </div>
+
+          @if (clientById(item.idCliente); as clienteObj) {
+            <div>
+              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                WhatsApp da cliente
+              </dt>
+              <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+                {{ clienteObj.telefone | telefone }}
+              </dd>
+            </div>
+          }
+
+          @if (item.metodoPagamento) {
+            <div>
+              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                Método de pagamento
+              </dt>
+              <dd class="mt-1 text-sm font-medium text-[#2D2224]">{{ item.metodoPagamento }}</dd>
+            </div>
+          }
+
+          @if (item.reagendado && item.dataHoraAnterior) {
+            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                Histórico de reagendamento
+              </dt>
+              <dd class="mt-1 text-xs font-medium text-estetica-text/80">
+                Horário anterior: {{ item.dataHoraAnterior | date: 'dd/MM/yyyy HH:mm' }}
+                @if (item.reagendadoPor === 'CLIENTE') {
+                  (alterado pela cliente)
+                }
+              </dd>
+            </div>
+          }
+
+          @if (item.anotacoesFinais) {
+            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                Anotações da sessão
+              </dt>
+              <dd class="mt-1 whitespace-pre-line text-sm leading-relaxed text-[#2D2224]">
+                {{ item.anotacoesFinais }}
+              </dd>
+            </div>
+          }
+
+          @if (item.fotoResultadoUrl) {
+            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                Registro visual do resultado
+              </dt>
+              <dd class="mt-2">
+                <a
+                  [href]="item.fotoResultadoUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-2 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs font-semibold text-[#9E4758] underline"
+                >
+                  <i class="pi pi-image" aria-hidden="true"></i>
+                  Ver foto do resultado em tela cheia
+                </a>
+              </dd>
+            </div>
+          }
+        </dl>
+
+        <!-- Barra de Ações Rápidas (Somente para Agendamentos Ativos) -->
+        @if (isAtendimentoAtivo(item.status)) {
+          <div class="mt-5 flex flex-wrap items-center gap-2.5 border-t border-[#F0E2E4] pt-4">
+            @if (item.status === 'AguardandoConfirmacao') {
+              <p-button
+                label="Confirmar agendamento"
+                icon="pi pi-check"
+                (onClick)="confirmarAgendamento(item)"
+                [disabled]="state.busy()"
+                styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white"
+              />
+            }
+
+            <p-button
+              [label]="
+                detalhePainelAtivo() === 'concluir' ? 'Ocultar conclusão' : 'Concluir atendimento'
+              "
+              icon="pi pi-check-circle"
+              [outlined]="detalhePainelAtivo() !== 'concluir'"
+              (onClick)="alternarPainelDetalhe('concluir')"
+              [disabled]="state.busy()"
+              styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
+            />
+
+            <p-button
+              [label]="
+                item.dataDefinida === false
+                  ? 'Definir data e horário'
+                  : detalhePainelAtivo() === 'reagendar'
+                    ? 'Ocultar reagendamento'
+                    : 'Reagendar horário'
+              "
+              icon="pi pi-calendar"
+              [outlined]="detalhePainelAtivo() !== 'reagendar'"
+              (onClick)="alternarPainelDetalhe('reagendar')"
+              [disabled]="state.busy()"
+              styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
+            />
+
+            @if (whatsappReminderUrl(item); as waLink) {
+              <a
+                [href]="waLink"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs font-semibold text-[#9E4758] transition hover:bg-[#F6E4E7]"
+              >
+                <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
+                WhatsApp
+              </a>
+            }
+
+            <p-button
+              label="Cancelar"
+              icon="pi pi-times-circle"
+              severity="danger"
+              [text]="true"
+              (onClick)="alternarPainelDetalhe('cancelar')"
+              [disabled]="state.busy()"
+              styleClass="ml-auto text-red-600 hover:bg-red-50"
+            />
+          </div>
+        } @else {
+          <p
+            class="mt-4 rounded-xl bg-[#FAF4F5] px-4 py-3 text-xs font-medium text-estetica-text/80"
+          >
+            Atendimento encerrado ({{ statusLabel(item.status) }}): procedimento e valores não podem
+            ser alterados.
+          </p>
+        }
+      </div>
+
+      <!-- PAINEL EXPANSÍVEL 1: CONCLUIR ATENDIMENTO -->
+      @if (isAtendimentoAtivo(item.status) && detalhePainelAtivo() === 'concluir') {
+        <form
+          [formGroup]="concluirForm"
+          (ngSubmit)="concluirAtendimento()"
+          class="mt-4 grid gap-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          novalidate
+        >
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-[#2D2224]">Concluir atendimento</h3>
+            <p class="mt-0.5 text-xs text-estetica-text/75">
+              Registre a forma de pagamento, adicione anotações e anexe a foto do resultado.
+            </p>
+          </div>
+
+          <div>
+            <span
+              class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+            >
+              Método de pagamento
+            </span>
+            <div class="grid grid-cols-3 gap-2.5" role="group" aria-label="Método de pagamento">
+              @for (mp of metodosPagamento; track mp.value) {
+                <button
+                  type="button"
+                  (click)="concluirForm.controls.metodoPagamento.setValue(mp.value)"
+                  [attr.aria-pressed]="concluirForm.controls.metodoPagamento.value === mp.value"
+                  [class]="
+                    concluirForm.controls.metodoPagamento.value === mp.value
+                      ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                      : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                  "
+                  class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-3 text-xs font-medium transition"
+                >
+                  <i [class]="mp.icon" aria-hidden="true"></i>
+                  <span>{{ mp.label }}</span>
+                </button>
+              }
+            </div>
+            <app-field-error [control]="concluirForm.controls.metodoPagamento" />
+          </div>
+
+          <div>
+            <label
+              for="anotacoes-finais"
+              class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+            >
+              Anotações da sessão (opcional)
+            </label>
+            <textarea
+              id="anotacoes-finais"
+              pTextarea
+              formControlName="anotacoesFinais"
+              rows="3"
+              placeholder="Descreva a reação da pele, ativos utilizados ou recomendações..."
+              class="w-full rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3 text-sm text-[#2D2224]"
+            ></textarea>
+          </div>
+
+          <div>
+            <span
+              class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+            >
+              Foto do resultado (opcional)
+            </span>
+            <label
+              for="foto-resultado-input"
+              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#D8B8BE] bg-[#FAF4F5] px-4 py-5 text-center transition hover:border-[#9E4758] hover:bg-[#F6E4E7]/50"
+            >
+              <span
+                aria-hidden="true"
+                class="flex size-10 items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758]"
+              >
+                <i class="pi pi-camera text-base"></i>
+              </span>
+              <span class="text-xs font-medium text-[#2D2224]">
+                Clique para selecionar uma foto do resultado
+              </span>
+              <span class="text-[11px] text-estetica-text/70"> JPEG, PNG ou WebP (máx. 5 MB) </span>
+              <input
+                id="foto-resultado-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                [disabled]="state.busy()"
+                (change)="onFileSelected($event)"
+                class="sr-only"
+              />
+            </label>
+
+            @if (photo(); as arquivoFoto) {
+              <div
+                class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  @if (photoPreviewUrl(); as preview) {
+                    <img
+                      [src]="preview"
+                      alt="Pré-visualização da foto selecionada"
+                      class="size-12 shrink-0 rounded-lg object-cover"
+                    />
+                  }
+                  <div class="min-w-0">
+                    <p class="truncate text-xs font-medium text-[#2D2224]">
+                      {{ arquivoFoto.name }}
+                    </p>
+                    <p class="text-[11px] text-estetica-text/70">Pronta para envio</p>
+                  </div>
+                </div>
+                <p-button
+                  type="button"
+                  label="Remover"
+                  icon="pi pi-trash"
+                  size="small"
+                  severity="secondary"
+                  [text]="true"
+                  (onClick)="choosePhoto([])"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="flex flex-col-reverse gap-2.5 pt-2 sm:flex-row sm:justify-end">
+            <p-button
+              type="button"
+              label="Voltar"
+              [outlined]="true"
+              (onClick)="alternarPainelDetalhe('nenhum')"
+              [disabled]="state.busy()"
+              styleClass="border-[#D8B8BE] text-[#7A3B48]"
+            />
+            <p-button
+              type="submit"
+              label="Concluir e registrar pagamento"
+              icon="pi pi-check"
+              [loading]="state.busy()"
+              styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+            />
+          </div>
+        </form>
+      }
+
+      <!-- PAINEL EXPANSÍVEL 2: REAGENDAR / DEFINIR NOVO HORÁRIO -->
+      @if (isAtendimentoAtivo(item.status) && detalhePainelAtivo() === 'reagendar') {
+        <form
+          [formGroup]="reagendarForm"
+          (ngSubmit)="salvarReagendamento()"
+          class="mt-4 grid gap-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          novalidate
+        >
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-[#2D2224]">
+              {{
+                item.dataDefinida === false
+                  ? 'Definir data e horário da sessão'
+                  : 'Reagendar atendimento'
+              }}
+            </h3>
+            <p class="mt-0.5 text-xs text-estetica-text/75">
+              Escolha o novo dia e selecione um dos horários disponíveis abaixo.
+            </p>
+          </div>
+
+          <div class="grid gap-3.5 sm:grid-cols-2 sm:items-end">
+            <div>
+              <label
+                for="nova-data-hora"
+                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Data
+              </label>
+              <p-datepicker
+                inputId="nova-data-hora"
+                [ngModel]="reagendarDataHoraSignal()"
+                [ngModelOptions]="{ standalone: true }"
+                (ngModelChange)="onReagendarDiaChange($event)"
+                dateFormat="dd/mm/yy"
+                [showIcon]="true"
+                iconDisplay="input"
+                styleClass="w-full"
+                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224]"
+              />
+            </div>
+
+            <div class="flex min-h-12 flex-col justify-center rounded-xl bg-[#F4E6E8] px-4 py-2.5">
+              <span class="text-[10px] font-medium tracking-wider text-[#8C5E66] uppercase">
+                Selecionado
+              </span>
+              @if (reagendarDataHoraSignal(); as novaDt) {
+                @if (validacaoReagendamento(); as erroReagendar) {
+                  <span class="mt-0.5 text-xs font-semibold text-red-700" role="alert">
+                    {{ erroReagendar }}
+                  </span>
+                } @else {
+                  <span class="mt-0.5 text-sm font-medium text-[#2D2224]">
+                    {{ formatarResumoHorario(novaDt, item.duracaoMinutos) }}
+                  </span>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Chips MANHÃ e TARDE no Reagendamento -->
+          @if (reagendarDataHoraSignal(); as novaDt) {
+            <div>
+              @if (horariosDisponiveisReagendamento().length) {
+                @if (horariosManhaReagendamento().length) {
+                  <div>
+                    <span
+                      class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                    >
+                      Manhã
+                    </span>
+                    <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                      @for (slot of horariosManhaReagendamento(); track slot.label) {
+                        <button
+                          type="button"
+                          (click)="selecionarHorarioReagendamento(slot.date)"
+                          [attr.aria-pressed]="isMesmoHorario(novaDt, slot.date)"
+                          [class]="
+                            isMesmoHorario(novaDt, slot.date)
+                              ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                          "
+                          class="h-10 cursor-pointer rounded-xl border text-xs transition"
+                        >
+                          {{ slot.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @if (horariosTardeReagendamento().length) {
+                  <div [class.mt-4]="horariosManhaReagendamento().length > 0">
+                    <span
+                      class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                    >
+                      Tarde
+                    </span>
+                    <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                      @for (slot of horariosTardeReagendamento(); track slot.label) {
+                        <button
+                          type="button"
+                          (click)="selecionarHorarioReagendamento(slot.date)"
+                          [attr.aria-pressed]="isMesmoHorario(novaDt, slot.date)"
+                          [class]="
+                            isMesmoHorario(novaDt, slot.date)
+                              ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                          "
+                          class="h-10 cursor-pointer rounded-xl border text-xs transition"
+                        >
+                          {{ slot.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              } @else {
+                <p class="text-xs font-medium text-red-700" role="alert">
+                  Não há horários disponíveis neste dia ({{ expedienteDoDiaLabel(novaDt) }}).
+                </p>
+              }
+            </div>
+          }
+
+          <div class="flex flex-col-reverse gap-2.5 pt-1 sm:flex-row sm:justify-end">
+            <p-button
+              type="button"
+              label="Voltar"
+              [outlined]="true"
+              (onClick)="alternarPainelDetalhe('nenhum')"
+              [disabled]="state.busy()"
+              styleClass="border-[#D8B8BE] text-[#7A3B48]"
+            />
+            <p-button
+              type="submit"
+              label="Confirmar novo horário"
+              icon="pi pi-calendar-clock"
+              [loading]="state.busy()"
+              styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+            />
+          </div>
+        </form>
+      }
+
+      <!-- PAINEL EXPANSÍVEL 3: CONFIRMAÇÃO DE CANCELAMENTO -->
+      @if (isAtendimentoAtivo(item.status) && detalhePainelAtivo() === 'cancelar') {
+        <div
+          role="alert"
+          class="mt-4 rounded-2xl border border-red-200 bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(180,40,40,0.14)]"
+        >
+          <h3 class="text-base font-medium text-red-900">Confirmar cancelamento?</h3>
+          <p class="mt-1 text-xs leading-relaxed text-red-800">
+            Esta ação encerra este agendamento e libera o horário na agenda da clínica. Caso a
+            cliente queira apenas mudar o dia, utilize a opção <strong>Reagendar horário</strong>.
+          </p>
+          <div class="mt-4 flex flex-wrap justify-end gap-2.5">
+            <p-button
+              type="button"
+              label="Manter agendamento"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="alternarPainelDetalhe('nenhum')"
+              [disabled]="state.busy()"
+            />
+            <p-button
+              type="button"
+              label="Confirmar cancelamento"
+              icon="pi pi-trash"
+              severity="danger"
+              (onClick)="cancelarAgendamentoConfirmado()"
+              [loading]="state.busy()"
+            />
+          </div>
+        </div>
+      }
+    }
+  </dialog>
 </section>
-<h2 class="mb-4 text-xl font-semibold">Novo agendamento</h2>
-<form [formGroup]="form" (ngSubmit)="save()" class="grid gap-4 rounded-2xl bg-white p-4 md:grid-cols-2" novalidate>
-  <div><label for="inicio">Início</label><p-datepicker inputId="inicio" formControlName="dataHora" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" styleClass="mt-1 w-full" /><app-field-error [control]="form.controls.dataHora" /></div>
-  <div><label for="servico">Serviço (apenas um)</label><p-select inputId="servico" formControlName="idServico" [options]="servicos()" optionLabel="nome" optionValue="id" styleClass="mt-1 w-full" /><app-field-error [control]="form.controls.idServico" /></div>
-  <div><label for="cliente">Cliente</label><p-select inputId="cliente" formControlName="idCliente" [options]="clientes()" optionLabel="nome" optionValue="id" [filter]="true" styleClass="mt-1 w-full" /><app-field-error [control]="form.controls.idCliente" /></div>
-  <div><label for="funcionario">Profissional</label><p-select inputId="funcionario" formControlName="idFuncionario" [options]="config()?.funcionarios ?? []" optionLabel="nome" optionValue="id" styleClass="mt-1 w-full" /><app-field-error [control]="form.controls.idFuncionario" /></div>
-  <p class="md:col-span-2">A duração é reservada automaticamente. A API deverá confirmar a disponibilidade de forma atômica.</p>
-  <p-button type="submit" label="Agendar" [loading]="state.busy()" [disabled]="!config()" styleClass="w-full md:w-auto bg-estetica-primary text-estetica-text border-estetica-primary" />
-</form>
