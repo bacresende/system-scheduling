@@ -6,7 +6,7 @@
 /* 1. O seu "Painel de Controlo" de cores através de variáveis nativas do CSS */
 :root {
   --cor-primaria: #9e4758;
-  --cor-primaria-escura: color-mix(in srgb, var(#e5989b) 55%, var(--cor-texto));
+  --cor-primaria-escura: color-mix(in srgb, var(--cor-primaria) 55%, var(--cor-texto));
   --cor-secundaria: #f6ebec;
   --cor-terciaria: #9eb3a6;
   --cor-fundo: #fcfafa;

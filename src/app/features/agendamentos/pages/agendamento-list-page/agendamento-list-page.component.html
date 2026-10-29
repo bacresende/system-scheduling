@@ -159,6 +159,108 @@
     </section>
   }
 
+  <!-- Alerta de Atendimentos Perdidos / Horários Vencidos sem Baixa -->
+  @if (overdueBookings().length) {
+    <section
+      aria-labelledby="horarios-vencidos-title"
+      class="mb-6 rounded-2xl border border-rose-300 bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(158,71,88,0.18),0_4px_12px_-2px_rgba(74,50,55,0.08)]"
+    >
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            class="flex size-9 items-center justify-center rounded-full bg-rose-100 text-[#9E4758]"
+          >
+            <i class="pi pi-exclamation-circle text-sm"></i>
+          </span>
+          <div>
+            <h2 id="horarios-vencidos-title" class="text-sm font-medium text-[#2D2224]">
+              Atendimentos com horário vencido sem baixa ({{ overdueBookings().length }})
+            </h2>
+            <p class="text-xs text-estetica-text/75">
+              Estes agendamentos já passaram do horário previsto. Registre a conclusão (dar baixa)
+              ou reagende para uma nova data sem perder a sessão.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-3 lg:grid-cols-2">
+        @for (vencido of overdueBookings(); track vencido.id) {
+          <article
+            class="flex flex-col justify-between gap-3 rounded-xl border border-rose-200 bg-[#FAF4F5] p-4 shadow-xs sm:flex-row sm:items-center"
+          >
+            <div class="min-w-0">
+              <div class="mb-1 flex flex-wrap items-center gap-2">
+                <span
+                  class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                >
+                  <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
+                  Horário vencido · Sem baixa
+                </span>
+                @if (vencido.totalSessoes && vencido.totalSessoes > 1) {
+                  <span
+                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                  >
+                    Sessão {{ vencido.sessaoNumero ?? 1 }}/{{ vencido.totalSessoes }}
+                  </span>
+                }
+              </div>
+              <p class="truncate text-sm font-medium text-[#2D2224]">
+                {{ clientName(vencido.idCliente) }} • {{ serviceName(vencido.idServico) }}
+              </p>
+              <p class="mt-0.5 text-xs text-estetica-text/80">
+                Previsto para:
+                <span class="font-medium text-[#2D2224]">{{
+                  vencido.dataHora | date: 'dd/MM/yyyy HH:mm'
+                }}</span>
+              </p>
+            </div>
+
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
+              <p-button
+                label="Dar baixa"
+                icon="pi pi-check-circle"
+                size="small"
+                (onClick)="abrirDetalhes(vencido, 'concluir')"
+                [disabled]="state.busy()"
+                styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white text-xs"
+              />
+              <p-button
+                label="Reagendar"
+                icon="pi pi-calendar"
+                size="small"
+                [outlined]="true"
+                (onClick)="abrirDetalhes(vencido, 'reagendar')"
+                [disabled]="state.busy()"
+                styleClass="border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#F6E4E7] text-xs"
+              />
+              @if (whatsappReminderUrl(vencido); as waVencido) {
+                <a
+                  [href]="waVencido"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Falar com a cliente no WhatsApp"
+                  class="inline-flex size-8 items-center justify-center rounded-lg border border-[#25D366] bg-[#25D366] text-white shadow-2xs transition hover:bg-[#1EBE5D]"
+                >
+                  <i class="pi pi-whatsapp text-xs" aria-hidden="true"></i>
+                </a>
+              }
+              <p-button
+                icon="pi pi-arrow-right"
+                size="small"
+                [text]="true"
+                ariaLabel="Ir para o dia deste agendamento"
+                (onClick)="jumpToBookingDate(vencido)"
+                styleClass="text-[#9E4758]"
+              />
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
   <!-- Sessões de Pacotes com Data em Aberto -->
   @if (openSessionBookings().length) {
     <section
@@ -222,13 +324,18 @@
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <!-- Navegador de Data -->
       <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
-        <div class="inline-flex items-center rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-1">
+        <div
+          role="group"
+          aria-label="Navegação de período"
+          class="inline-flex items-center gap-1.5"
+        >
           <button
             type="button"
             (click)="navigatePeriod(-1)"
             [disabled]="state.busy()"
             aria-label="Período anterior"
-            class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+            title="Período anterior"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs transition hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
           >
             <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
           </button>
@@ -236,7 +343,13 @@
             type="button"
             (click)="goToToday()"
             [disabled]="state.busy()"
-            class="cursor-pointer rounded-lg px-3.5 py-1.5 text-xs font-medium text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+            [attr.aria-pressed]="isSelectedDayToday()"
+            [class]="
+              isSelectedDayToday()
+                ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.45)]'
+                : 'border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary'
+            "
+            class="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-xl border px-4 text-xs font-medium transition disabled:opacity-50"
           >
             Hoje
           </button>
@@ -245,7 +358,8 @@
             (click)="navigatePeriod(1)"
             [disabled]="state.busy()"
             aria-label="Próximo período"
-            class="inline-flex size-9 cursor-pointer items-center justify-center rounded-lg text-[#2D2224] transition hover:bg-white hover:shadow-2xs disabled:opacity-50"
+            title="Próximo período"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs transition hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
           >
             <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
           </button>
@@ -283,8 +397,33 @@
         </div>
       </div>
 
-      <!-- Alternador de Visão (Diária / Semanal) -->
-      <div class="flex items-center justify-between gap-3 sm:justify-end">
+      <!-- Busca por Cliente/Procedimento + Alternador de Visão (Diária / Semanal) -->
+      <div class="flex flex-wrap items-center justify-between gap-3 sm:justify-end">
+        <div class="relative min-w-60 flex-1 sm:w-72 sm:flex-initial">
+          <i
+            class="pi pi-search pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-xs text-estetica-text/60"
+            aria-hidden="true"
+          ></i>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            aria-label="Buscar agendamento por cliente ou serviço"
+            placeholder="Buscar cliente ou serviço..."
+            class="min-h-10 w-full rounded-xl border border-[#E8D5D8] bg-white pr-8 pl-9 text-xs font-medium text-[#2D2224] placeholder:text-estetica-text/55 focus:border-[#9E4758] focus:outline-none"
+          />
+          @if (searchTerm()) {
+            <button
+              type="button"
+              (click)="searchTerm.set('')"
+              aria-label="Limpar busca"
+              class="absolute top-1/2 right-2.5 inline-flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-estetica-text/60 hover:bg-[#FAF4F5] hover:text-[#2D2224]"
+            >
+              <i class="pi pi-times text-[10px]" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+
         <div
           role="group"
           aria-label="Modo de visualização da agenda"
@@ -376,6 +515,81 @@
         </button>
       </div>
     </div>
+
+    <!-- Resultados Globais da Busca (Localiza agendamentos em qualquer data ou em aberto) -->
+    @if (searchTerm().trim()) {
+      <div class="mt-4 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4">
+        <div class="mb-2.5 flex items-center justify-between gap-2">
+          <p class="text-xs font-medium text-[#2D2224]">
+            Resultados encontrados em toda a agenda para "{{ searchTerm().trim() }}" ({{
+              searchResultsAllDates().length
+            }})
+          </p>
+          <button
+            type="button"
+            (click)="searchTerm.set('')"
+            class="cursor-pointer text-xs font-medium text-[#9E4758] underline"
+          >
+            Limpar busca
+          </button>
+        </div>
+
+        @if (searchResultsAllDates().length) {
+          <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            @for (encontrado of searchResultsAllDates(); track encontrado.id) {
+              <div
+                class="flex items-center justify-between gap-2 rounded-xl border border-[#E8D5D8] bg-white p-3 text-xs shadow-2xs"
+              >
+                <div class="min-w-0">
+                  <p class="truncate font-medium text-[#2D2224]">
+                    {{ clientName(encontrado.idCliente) }}
+                  </p>
+                  <p class="truncate text-estetica-text/75">
+                    {{ serviceName(encontrado.idServico) }}
+                    @if (encontrado.totalSessoes && encontrado.totalSessoes > 1) {
+                      · {{ encontrado.sessaoNumero ?? 1 }}/{{ encontrado.totalSessoes }}
+                    }
+                  </p>
+                  <p class="mt-0.5 text-[11px] font-medium text-[#9E4758]">
+                    @if (encontrado.dataDefinida === false) {
+                      Horário em aberto
+                    } @else {
+                      {{ encontrado.dataHora | date: 'dd/MM/yyyy HH:mm' }}
+                    }
+                    · {{ statusLabel(encontrado.status) }}
+                  </p>
+                </div>
+
+                <div class="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    (click)="abrirDetalhes(encontrado, 'nenhum')"
+                    class="cursor-pointer rounded-lg bg-[#F6E4E7] px-2.5 py-1.5 font-medium text-[#9E4758] transition hover:bg-[#9E4758] hover:text-white"
+                  >
+                    Abrir
+                  </button>
+                  @if (encontrado.dataDefinida !== false) {
+                    <button
+                      type="button"
+                      (click)="jumpToBookingDate(encontrado)"
+                      title="Ir para esta data no calendário"
+                      aria-label="Ir para esta data no calendário"
+                      class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-estetica-bg text-[#9E4758] hover:bg-[#F6E4E7]"
+                    >
+                      <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-xs text-estetica-text/70">
+            Nenhum agendamento encontrado para este termo.
+          </p>
+        }
+      </div>
+    }
   </section>
 
   <!-- Calendário / Lista de Agendamentos -->
@@ -426,6 +640,15 @@
                           >
                             <i class="pi pi-sync text-[10px]" aria-hidden="true"></i>
                             Reagendado
+                          </span>
+                        }
+
+                        @if (isBookingOverdue(item)) {
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                          >
+                            <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
+                            Horário vencido · Dar baixa
                           </span>
                         }
                       </div>
@@ -542,7 +765,7 @@
                             [attr.aria-label]="
                               'Enviar mensagem no WhatsApp para ' + clientName(item.idCliente)
                             "
-                            class="inline-flex size-9 items-center justify-center rounded-full border border-[#E8D5D8] bg-[#FAF4F5] text-[#9E4758] transition hover:bg-[#F6E4E7]"
+                            class="inline-flex size-9 items-center justify-center rounded-full border border-[#25D366] bg-[#25D366] text-white shadow-2xs transition hover:bg-[#1EBE5D]"
                           >
                             <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
                           </a>
@@ -1628,76 +1851,120 @@
             </div>
           }
 
-          @if (item.fotoResultadoUrl) {
-            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
-              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
-                Registro visual do resultado
-              </dt>
-              <dd class="mt-2">
-                <a
-                  [href]="item.fotoResultadoUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-2 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs font-semibold text-[#9E4758] underline"
-                >
-                  <i class="pi pi-image" aria-hidden="true"></i>
-                  Ver foto do resultado em tela cheia
-                </a>
-              </dd>
-            </div>
+          @if (fotosDoAgendamento(item); as fotosRegistradas) {
+            @if (fotosRegistradas.length > 0) {
+              <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+                <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                  Registros visuais do resultado ({{ fotosRegistradas.length }})
+                </dt>
+                <dd class="mt-2.5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  @for (fotoUrl of fotosRegistradas; track $index; let idx = $index) {
+                    <button
+                      type="button"
+                      (click)="expandirImagem(fotoUrl, 'Foto ' + (idx + 1) + ' do resultado')"
+                      class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[#E8D5D8] bg-white text-left shadow-2xs transition hover:border-[#9E4758] hover:shadow-md"
+                    >
+                      <div class="relative overflow-hidden">
+                        <img
+                          [src]="fotoUrl"
+                          [alt]="'Foto ' + (idx + 1) + ' do resultado'"
+                          class="h-24 w-full object-cover transition group-hover:scale-105"
+                        />
+                        <span
+                          aria-hidden="true"
+                          class="absolute inset-0 flex items-center justify-center bg-[#2D2224]/30 opacity-0 transition group-hover:opacity-100"
+                        >
+                          <i class="pi pi-search-plus text-sm text-white"></i>
+                        </span>
+                      </div>
+                      <span
+                        class="flex w-full items-center justify-between px-2.5 py-1.5 text-[11px] font-medium text-[#9E4758]"
+                      >
+                        <span>Foto {{ idx + 1 }}</span>
+                        <i class="pi pi-search-plus text-[10px]" aria-hidden="true"></i>
+                      </span>
+                    </button>
+                  }
+                </dd>
+              </div>
+            }
           }
         </dl>
 
         <!-- Barra de Ações Rápidas (Somente para Agendamentos Ativos) -->
         @if (isAtendimentoAtivo(item.status)) {
-          <div class="mt-5 flex flex-wrap items-center gap-2.5 border-t border-[#F0E2E4] pt-4">
-            @if (item.status === 'AguardandoConfirmacao') {
-              <p-button
-                label="Confirmar agendamento"
-                icon="pi pi-check"
-                (onClick)="confirmarAgendamento(item)"
+          <div
+            class="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-[#F0E2E4] pt-4"
+          >
+            <div class="flex flex-wrap items-center gap-2.5">
+              @if (item.status === 'AguardandoConfirmacao') {
+                <p-button
+                  label="Confirmar agendamento"
+                  icon="pi pi-check"
+                  (onClick)="confirmarAgendamento(item)"
+                  [disabled]="state.busy()"
+                  styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-xs hover:!opacity-90"
+                />
+              }
+
+              <button
+                type="button"
+                (click)="alternarPainelDetalhe('concluir')"
                 [disabled]="state.busy()"
-                styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white"
-              />
-            }
-
-            <p-button
-              [label]="
-                detalhePainelAtivo() === 'concluir' ? 'Ocultar conclusão' : 'Concluir atendimento'
-              "
-              icon="pi pi-check-circle"
-              [outlined]="detalhePainelAtivo() !== 'concluir'"
-              (onClick)="alternarPainelDetalhe('concluir')"
-              [disabled]="state.busy()"
-              styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
-            />
-
-            <p-button
-              [label]="
-                item.dataDefinida === false
-                  ? 'Definir data e horário'
-                  : detalhePainelAtivo() === 'reagendar'
-                    ? 'Ocultar reagendamento'
-                    : 'Reagendar horário'
-              "
-              icon="pi pi-calendar"
-              [outlined]="detalhePainelAtivo() !== 'reagendar'"
-              (onClick)="alternarPainelDetalhe('reagendar')"
-              [disabled]="state.busy()"
-              styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
-            />
-
-            @if (whatsappReminderUrl(item); as waLink) {
-              <a
-                [href]="waLink"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs font-semibold text-[#9E4758] transition hover:bg-[#F6E4E7]"
+                [attr.aria-pressed]="detalhePainelAtivo() === 'concluir'"
+                [class]="
+                  detalhePainelAtivo() === 'concluir'
+                    ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                    : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                "
+                class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition disabled:opacity-50"
               >
-                <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
-                WhatsApp
-              </a>
-            }
+                <i class="pi pi-check-circle text-sm" aria-hidden="true"></i>
+                <span>
+                  {{
+                    detalhePainelAtivo() === 'concluir'
+                      ? 'Ocultar conclusão'
+                      : 'Concluir atendimento'
+                  }}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                (click)="alternarPainelDetalhe('reagendar')"
+                [disabled]="state.busy()"
+                [attr.aria-pressed]="detalhePainelAtivo() === 'reagendar'"
+                [class]="
+                  detalhePainelAtivo() === 'reagendar'
+                    ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                    : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                "
+                class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition disabled:opacity-50"
+              >
+                <i class="pi pi-calendar text-sm" aria-hidden="true"></i>
+                <span>
+                  {{
+                    item.dataDefinida === false
+                      ? 'Definir data e horário'
+                      : detalhePainelAtivo() === 'reagendar'
+                        ? 'Ocultar reagendamento'
+                        : 'Reagendar horário'
+                  }}
+                </span>
+              </button>
+
+              @if (whatsappReminderUrl(item); as waLink) {
+                <a
+                  [href]="waLink"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#25D366] bg-[#25D366] px-3.5 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-[#1EBE5D]"
+                >
+                  <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
+                  WhatsApp
+                </a>
+              }
+            </div>
 
             <p-button
               label="Cancelar"
@@ -1706,7 +1973,8 @@
               [text]="true"
               (onClick)="alternarPainelDetalhe('cancelar')"
               [disabled]="state.busy()"
-              styleClass="ml-auto text-red-600 hover:bg-red-50"
+              class="ml-auto"
+              styleClass="text-red-600 hover:bg-red-50"
             />
           </div>
         } @else {
@@ -1895,17 +2163,29 @@
               pTextarea
               formControlName="anotacoesFinais"
               rows="3"
-              placeholder="Descreva a reação da pele, ativos utilizados ou recomendações..."
+              placeholder="Descreva informações que considerar importantes sobre o atendimento"
               class="w-full rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3 text-sm text-[#2D2224]"
             ></textarea>
           </div>
 
           <div>
-            <span
-              class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
-            >
-              Foto do resultado (opcional)
-            </span>
+            <div class="mb-1.5 flex items-center justify-between gap-2">
+              <span
+                class="block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              >
+                Fotos do resultado (opcional · pode selecionar várias)
+              </span>
+              @if (photos().length > 1) {
+                <button
+                  type="button"
+                  (click)="limparFotoSelecionada()"
+                  class="cursor-pointer text-xs font-medium text-[#9E4758] underline"
+                >
+                  Remover todas ({{ photos().length }})
+                </button>
+              }
+            </div>
+
             <label
               for="foto-resultado-input"
               class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#D8B8BE] bg-[#FAF4F5] px-4 py-5 text-center transition hover:border-[#9E4758] hover:bg-[#F6E4E7]/50"
@@ -1914,50 +2194,72 @@
                 aria-hidden="true"
                 class="flex size-10 items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758]"
               >
-                <i class="pi pi-camera text-base"></i>
+                <i class="pi pi-images text-base"></i>
               </span>
               <span class="text-xs font-medium text-[#2D2224]">
-                Clique para selecionar uma foto do resultado
+                Clique para selecionar uma ou mais fotos do resultado
               </span>
-              <span class="text-[11px] text-estetica-text/70"> JPEG, PNG ou WebP (máx. 5 MB) </span>
+              <span class="text-[11px] text-estetica-text/70">
+                Você pode selecionar várias imagens de uma vez · JPEG, PNG ou WebP (máx. 5 MB cada)
+              </span>
               <input
                 id="foto-resultado-input"
                 type="file"
+                multiple
                 accept="image/jpeg,image/png,image/webp"
                 [disabled]="state.busy()"
                 (change)="onFileSelected($event)"
+                (cancel)="$event.stopPropagation()"
                 class="sr-only"
               />
             </label>
 
-            @if (photo(); as arquivoFoto) {
-              <div
-                class="mt-3 flex items-center justify-between gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3"
-              >
-                <div class="flex min-w-0 items-center gap-3">
-                  @if (photoPreviewUrl(); as preview) {
-                    <img
-                      [src]="preview"
-                      alt="Pré-visualização da foto selecionada"
-                      class="size-12 shrink-0 rounded-lg object-cover"
-                    />
-                  }
-                  <div class="min-w-0">
-                    <p class="truncate text-xs font-medium text-[#2D2224]">
-                      {{ arquivoFoto.name }}
-                    </p>
-                    <p class="text-[11px] text-estetica-text/70">Pronta para envio</p>
+            @if (photos().length > 0) {
+              <div class="mt-3 grid gap-2.5 sm:grid-cols-2">
+                @for (itemFoto of photos(); track itemFoto.id) {
+                  <div
+                    class="flex items-center justify-between gap-3 rounded-xl border border-[#E8D5D8] bg-white p-2.5 shadow-2xs"
+                  >
+                    <button
+                      type="button"
+                      (click)="expandirImagem(itemFoto.previewUrl, itemFoto.file.name)"
+                      [attr.aria-label]="'Expandir pré-visualização de ' + itemFoto.file.name"
+                      class="group flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left"
+                    >
+                      @if (itemFoto.previewUrl) {
+                        <span class="relative size-12 shrink-0 overflow-hidden rounded-lg">
+                          <img
+                            [src]="itemFoto.previewUrl"
+                            [alt]="'Pré-visualização de ' + itemFoto.file.name"
+                            class="size-full object-cover transition group-hover:scale-105"
+                          />
+                          <span
+                            aria-hidden="true"
+                            class="absolute inset-0 flex items-center justify-center bg-[#2D2224]/35 opacity-0 transition group-hover:opacity-100"
+                          >
+                            <i class="pi pi-search-plus text-xs text-white"></i>
+                          </span>
+                        </span>
+                      }
+                      <div class="min-w-0">
+                        <p
+                          class="truncate text-xs font-medium text-[#2D2224] group-hover:text-estetica-primary"
+                        >
+                          {{ itemFoto.file.name }}
+                        </p>
+                        <p class="text-[11px] text-estetica-primary">Clique para ampliar</p>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      (click)="removerFotoSelecionada(itemFoto.id)"
+                      [attr.aria-label]="'Remover foto ' + itemFoto.file.name"
+                      class="inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-estetica-text/70 transition hover:bg-red-50 hover:text-red-700"
+                    >
+                      <i class="pi pi-trash text-xs" aria-hidden="true"></i>
+                    </button>
                   </div>
-                </div>
-                <p-button
-                  type="button"
-                  label="Remover"
-                  icon="pi pi-trash"
-                  size="small"
-                  severity="secondary"
-                  [text]="true"
-                  (onClick)="choosePhoto([])"
-                />
+                }
               </div>
             }
           </div>
@@ -2158,6 +2460,43 @@
           </div>
         </div>
       }
+    }
+  </dialog>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: LIGHTBOX DE VISUALIZAÇÃO EXPANDIDA DE IMAGEM                     -->
+  <!-- ========================================================================= -->
+  <dialog
+    #imagemPreviewDialog
+    aria-labelledby="imagem-preview-title"
+    (cancel)="handleImagemDialogCancel($event)"
+    (click)="handleImagemDialogClick($event)"
+    class="m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-4xl overflow-hidden rounded-3xl border border-[#E8D5D8] bg-white p-4 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(30,15,18,0.75)] backdrop:bg-[#2D2224]/70 sm:p-6"
+  >
+    @if (imagemExpandida(); as img) {
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <h3 id="imagem-preview-title" class="truncate text-sm font-medium text-[#2D2224]">
+          {{ img.titulo }}
+        </h3>
+        <button
+          type="button"
+          aria-label="Fechar visualização da imagem"
+          (click)="fecharImagemExpandida()"
+          class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-estetica-bg text-[#2D2224] transition hover:bg-[#F6E4E7] hover:text-estetica-primary"
+        >
+          <i class="pi pi-times text-xs" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div
+        class="flex max-h-[calc(100dvh-8rem)] items-center justify-center overflow-auto rounded-2xl bg-[#FAF4F5] p-2"
+      >
+        <img
+          [src]="img.url"
+          [alt]="img.titulo"
+          class="max-h-[calc(100dvh-9.5rem)] w-auto max-w-full rounded-xl object-contain"
+        />
+      </div>
     }
   </dialog>
 </section>

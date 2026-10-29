@@ -33,6 +33,7 @@ export interface Agendamento {
   criadoPor?: 'CLIENTE' | 'ADMIN';
   metodoPagamento?: MetodoPagamento;
   fotoResultadoUrl?: string;
+  fotosResultadoUrls?: string[];
   anotacoesFinais?: string;
 }
 
@@ -68,6 +69,7 @@ export interface ConcluirAgendamento {
   metodoPagamento: MetodoPagamento;
   anotacoesFinais: string;
   fotoResultadoUrl?: string;
+  fotosResultadoUrls?: string[];
 }
 
 export interface ReagendarAgendamento {

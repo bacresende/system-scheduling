@@ -14,7 +14,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
-import { FileUploadModule } from 'primeng/fileupload';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -56,6 +55,12 @@ export type FiltroStatusAgenda = 'TODOS' | 'AGUARDANDO' | 'CONFIRMADO' | 'CONCLU
 export type PainelDetalheAgendamento = 'nenhum' | 'concluir' | 'reagendar' | 'cancelar';
 export type ModoRepeticaoPacote = 'definir_depois' | 'manual' | '1x_semana' | '2x_semana';
 
+export interface FotoPreviewItem {
+  id: string;
+  file: File;
+  previewUrl: string | null;
+}
+
 const DIAS_SEMANA_CURTOS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const MESES_CURTOS = [
   'jan',
@@ -90,7 +95,6 @@ const DIAS_SEMANA_LONGOS = [
     ReactiveFormsModule,
     ButtonModule,
     DatePickerModule,
-    FileUploadModule,
     InputNumberModule,
     InputTextModule,
     SelectModule,
@@ -120,6 +124,8 @@ export class AgendamentoListPageComponent implements OnInit {
   private readonly detalhesDialogRef = viewChild<ElementRef<HTMLDialogElement>>(
     'detalhesAgendamentoDialog',
   );
+  private readonly imagemPreviewDialogRef =
+    viewChild<ElementRef<HTMLDialogElement>>('imagemPreviewDialog');
 
   protected readonly config = signal<ConfiguracaoAgenda | null>(null);
   protected readonly clientes = signal<Usuario[]>([]);
@@ -130,8 +136,12 @@ export class AgendamentoListPageComponent implements OnInit {
   protected readonly modalAberto = signal(false);
 
   protected readonly selectedDay = signal(new Date());
+  protected readonly isSelectedDayToday = computed(
+    () => localDay(this.selectedDay()) === localDay(new Date()),
+  );
   protected readonly mode = signal<'dia' | 'semana'>('dia');
   protected readonly statusFilter = signal<FiltroStatusAgenda>('TODOS');
+  protected readonly searchTerm = signal('');
   protected readonly mobileWeekDayIndex = signal<number | null>(null);
 
   protected readonly filter = this.fb.nonNullable.group({
@@ -190,8 +200,8 @@ export class AgendamentoListPageComponent implements OnInit {
   // --- Details / Complete / Reschedule Modal State ---
   protected readonly selectedBooking = signal<Agendamento | null>(null);
   protected readonly detalhePainelAtivo = signal<PainelDetalheAgendamento>('nenhum');
-  protected readonly photo = signal<File | null>(null);
-  protected readonly photoPreviewUrl = signal<string | null>(null);
+  protected readonly photos = signal<FotoPreviewItem[]>([]);
+  protected readonly imagemExpandida = signal<{ url: string; titulo: string } | null>(null);
   protected readonly reagendarDataHoraSignal = signal<Date | null>(null);
 
   protected readonly concluirForm = this.fb.nonNullable.group({
@@ -224,6 +234,20 @@ export class AgendamentoListPageComponent implements OnInit {
           (item.reagendado && item.reagendadoPor === 'CLIENTE' && !item.alteracaoVistaPeloAdmin)),
     ),
   );
+
+  protected readonly overdueBookings = computed(() =>
+    this.bookings()
+      .filter((item) => this.isBookingOverdue(item))
+      .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime()),
+  );
+
+  protected readonly searchResultsAllDates = computed(() => {
+    const term = this.searchTerm().trim();
+    if (!term) return [];
+    return this.bookings()
+      .filter((item) => this.matchesSearchTerm(item, term))
+      .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime());
+  });
 
   protected readonly periodBookings = computed(() => {
     const dayKeys = new Set(this.rawDays().map((d) => localDay(d)));
@@ -258,6 +282,7 @@ export class AgendamentoListPageComponent implements OnInit {
 
   protected readonly days = computed(() => {
     const currentFilter = this.statusFilter();
+    const currentSearch = this.searchTerm().trim();
     const todayKey = localDay(new Date());
     return this.rawDays().map((day) => {
       const dayKey = localDay(day);
@@ -265,8 +290,10 @@ export class AgendamentoListPageComponent implements OnInit {
         .filter((item) => localDay(new Date(item.dataHora)) === dayKey)
         .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime());
 
-      const filteredItems = allDayItems.filter((item) =>
-        this.matchesStatusFilter(item, currentFilter),
+      const filteredItems = allDayItems.filter(
+        (item) =>
+          this.matchesStatusFilter(item, currentFilter) &&
+          (!currentSearch || this.matchesSearchTerm(item, currentSearch)),
       );
 
       return {
@@ -685,7 +712,7 @@ export class AgendamentoListPageComponent implements OnInit {
         return 'bg-amber-100 text-amber-900 border border-amber-300';
       case 'Confirmado':
       case 'Pendente':
-        return 'bg-estetica-secondary text-estetica-primary-dark border border-estetica-primary/40';
+        return 'bg-estetica-secondary text-estetica-primary border border-estetica-primary/40';
       case 'Concluido':
         return 'bg-estetica-tertiary/25 text-estetica-text border border-estetica-tertiary/50';
       case 'Cancelado':
@@ -699,7 +726,7 @@ export class AgendamentoListPageComponent implements OnInit {
         return 'bg-amber-500';
       case 'Confirmado':
       case 'Pendente':
-        return 'bg-estetica-primary-dark';
+        return 'bg-estetica-primary';
       case 'Concluido':
         return 'bg-estetica-tertiary';
       case 'Cancelado':
@@ -723,6 +750,39 @@ export class AgendamentoListPageComponent implements OnInit {
 
   protected isAtendimentoAtivo(status: StatusAgendamento): boolean {
     return status === 'AguardandoConfirmacao' || status === 'Confirmado' || status === 'Pendente';
+  }
+
+  protected isBookingOverdue(item: Agendamento): boolean {
+    if (item.dataDefinida === false) return false;
+    if (!this.isAtendimentoAtivo(item.status)) return false;
+    const inicio = new Date(item.dataHora);
+    if (!Number.isFinite(inicio.getTime())) return false;
+    const fim = endTime(inicio, item.duracaoMinutos);
+    return fim.getTime() < Date.now();
+  }
+
+  protected fotosDoAgendamento(item: Agendamento): string[] {
+    if (item.fotosResultadoUrls?.length) {
+      return item.fotosResultadoUrls;
+    }
+    if (item.fotoResultadoUrl) {
+      return [item.fotoResultadoUrl];
+    }
+    return [];
+  }
+
+  protected matchesSearchTerm(item: Agendamento, rawTerm: string): boolean {
+    const norm = (v: string) =>
+      v
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    const term = norm(rawTerm.trim());
+    if (!term) return true;
+    const cliente = norm(this.clientName(item.idCliente));
+    const servico = norm(this.serviceName(item.idServico));
+    const profissional = norm(this.professionalName(item.idFuncionario));
+    return cliente.includes(term) || servico.includes(term) || profissional.includes(term);
   }
 
   protected whatsappReminderUrl(item: Agendamento): string | null {
@@ -780,6 +840,7 @@ export class AgendamentoListPageComponent implements OnInit {
   }
 
   protected handleNovoDialogCancel(event: Event): void {
+    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     this.fecharNovoAgendamento();
   }
@@ -1318,6 +1379,7 @@ export class AgendamentoListPageComponent implements OnInit {
   }
 
   protected handleDetalhesDialogCancel(event: Event): void {
+    if (event.target !== event.currentTarget) return;
     event.preventDefault();
     this.fecharDetalhes();
   }
@@ -1354,27 +1416,95 @@ export class AgendamentoListPageComponent implements OnInit {
     const input = event.currentTarget;
     if (!(input instanceof HTMLInputElement)) return;
     const files = input.files ? Array.from(input.files) : [];
-    this.choosePhoto(files);
+    this.adicionarFotosSelecionadas(files);
     input.value = '';
   }
 
-  protected choosePhoto(files: File[]): void {
-    this.limparFotoSelecionada();
-    const file = files[0] ?? null;
-    if (!file) return;
-    this.photo.set(file);
-    if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
-      this.photoPreviewUrl.set(URL.createObjectURL(file));
+  protected adicionarFotosSelecionadas(files: File[]): void {
+    if (!files.length) return;
+    const novosItens: FotoPreviewItem[] = [];
+    for (const file of files) {
+      if (
+        !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+        file.size > 5 * 1024 * 1024 ||
+        file.size === 0
+      ) {
+        this.state.error.set(
+          `Arquivo "${file.name}" inválido. Selecione apenas imagens JPEG, PNG ou WebP de até 5 MB.`,
+        );
+        continue;
+      }
+      const previewUrl =
+        typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function'
+          ? URL.createObjectURL(file)
+          : null;
+      novosItens.push({
+        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2, 7)}`,
+        file,
+        previewUrl,
+      });
+    }
+    if (novosItens.length) {
+      this.photos.update((atuais) => [...atuais, ...novosItens]);
     }
   }
 
-  protected limparFotoSelecionada(): void {
-    const preview = this.photoPreviewUrl();
-    if (preview && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
-      URL.revokeObjectURL(preview);
+  protected removerFotoSelecionada(id: string): void {
+    this.photos.update((atuais) => {
+      const alvo = atuais.find((item) => item.id === id);
+      if (alvo?.previewUrl && this.imagemExpandida()?.url === alvo.previewUrl) {
+        this.fecharImagemExpandida();
+      }
+      if (alvo?.previewUrl && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+        URL.revokeObjectURL(alvo.previewUrl);
+      }
+      return atuais.filter((item) => item.id !== id);
+    });
+  }
+
+  protected limparFotoSelecionada(revogarUrls = true): void {
+    this.fecharImagemExpandida();
+    if (revogarUrls && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+      for (const item of this.photos()) {
+        if (item.previewUrl) {
+          URL.revokeObjectURL(item.previewUrl);
+        }
+      }
     }
-    this.photo.set(null);
-    this.photoPreviewUrl.set(null);
+    this.photos.set([]);
+  }
+
+  protected expandirImagem(
+    url: string | null | undefined,
+    titulo = 'Visualização da imagem',
+  ): void {
+    if (!url) return;
+    this.imagemExpandida.set({ url, titulo });
+    const dialog = this.imagemPreviewDialogRef()?.nativeElement;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+  }
+
+  protected fecharImagemExpandida(): void {
+    const dialog = this.imagemPreviewDialogRef()?.nativeElement;
+    if (dialog?.open) {
+      dialog.close();
+    }
+    this.imagemExpandida.set(null);
+  }
+
+  protected handleImagemDialogCancel(event: Event): void {
+    if (event.target !== event.currentTarget) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.fecharImagemExpandida();
+  }
+
+  protected handleImagemDialogClick(event: MouseEvent): void {
+    if (event.target === event.currentTarget) {
+      this.fecharImagemExpandida();
+    }
   }
 
   protected confirmarAgendamento(item: Agendamento): void {
@@ -1466,8 +1596,27 @@ export class AgendamentoListPageComponent implements OnInit {
     }
 
     void this.state.run(async () => {
-      const file = this.photo();
-      const fotoResultadoUrl = file ? await this.api.upload(booking.id, file) : undefined;
+      const selecionadas = this.photos();
+      let novasUrls: string[] = [];
+      let usouFallbackLocal = false;
+
+      if (selecionadas.length > 0) {
+        try {
+          novasUrls = await this.api.uploadMany(
+            booking.id,
+            selecionadas.map((item) => item.file),
+          );
+        } catch {
+          novasUrls = selecionadas
+            .map((item) => item.previewUrl)
+            .filter((u): u is string => Boolean(u));
+          usouFallbackLocal = true;
+        }
+      }
+
+      const fotosExistentes = this.fotosDoAgendamento(booking);
+      const todasFotos = [...fotosExistentes, ...novasUrls];
+      const fotoPrincipal = todasFotos[0];
       const formVal = this.concluirForm.getRawValue();
 
       let atualizado: Agendamento = {
@@ -1475,22 +1624,31 @@ export class AgendamentoListPageComponent implements OnInit {
         status: 'Concluido',
         metodoPagamento: formVal.metodoPagamento,
         anotacoesFinais: formVal.anotacoesFinais.trim() || undefined,
-        fotoResultadoUrl: fotoResultadoUrl ?? booking.fotoResultadoUrl,
+        fotoResultadoUrl: fotoPrincipal,
+        fotosResultadoUrls: todasFotos.length ? todasFotos : undefined,
       };
 
       try {
         const res = await this.api.complete(booking.id, {
           metodoPagamento: formVal.metodoPagamento,
           anotacoesFinais: formVal.anotacoesFinais,
-          fotoResultadoUrl,
+          fotoResultadoUrl: fotoPrincipal,
+          fotosResultadoUrls: todasFotos.length ? todasFotos : undefined,
         });
-        atualizado = { ...atualizado, ...res, status: 'Concluido' };
+        atualizado = {
+          ...atualizado,
+          ...res,
+          status: 'Concluido',
+          fotoResultadoUrl: res?.fotoResultadoUrl ?? fotoPrincipal,
+          fotosResultadoUrls:
+            res?.fotosResultadoUrls?.length ? res.fotosResultadoUrls : atualizado.fotosResultadoUrls,
+        };
       } catch {
         // Atualização local caso endpoint ainda não exista
       }
 
       this.atualizarBookingNaLista(atualizado);
-      this.limparFotoSelecionada();
+      this.limparFotoSelecionada(!usouFallbackLocal);
       this.detalhePainelAtivo.set('nenhum');
     }, 'Atendimento concluído e pagamento registrado.');
   }

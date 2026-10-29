@@ -68,13 +68,7 @@ export class AgendamentosService {
   }
 
   async upload(id: string, file: File): Promise<string> {
-    if (
-      !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
-      file.size > 5 * 1024 * 1024 ||
-      file.size === 0
-    ) {
-      throw new Error('Selecione uma foto JPEG, PNG ou WebP de até 5 MB.');
-    }
+    this.validateImageFile(file);
     const body = new FormData();
     body.append('foto', file);
     const result = await this.api.request<{ url: string }>(
@@ -86,5 +80,29 @@ export class AgendamentosService {
       throw new Error('O Storage não retornou uma URL HTTPS válida.');
     }
     return result.url;
+  }
+
+  async uploadMany(id: string, files: File[]): Promise<string[]> {
+    for (const file of files) {
+      this.validateImageFile(file);
+    }
+    const urls: string[] = [];
+    for (const file of files) {
+      const url = await this.upload(id, file);
+      urls.push(url);
+    }
+    return urls;
+  }
+
+  private validateImageFile(file: File): void {
+    if (
+      !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+      file.size > 5 * 1024 * 1024 ||
+      file.size === 0
+    ) {
+      throw new Error(
+        `Arquivo "${file.name}" inválido. Selecione fotos JPEG, PNG ou WebP de até 5 MB cada.`,
+      );
+    }
   }
 }
