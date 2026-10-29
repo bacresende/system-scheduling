@@ -6,7 +6,7 @@
   <!-- Cabeçalho principal -->
   <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-[#9E4758] uppercase">
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-primary uppercase">
         Rotina da clínica
       </p>
       <h1
@@ -34,7 +34,7 @@
         icon="pi pi-plus"
         (onClick)="abrirNovoAgendamento(selectedDay())"
         [disabled]="state.busy()"
-        styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
+        styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
       />
     </div>
   </header>
@@ -86,7 +86,7 @@
                 </span>
                 @if (alerta.totalSessoes && alerta.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#9E4758]"
+                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
                   >
                     Sessão {{ alerta.sessaoNumero ?? 1 }}/{{ alerta.totalSessoes }}
                   </span>
@@ -122,7 +122,7 @@
                   size="small"
                   (onClick)="confirmarAgendamento(alerta)"
                   [disabled]="state.busy()"
-                  styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white text-xs"
+                  styleClass="!bg-estetica-primary !border-estetica-primary !text-white text-xs"
                 />
               } @else {
                 <p-button
@@ -132,7 +132,7 @@
                   [outlined]="true"
                   (onClick)="marcarAlertaVisto(alerta)"
                   [disabled]="state.busy()"
-                  styleClass="border-[#9E4758] text-[#9E4758] text-xs"
+                  styleClass="border-estetica-primary text-estetica-primary text-xs"
                 />
               }
               <p-button
@@ -150,7 +150,7 @@
                 [text]="true"
                 ariaLabel="Ir para a data deste agendamento"
                 (onClick)="jumpToBookingDate(alerta)"
-                styleClass="text-[#9E4758]"
+                styleClass="text-estetica-primary"
               />
             </div>
           </article>
@@ -169,7 +169,7 @@
         <div class="flex items-center gap-3">
           <span
             aria-hidden="true"
-            class="flex size-9 items-center justify-center rounded-full bg-rose-100 text-[#9E4758]"
+            class="flex size-9 items-center justify-center rounded-full bg-rose-100 text-estetica-primary"
           >
             <i class="pi pi-exclamation-circle text-sm"></i>
           </span>
@@ -193,14 +193,14 @@
             <div class="min-w-0">
               <div class="mb-1 flex flex-wrap items-center gap-2">
                 <span
-                  class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                  class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
                 >
                   <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
                   Horário vencido · Sem baixa
                 </span>
                 @if (vencido.totalSessoes && vencido.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
                   >
                     Sessão {{ vencido.sessaoNumero ?? 1 }}/{{ vencido.totalSessoes }}
                   </span>
@@ -224,7 +224,7 @@
                 size="small"
                 (onClick)="abrirDetalhes(vencido, 'concluir')"
                 [disabled]="state.busy()"
-                styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white text-xs"
+                styleClass="!bg-estetica-primary !border-estetica-primary !text-white text-xs"
               />
               <p-button
                 label="Reagendar"
@@ -252,7 +252,7 @@
                 [text]="true"
                 ariaLabel="Ir para o dia deste agendamento"
                 (onClick)="jumpToBookingDate(vencido)"
-                styleClass="text-[#9E4758]"
+                styleClass="text-estetica-primary"
               />
             </div>
           </article>
@@ -271,7 +271,7 @@
         <div class="flex items-center gap-3">
           <span
             aria-hidden="true"
-            class="flex size-8 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+            class="flex size-8 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
           >
             <i class="pi pi-calendar-plus text-xs"></i>
           </span>
@@ -298,7 +298,7 @@
                 serviceName(aberta.idServico)
               }}</span>
               <span
-                class="ml-2 rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#9E4758]"
+                class="ml-2 rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
               >
                 {{ aberta.sessaoNumero ?? 1 }}ª de {{ aberta.totalSessoes ?? 1 }}
               </span>
@@ -306,7 +306,7 @@
             <button
               type="button"
               (click)="abrirDetalhes(aberta, 'reagendar')"
-              class="cursor-pointer rounded-lg bg-[#9E4758] px-3 py-1.5 font-semibold text-white shadow-2xs transition hover:bg-[#873B4A]"
+              class="cursor-pointer rounded-lg bg-estetica-primary px-3 py-1.5 font-semibold text-white shadow-2xs transition hover:bg-[#873B4A]"
             >
               Definir horário
             </button>
@@ -410,7 +410,7 @@
             (ngModelChange)="searchTerm.set($event)"
             aria-label="Buscar agendamento por cliente ou serviço"
             placeholder="Buscar cliente ou serviço..."
-            class="min-h-10 w-full rounded-xl border border-[#E8D5D8] bg-white pr-8 pl-9 text-xs font-medium text-[#2D2224] placeholder:text-estetica-text/55 focus:border-[#9E4758] focus:outline-none"
+            class="min-h-10 w-full rounded-xl border border-[#E8D5D8] bg-white pr-8 pl-9 text-xs font-medium text-[#2D2224] placeholder:text-estetica-text/55 focus:border-estetica-primary focus:outline-none"
           />
           @if (searchTerm()) {
             <button
@@ -436,7 +436,7 @@
               [attr.aria-pressed]="mode() === item.value"
               [class]="
                 mode() === item.value
-                  ? 'bg-[#9E4758] text-white shadow-sm'
+                  ? 'bg-estetica-primary text-white shadow-sm'
                   : 'text-[#2D2224]/75 hover:text-[#2D2224]'
               "
               class="cursor-pointer rounded-lg px-4 py-1.5 text-xs font-medium transition"
@@ -458,7 +458,7 @@
           (click)="setStatusFilter('TODOS')"
           [class]="
             statusFilter() === 'TODOS'
-              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
               : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
@@ -470,7 +470,7 @@
           (click)="setStatusFilter('AGUARDANDO')"
           [class]="
             statusFilter() === 'AGUARDANDO'
-              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
               : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
@@ -482,7 +482,7 @@
           (click)="setStatusFilter('CONFIRMADO')"
           [class]="
             statusFilter() === 'CONFIRMADO'
-              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
               : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
@@ -494,7 +494,7 @@
           (click)="setStatusFilter('CONCLUIDO')"
           [class]="
             statusFilter() === 'CONCLUIDO'
-              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
               : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
@@ -506,7 +506,7 @@
           (click)="setStatusFilter('CANCELADO')"
           [class]="
             statusFilter() === 'CANCELADO'
-              ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-xs'
+              ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
               : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
@@ -528,7 +528,7 @@
           <button
             type="button"
             (click)="searchTerm.set('')"
-            class="cursor-pointer text-xs font-medium text-[#9E4758] underline"
+            class="cursor-pointer text-xs font-medium text-estetica-primary underline"
           >
             Limpar busca
           </button>
@@ -550,7 +550,7 @@
                       · {{ encontrado.sessaoNumero ?? 1 }}/{{ encontrado.totalSessoes }}
                     }
                   </p>
-                  <p class="mt-0.5 text-[11px] font-medium text-[#9E4758]">
+                  <p class="mt-0.5 text-[11px] font-medium text-estetica-primary">
                     @if (encontrado.dataDefinida === false) {
                       Horário em aberto
                     } @else {
@@ -564,7 +564,7 @@
                   <button
                     type="button"
                     (click)="abrirDetalhes(encontrado, 'nenhum')"
-                    class="cursor-pointer rounded-lg bg-[#F6E4E7] px-2.5 py-1.5 font-medium text-[#9E4758] transition hover:bg-[#9E4758] hover:text-white"
+                    class="cursor-pointer rounded-lg bg-[#F6E4E7] px-2.5 py-1.5 font-medium text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
                   >
                     Abrir
                   </button>
@@ -574,7 +574,7 @@
                       (click)="jumpToBookingDate(encontrado)"
                       title="Ir para esta data no calendário"
                       aria-label="Ir para esta data no calendário"
-                      class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-estetica-bg text-[#9E4758] hover:bg-[#F6E4E7]"
+                      class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-estetica-bg text-estetica-primary hover:bg-[#F6E4E7]"
                     >
                       <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
                     </button>
@@ -603,7 +603,7 @@
               <div class="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                 @for (item of day.items; track item.id) {
                   <article
-                    class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-[#9E4758]/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] sm:p-6"
+                    class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] sm:p-6"
                   >
                     <div
                       aria-hidden="true"
@@ -628,7 +628,7 @@
 
                         @if (item.totalSessoes && item.totalSessoes > 1) {
                           <span
-                            class="inline-flex items-center rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]"
+                            class="inline-flex items-center rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary"
                           >
                             {{ item.sessaoNumero ?? 1 }}ª de {{ item.totalSessoes }} sessões
                           </span>
@@ -645,7 +645,7 @@
 
                         @if (isBookingOverdue(item)) {
                           <span
-                            class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-[#9E4758]"
+                            class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
                           >
                             <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
                             Horário vencido · Dar baixa
@@ -659,7 +659,7 @@
                         </p>
                         @if (item.codigoCupom) {
                           <span
-                            class="inline-block rounded-full bg-[#F6E4E7] px-2 py-0.5 text-[10px] font-semibold text-[#9E4758]"
+                            class="inline-block rounded-full bg-[#F6E4E7] px-2 py-0.5 text-[10px] font-semibold text-estetica-primary"
                           >
                             {{ item.codigoCupom }}
                           </span>
@@ -731,7 +731,7 @@
                             size="small"
                             (onClick)="confirmarAgendamento(item)"
                             [disabled]="state.busy()"
-                            styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white"
+                            styleClass="!bg-estetica-primary !border-estetica-primary !text-white"
                           />
                         }
                         @if (isAtendimentoAtivo(item.status)) {
@@ -742,7 +742,7 @@
                             [outlined]="true"
                             (onClick)="abrirDetalhes(item, 'concluir')"
                             [disabled]="state.busy()"
-                            styleClass="border-[#9E4758] text-[#9E4758] hover:bg-[#F6E4E7]"
+                            styleClass="border-estetica-primary text-estetica-primary hover:bg-[#F6E4E7]"
                           />
                           <p-button
                             label="Reagendar"
@@ -776,7 +776,7 @@
                           size="small"
                           [text]="true"
                           (onClick)="abrirDetalhes(item, 'nenhum')"
-                          styleClass="text-[#9E4758] hover:bg-[#F6E4E7]"
+                          styleClass="text-estetica-primary hover:bg-[#F6E4E7]"
                         />
                       </div>
                     </div>
@@ -790,7 +790,7 @@
               >
                 <span
                   aria-hidden="true"
-                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758]"
+                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary"
                 >
                   <i class="pi pi-calendar text-xl"></i>
                 </span>
@@ -804,7 +804,7 @@
                   icon="pi pi-plus"
                   (onClick)="abrirNovoAgendamento(day.date)"
                   [disabled]="state.busy()"
-                  styleClass="mt-5 !bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.45)]"
+                  styleClass="mt-5 !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.45)]"
                 />
               </div>
             }
@@ -817,7 +817,7 @@
               (click)="toggleMobileWeekDay(null)"
               [class]="
                 mobileWeekDayIndex() === null
-                  ? 'bg-[#9E4758] text-white shadow-xs'
+                  ? 'bg-estetica-primary text-white shadow-xs'
                   : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
               "
               class="shrink-0 cursor-pointer rounded-xl px-3.5 py-2 text-xs font-semibold"
@@ -830,7 +830,7 @@
                 (click)="toggleMobileWeekDay(idx)"
                 [class]="
                   mobileWeekDayIndex() === idx
-                    ? 'bg-[#9E4758] text-white shadow-xs'
+                    ? 'bg-estetica-primary text-white shadow-xs'
                     : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
                 "
                 class="flex shrink-0 cursor-pointer flex-col items-center rounded-xl px-3 py-1.5 text-xs"
@@ -838,7 +838,7 @@
                 <span class="font-semibold">{{ day.shortLabel }}</span>
                 <span class="text-[11px]">{{ day.date | date: 'dd/MM' }}</span>
                 <span
-                  class="mt-0.5 rounded-full bg-[#F6E4E7] px-1.5 text-[10px] font-medium text-[#9E4758]"
+                  class="mt-0.5 rounded-full bg-[#F6E4E7] px-1.5 text-[10px] font-medium text-estetica-primary"
                 >
                   {{ day.items.length }}
                 </span>
@@ -852,7 +852,7 @@
                 class="flex min-h-72 min-w-0 flex-col rounded-2xl border bg-estetica-bg p-3.5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
                 [class]="
                   day.isToday
-                    ? 'border-2 border-[#9E4758] ring-2 ring-[#9E4758]/15'
+                    ? 'border-2 border-estetica-primary ring-2 ring-estetica-primary/15'
                     : 'border-[#E8D5D8]'
                 "
               >
@@ -862,12 +862,12 @@
                 >
                   <div>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-medium tracking-wide text-[#9E4758] uppercase">
+                      <span class="text-xs font-medium tracking-wide text-estetica-primary uppercase">
                         {{ day.shortLabel }}
                       </span>
                       @if (day.isToday) {
                         <span
-                          class="rounded-full bg-[#9E4758] px-2 py-0.5 text-[10px] font-medium text-white"
+                          class="rounded-full bg-estetica-primary px-2 py-0.5 text-[10px] font-medium text-white"
                         >
                           Hoje
                         </span>
@@ -882,7 +882,7 @@
                     type="button"
                     (click)="abrirNovoAgendamento(day.date)"
                     [attr.aria-label]="'Novo agendamento em ' + (day.date | date: 'dd/MM/yyyy')"
-                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758] transition hover:bg-[#9E4758] hover:text-white"
+                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
                   >
                     <i class="pi pi-plus text-xs" aria-hidden="true"></i>
                   </button>
@@ -894,7 +894,7 @@
                     <button
                       type="button"
                       (click)="abrirDetalhes(item, 'nenhum')"
-                      class="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-[#E8D5D8] bg-[#FAF4F5]/70 p-2.5 pl-3.5 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-[#9E4758] hover:bg-white hover:shadow-md focus-visible:outline-2 focus-visible:outline-[#9E4758]"
+                      class="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-[#E8D5D8] bg-[#FAF4F5]/70 p-2.5 pl-3.5 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-estetica-primary hover:bg-white hover:shadow-md focus-visible:outline-2 focus-visible:outline-estetica-primary"
                     >
                       <span
                         aria-hidden="true"
@@ -903,14 +903,14 @@
                       ></span>
 
                       <div class="flex items-center justify-between gap-1">
-                        <span class="text-xs font-medium text-[#9E4758]">
+                        <span class="text-xs font-medium text-estetica-primary">
                           {{ item.dataHora | date: 'HH:mm' }}–{{
                             endTime(item.dataHora, item.duracaoMinutos) | date: 'HH:mm'
                           }}
                         </span>
                         @if (item.totalSessoes && item.totalSessoes > 1) {
                           <span
-                            class="rounded-full bg-[#F6E4E7] px-1.5 py-0.5 text-[10px] font-medium text-[#9E4758]"
+                            class="rounded-full bg-[#F6E4E7] px-1.5 py-0.5 text-[10px] font-medium text-estetica-primary"
                           >
                             {{ item.sessaoNumero ?? 1 }}/{{ item.totalSessoes }}
                           </span>
@@ -1013,7 +1013,7 @@
         aria-label="Fechar modal de novo agendamento"
         (click)="fecharNovoAgendamento()"
         [disabled]="state.busy()"
-        class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-[#9E4758] disabled:opacity-50"
+        class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
       >
         <i class="pi pi-times text-sm" aria-hidden="true"></i>
       </button>
@@ -1029,7 +1029,7 @@
         >
           <div class="mb-4 flex items-center gap-3">
             <span
-              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
             >
               1
             </span>
@@ -1128,7 +1128,7 @@
         >
           <div class="mb-4 flex items-center gap-3">
             <span
-              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
             >
               2
             </span>
@@ -1147,8 +1147,8 @@
                 [attr.aria-pressed]="formTotalSessoes() === qtd"
                 [class]="
                   formTotalSessoes() === qtd
-                    ? 'border-[#9E4758] bg-[#9E4758] text-white font-semibold shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]'
-                    : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                    ? 'border-estetica-primary bg-estetica-primary text-white font-semibold shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]'
+                    : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                 "
                 class="min-h-11 cursor-pointer rounded-xl border px-3 py-2 text-xs transition sm:text-sm"
               >
@@ -1164,7 +1164,7 @@
         >
           <div class="mb-4 flex items-center gap-3">
             <span
-              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+              class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
             >
               3
             </span>
@@ -1254,8 +1254,8 @@
                         [attr.aria-pressed]="isMesmoHorario(formDataHora(), slot.date)"
                         [class]="
                           isMesmoHorario(formDataHora(), slot.date)
-                            ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                            ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                         "
                         class="h-10 cursor-pointer rounded-xl border text-xs transition"
                       >
@@ -1281,8 +1281,8 @@
                         [attr.aria-pressed]="isMesmoHorario(formDataHora(), slot.date)"
                         [class]="
                           isMesmoHorario(formDataHora(), slot.date)
-                            ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                            ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                         "
                         class="h-10 cursor-pointer rounded-xl border text-xs transition"
                       >
@@ -1312,7 +1312,7 @@
           >
             <div class="mb-4 flex items-center gap-3">
               <span
-                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
               >
                 4
               </span>
@@ -1345,7 +1345,7 @@
               <div class="relative">
                 <span
                   aria-hidden="true"
-                  class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-white bg-[#9E4758] shadow-2xs"
+                  class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-white bg-estetica-primary shadow-2xs"
                 ></span>
                 <p class="text-sm font-medium text-[#2D2224]">1ª sessão</p>
                 <p class="text-xs text-estetica-text/75">
@@ -1362,8 +1362,8 @@
                 <div class="relative">
                   <span
                     aria-hidden="true"
-                    class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-[#9E4758]"
-                    [class]="sessao.definirDepois ? 'bg-white' : 'bg-[#9E4758]'"
+                    class="absolute -left-[1.6rem] top-1 size-3.5 rounded-full border-2 border-estetica-primary"
+                    [class]="sessao.definirDepois ? 'bg-white' : 'bg-estetica-primary'"
                   ></span>
 
                   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -1447,8 +1447,8 @@
                                       "
                                       [class]="
                                         isMesmoHorario(sessao.dataHora, slot.date)
-                                          ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-xs'
-                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50'
+                                          ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-xs'
+                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50'
                                       "
                                       class="h-9 cursor-pointer rounded-lg border text-xs transition"
                                     >
@@ -1479,8 +1479,8 @@
                                       "
                                       [class]="
                                         isMesmoHorario(sessao.dataHora, slot.date)
-                                          ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-xs'
-                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50'
+                                          ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-xs'
+                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50'
                                       "
                                       class="h-9 cursor-pointer rounded-lg border text-xs transition"
                                     >
@@ -1520,7 +1520,7 @@
           <div class="mb-4 flex items-center justify-between gap-3">
             <div class="flex items-center gap-3">
               <span
-                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-[#9E4758]"
+                class="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
               >
                 {{ formTotalSessoes() > 1 ? 5 : 4 }}
               </span>
@@ -1560,7 +1560,7 @@
                   {{ msgCupom }}
                 </p>
               } @else if (cupomSelecionado(); as cupom) {
-                <p class="mt-2 text-xs font-semibold text-[#9E4758]">
+                <p class="mt-2 text-xs font-semibold text-estetica-primary">
                   Cupom <strong>{{ cupom.codigo }}</strong> aplicado ({{
                     cupom.tipoDesconto === 'PORCENTAGEM'
                       ? cupom.valor + '%'
@@ -1618,7 +1618,7 @@
         >
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <span class="text-[10px] font-bold tracking-wider text-[#9E4758] uppercase">
+              <span class="text-[10px] font-bold tracking-wider text-estetica-primary uppercase">
                 Resumo do pacote
               </span>
               <p class="mt-0.5 text-sm font-medium text-[#2D2224]">
@@ -1649,7 +1649,7 @@
               >
                 Total final
               </span>
-              <p class="text-2xl font-medium text-[#9E4758]">
+              <p class="text-2xl font-medium text-estetica-primary">
                 {{ resumoFinanceiro().valorFinal | currency: 'BRL' }}
               </p>
               @if (resumoSessoesPacote().total > 1) {
@@ -1677,7 +1677,7 @@
               icon="pi pi-check"
               [loading]="state.busy()"
               [disabled]="!config()"
-              styleClass="w-full !bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.55)] hover:!bg-[#873B4A] sm:w-auto"
+              styleClass="w-full !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.55)] hover:!bg-[#873B4A] sm:w-auto"
             />
           </div>
         </div>
@@ -1714,7 +1714,7 @@
             </span>
 
             @if (item.totalSessoes && item.totalSessoes > 1) {
-              <span class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]">
+              <span class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary">
                 Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
               </span>
             }
@@ -1744,7 +1744,7 @@
           aria-label="Fechar detalhes do agendamento"
           (click)="fecharDetalhes()"
           [disabled]="state.busy()"
-          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-[#9E4758] disabled:opacity-50"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
         >
           <i class="pi pi-times text-sm" aria-hidden="true"></i>
         </button>
@@ -1792,7 +1792,7 @@
             <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
               Valor da sessão
             </dt>
-            <dd class="mt-1 text-sm font-medium text-[#9E4758]">
+            <dd class="mt-1 text-sm font-medium text-estetica-primary">
               {{ item.valor | currency: 'BRL' }}
               @if (item.codigoCupom) {
                 <span class="ml-1 text-xs font-medium text-estetica-text/75">
@@ -1862,7 +1862,7 @@
                     <button
                       type="button"
                       (click)="expandirImagem(fotoUrl, 'Foto ' + (idx + 1) + ' do resultado')"
-                      class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[#E8D5D8] bg-white text-left shadow-2xs transition hover:border-[#9E4758] hover:shadow-md"
+                      class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[#E8D5D8] bg-white text-left shadow-2xs transition hover:border-estetica-primary hover:shadow-md"
                     >
                       <div class="relative overflow-hidden">
                         <img
@@ -1878,7 +1878,7 @@
                         </span>
                       </div>
                       <span
-                        class="flex w-full items-center justify-between px-2.5 py-1.5 text-[11px] font-medium text-[#9E4758]"
+                        class="flex w-full items-center justify-between px-2.5 py-1.5 text-[11px] font-medium text-estetica-primary"
                       >
                         <span>Foto {{ idx + 1 }}</span>
                         <i class="pi pi-search-plus text-[10px]" aria-hidden="true"></i>
@@ -2001,7 +2001,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
               <span
-                class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#9E4758]"
+                class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary"
               >
                 {{ progressoPacoteSelecionado().concluidas }}/{{
                   progressoPacoteSelecionado().total
@@ -2023,10 +2023,10 @@
               <div class="relative">
                 <span
                   aria-hidden="true"
-                  class="absolute -left-[1.6rem] top-4 size-3.5 rounded-full border-2 border-[#9E4758]"
+                  class="absolute -left-[1.6rem] top-4 size-3.5 rounded-full border-2 border-estetica-primary"
                   [class]="
                     sessao.id === item.id || sessao.status === 'Concluido'
-                      ? 'bg-[#9E4758]'
+                      ? 'bg-estetica-primary'
                       : 'bg-white'
                   "
                 ></span>
@@ -2040,8 +2040,8 @@
                   [attr.aria-current]="sessao.id === item.id ? 'true' : null"
                   [class]="
                     sessao.id === item.id
-                      ? 'border-[#9E4758] bg-[#F6E4E7]/50 ring-1 ring-[#9E4758]/25'
-                      : 'border-[#E8D5D8] bg-white hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                      ? 'border-estetica-primary bg-[#F6E4E7]/50 ring-1 ring-estetica-primary/25'
+                      : 'border-[#E8D5D8] bg-white hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                   "
                   class="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl border p-3 transition"
                 >
@@ -2058,7 +2058,7 @@
                       </span>
                       @if (sessao.id === item.id) {
                         <span
-                          class="rounded-full bg-[#9E4758] px-2.5 py-0.5 text-[10px] font-medium text-white"
+                          class="rounded-full bg-estetica-primary px-2.5 py-0.5 text-[10px] font-medium text-white"
                         >
                           Visualizando agora
                         </span>
@@ -2079,13 +2079,13 @@
                   <div class="flex shrink-0 items-center gap-2">
                     @if (sessao.dataDefinida === false && isAtendimentoAtivo(sessao.status)) {
                       <span
-                        class="rounded-lg bg-[#9E4758] px-2.5 py-1 text-xs font-medium text-white shadow-2xs"
+                        class="rounded-lg bg-estetica-primary px-2.5 py-1 text-xs font-medium text-white shadow-2xs"
                       >
                         Definir horário
                       </span>
                     } @else if (sessao.id !== item.id) {
                       <span
-                        class="rounded-lg border border-[#E8D5D8] bg-estetica-bg px-2.5 py-1 text-xs font-medium text-[#9E4758]"
+                        class="rounded-lg border border-[#E8D5D8] bg-estetica-bg px-2.5 py-1 text-xs font-medium text-estetica-primary"
                       >
                         Ver sessão
                       </span>
@@ -2096,7 +2096,7 @@
                         (click)="irParaDataSessaoDoPacote(sessao, $event)"
                         aria-label="Ir para o dia desta sessão na agenda"
                         title="Ir para este dia na agenda"
-                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-white text-[#9E4758] transition hover:bg-[#F6E4E7]"
+                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-white text-estetica-primary transition hover:bg-[#F6E4E7]"
                       >
                         <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
                       </button>
@@ -2138,8 +2138,8 @@
                   [attr.aria-pressed]="concluirForm.controls.metodoPagamento.value === mp.value"
                   [class]="
                     concluirForm.controls.metodoPagamento.value === mp.value
-                      ? 'border-[#9E4758] bg-[#9E4758] text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                      : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                      ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                      : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                   "
                   class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-3 text-xs font-medium transition"
                 >
@@ -2179,7 +2179,7 @@
                 <button
                   type="button"
                   (click)="limparFotoSelecionada()"
-                  class="cursor-pointer text-xs font-medium text-[#9E4758] underline"
+                  class="cursor-pointer text-xs font-medium text-estetica-primary underline"
                 >
                   Remover todas ({{ photos().length }})
                 </button>
@@ -2188,11 +2188,11 @@
 
             <label
               for="foto-resultado-input"
-              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#D8B8BE] bg-[#FAF4F5] px-4 py-5 text-center transition hover:border-[#9E4758] hover:bg-[#F6E4E7]/50"
+              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#D8B8BE] bg-[#FAF4F5] px-4 py-5 text-center transition hover:border-estetica-primary hover:bg-[#F6E4E7]/50"
             >
               <span
                 aria-hidden="true"
-                class="flex size-10 items-center justify-center rounded-full bg-[#F6E4E7] text-[#9E4758]"
+                class="flex size-10 items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary"
               >
                 <i class="pi pi-images text-base"></i>
               </span>
@@ -2278,7 +2278,7 @@
               label="Concluir e registrar pagamento"
               icon="pi pi-check"
               [loading]="state.busy()"
-              styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+              styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
             />
           </div>
         </form>
@@ -2363,8 +2363,8 @@
                           [attr.aria-pressed]="isMesmoHorario(novaDt, slot.date)"
                           [class]="
                             isMesmoHorario(novaDt, slot.date)
-                              ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                              ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                           "
                           class="h-10 cursor-pointer rounded-xl border text-xs transition"
                         >
@@ -2390,8 +2390,8 @@
                           [attr.aria-pressed]="isMesmoHorario(novaDt, slot.date)"
                           [class]="
                             isMesmoHorario(novaDt, slot.date)
-                              ? 'border-[#9E4758] bg-[#9E4758] text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-[#9E4758]/50 hover:bg-[#FAF4F5]'
+                              ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
+                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
                           "
                           class="h-10 cursor-pointer rounded-xl border text-xs transition"
                         >
@@ -2423,7 +2423,7 @@
               label="Confirmar novo horário"
               icon="pi pi-calendar-clock"
               [loading]="state.busy()"
-              styleClass="!bg-[#9E4758] !border-[#9E4758] !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+              styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
             />
           </div>
         </form>

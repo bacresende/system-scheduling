@@ -2,13 +2,16 @@
 <section aria-labelledby="clientes-title" class="mx-auto max-w-7xl">
   <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-text/70 uppercase">
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-primary uppercase">
         Relacionamento da clínica
       </p>
-      <h1 id="clientes-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+      <h1
+        id="clientes-title"
+        class="font-serif text-4xl leading-tight tracking-tight text-[#2D2224] sm:text-5xl"
+      >
         Clientes
       </h1>
-      <p class="mt-3 max-w-xl text-sm leading-relaxed text-estetica-text/80">
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-[#2D2224]/80">
         Consulte os contatos e acompanhe o status de cadastro de cada cliente.
       </p>
     </div>
@@ -19,14 +22,14 @@
         [outlined]="true"
         (onClick)="load()"
         [disabled]="state.busy()"
-        styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+        styleClass="border-[#D8B8BE] bg-white text-[#7A3B48] shadow-xs hover:bg-[#F6E4E7]"
       />
       <p-button
         label="Incluir cliente"
         icon="pi pi-plus"
         (onClick)="newClient()"
         [disabled]="state.busy()"
-        styleClass="bg-estetica-primary border-estetica-primary text-estetica-text"
+        styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
       />
     </div>
   </header>
@@ -36,15 +39,15 @@
     aria-labelledby="cliente-form-title"
     (cancel)="handleDialogCancel($event)"
     (click)="handleDialogClick($event)"
-    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-xl overflow-y-auto rounded-2xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_24px_70px_-24px_rgba(110,55,65,0.28)] backdrop:bg-[#2D2224]/40 sm:p-7"
   >
     <div class="mb-6 flex items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+        <p class="mb-1 text-xs font-semibold tracking-wide text-[#2D2224]/70 uppercase">
           Novo no relacionamento
         </p>
         <h2 id="cliente-form-title" class="font-serif text-2xl sm:text-3xl">Cadastrar cliente</h2>
-        <p class="mt-2 text-sm leading-relaxed text-estetica-text/75">
+        <p class="mt-2 text-sm leading-relaxed text-[#2D2224]/75">
           Informe os dados básicos para adicionar a cliente à sua lista.
         </p>
       </div>
@@ -54,7 +57,7 @@
         ariaLabel="Fechar formulário"
         (onClick)="reset()"
         [disabled]="state.busy()"
-        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+        styleClass="text-[#7A3B48] hover:bg-[#F6E4E7]"
       />
     </div>
 
@@ -68,7 +71,7 @@
           autocomplete="name"
           autofocus
           placeholder="Ex.: Ana Silva"
-          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          class="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
           [invalid]="form.controls.nome.invalid && form.controls.nome.touched"
           [attr.aria-invalid]="form.controls.nome.invalid && form.controls.nome.touched"
           aria-describedby="nome-cliente-error"
@@ -85,7 +88,7 @@
           formControlName="email"
           autocomplete="email"
           placeholder="ana@exemplo.com"
-          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          class="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
           [invalid]="form.controls.email.invalid && form.controls.email.touched"
           [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
           aria-describedby="email-cliente-error"
@@ -103,12 +106,12 @@
           autocomplete="tel"
           mask="(00) 0 0000-0000"
           placeholder="(61) 9 9999-9999"
-          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+          class="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
           [invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
           [attr.aria-invalid]="form.controls.telefone.invalid && form.controls.telefone.touched"
           aria-describedby="telefone-cliente-hint telefone-cliente-error"
         />
-        <p id="telefone-cliente-hint" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
+        <p id="telefone-cliente-hint" class="mt-2 text-xs leading-relaxed text-[#2D2224]/75">
           Informe o DDD e os 9 dígitos do celular.
         </p>
         <app-field-error id="telefone-cliente-error" [control]="form.controls.telefone" />
@@ -120,14 +123,14 @@
           [outlined]="true"
           (onClick)="reset()"
           [disabled]="state.busy()"
-          styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+          styleClass="w-full border-[#D8B8BE] text-[#7A3B48] hover:bg-[#F6E4E7] sm:w-auto"
         />
         <p-button
           type="submit"
           label="Salvar"
           icon="pi pi-check"
           [loading]="state.busy()"
-          styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"
+          styleClass="w-full !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A] sm:w-auto"
         />
       </div>
     </form>
@@ -138,12 +141,12 @@
     aria-labelledby="cliente-detalhes-title"
     (cancel)="handleDetailsDialogCancel($event)"
     (click)="handleDetailsDialogClick($event)"
-    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-2xl overflow-y-auto rounded-2xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_24px_70px_-24px_rgba(110,55,65,0.28)] backdrop:bg-[#2D2224]/40 sm:p-7"
   >
     @if (selectedClient(); as cliente) {
       <div class="mb-6 flex items-start justify-between gap-4">
         <div class="min-w-0">
-          <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+          <p class="mb-1 text-xs font-semibold tracking-wide text-[#2D2224]/70 uppercase">
             Informações do cliente
           </p>
           <h2 id="cliente-detalhes-title" class="break-words font-serif text-2xl sm:text-3xl">
@@ -155,7 +158,7 @@
           [text]="true"
           ariaLabel="Fechar detalhes do cliente"
           (onClick)="closeDetails()"
-          styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+          styleClass="text-[#7A3B48] hover:bg-[#F6E4E7]"
         />
       </div>
 
@@ -164,22 +167,22 @@
           Dados pessoais e contato
         </h3>
         <dl
-          class="grid gap-4 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:grid-cols-2"
+          class="grid gap-4 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4 shadow-[0_8px_20px_-14px_rgba(110,55,65,0.28)] sm:grid-cols-2"
         >
           <div class="min-w-0">
-            <dt class="text-xs text-estetica-text/70">E-mail</dt>
+            <dt class="text-xs text-[#2D2224]/70">E-mail</dt>
             <dd class="mt-1 break-all text-sm font-medium">
               <a
                 [href]="'mailto:' + cliente.email"
                 [attr.aria-label]="'Enviar e-mail para ' + cliente.nome + ': ' + cliente.email"
-                class="text-estetica-primary-dark underline decoration-estetica-primary/70 underline-offset-2 hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                class="text-[#7A3B48] underline decoration-estetica-primary/70 underline-offset-2 hover:text-[#2D2224] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
               >
                 {{ cliente.email }}
               </a>
             </dd>
           </div>
           <div>
-            <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
+            <dt class="text-xs text-[#2D2224]/70">WhatsApp</dt>
             <dd class="mt-1 text-sm font-medium">
               @if (whatsappUrl(cliente.telefone); as url) {
                 <a
@@ -187,7 +190,7 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   [attr.aria-label]="'Abrir conversa no WhatsApp com ' + cliente.nome"
-                  class="text-estetica-primary-dark underline decoration-estetica-primary/70 underline-offset-2 hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                  class="text-[#7A3B48] underline decoration-estetica-primary/70 underline-offset-2 hover:text-[#2D2224] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
                 >
                   {{ cliente.telefone | telefone }}
                   <span class="sr-only">(abre em nova aba)</span>
@@ -198,21 +201,21 @@
             </dd>
           </div>
           <div>
-            <dt class="text-xs text-estetica-text/70">CPF</dt>
+            <dt class="text-xs text-[#2D2224]/70">CPF</dt>
             <dd class="mt-1 text-sm font-medium">{{ cliente.cpf | cpf }}</dd>
           </div>
           <div>
-            <dt class="text-xs text-estetica-text/70">Data de nascimento</dt>
+            <dt class="text-xs text-[#2D2224]/70">Data de nascimento</dt>
             <dd class="mt-1 text-sm font-medium">{{ cliente.nasc | birthdate }}</dd>
           </div>
           <div>
-            <dt class="text-xs text-estetica-text/70">Ocupação profissional</dt>
+            <dt class="text-xs text-[#2D2224]/70">Ocupação profissional</dt>
             <dd class="mt-1 text-sm font-medium">
               {{ cliente.ocupacaoProfissional || 'Não informado' }}
             </dd>
           </div>
           <div>
-            <dt class="text-xs text-estetica-text/70">Cadastro</dt>
+            <dt class="text-xs text-[#2D2224]/70">Cadastro</dt>
             <dd class="mt-1 text-sm font-medium">
               {{ cliente.cadastroCompleto ? 'Completo' : 'Pendente' }}
             </dd>
@@ -224,44 +227,44 @@
         <h3 id="cliente-endereco-title" class="mb-3 text-sm font-semibold">Endereço</h3>
         @if (cliente.endereco; as endereco) {
           <dl
-            class="grid gap-4 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:grid-cols-2"
+            class="grid gap-4 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4 shadow-[0_8px_20px_-14px_rgba(110,55,65,0.28)] sm:grid-cols-2"
           >
             <div>
-              <dt class="text-xs text-estetica-text/70">CEP</dt>
+              <dt class="text-xs text-[#2D2224]/70">CEP</dt>
               <dd class="mt-1 text-sm font-medium">{{ endereco.cep | cep }}</dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">Logradouro</dt>
+              <dt class="text-xs text-[#2D2224]/70">Logradouro</dt>
               <dd class="mt-1 text-sm font-medium">
                 {{ endereco.logradouro }}, {{ endereco.numeroResidencia }}
               </dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">Bairro</dt>
+              <dt class="text-xs text-[#2D2224]/70">Bairro</dt>
               <dd class="mt-1 text-sm font-medium">{{ endereco.bairro }}</dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">Complemento</dt>
+              <dt class="text-xs text-[#2D2224]/70">Complemento</dt>
               <dd class="mt-1 text-sm font-medium">
                 {{ endereco.complemento || 'Não informado' }}
               </dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">Cidade</dt>
+              <dt class="text-xs text-[#2D2224]/70">Cidade</dt>
               <dd class="mt-1 text-sm font-medium">{{ endereco.cidade }}</dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">Estado</dt>
+              <dt class="text-xs text-[#2D2224]/70">Estado</dt>
               <dd class="mt-1 text-sm font-medium">{{ endereco.estado }}</dd>
             </div>
             <div>
-              <dt class="text-xs text-estetica-text/70">País</dt>
+              <dt class="text-xs text-[#2D2224]/70">País</dt>
               <dd class="mt-1 text-sm font-medium">{{ endereco.pais }}</dd>
             </div>
           </dl>
         } @else {
           <p
-            class="rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4 text-sm text-estetica-text/75"
+            class="rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4 text-sm text-[#2D2224]/75 shadow-[0_8px_20px_-14px_rgba(110,55,65,0.28)]"
           >
             Endereço não informado.
           </p>
@@ -275,7 +278,7 @@
       <div class="mb-4">
         <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
         @defer (when !state.busy()) {
-          <p class="mt-1 text-sm text-estetica-text/70">
+          <p class="mt-1 text-sm text-[#2D2224]/70">
             {{ clientes().length }}
             {{ clientes().length === 1 ? 'cliente' : 'clientes' }}
           </p>
@@ -294,7 +297,7 @@
           <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
             @for (item of clientes(); track item.id) {
               <article
-                class="group relative overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+                class="group relative overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
               >
                 <button
                   type="button"
@@ -312,8 +315,8 @@
                       class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
                       [class]="
                         item.cadastroCompleto
-                          ? 'bg-estetica-tertiary/25 text-estetica-text'
-                          : 'bg-estetica-secondary text-estetica-primary-dark'
+                          ? 'bg-estetica-tertiary/25 text-[#2D2224]'
+                          : 'bg-[#F6E4E7] text-[#7A3B48]'
                       "
                     >
                       <span
@@ -333,29 +336,29 @@
                   </div>
                   <span
                     aria-hidden="true"
-                    class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+                    class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#F6E4E7] text-[#7A3B48]"
                   >
                     <i class="pi pi-user text-lg"></i>
                   </span>
                 </div>
 
                 <dl
-                  class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+                  class="mt-5 grid gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4"
                 >
                   <div class="min-w-0">
-                    <dt class="text-xs text-estetica-text/70">E-mail</dt>
+                    <dt class="text-xs text-[#2D2224]/70">E-mail</dt>
                     <dd class="mt-1 flex min-w-0 items-center gap-2 text-sm font-medium">
                       <i
-                        class="pi pi-envelope shrink-0 text-estetica-primary-dark"
+                        class="pi pi-envelope shrink-0 text-[#7A3B48]"
                         aria-hidden="true"
                       ></i>
                       <span class="break-all">{{ item.email }}</span>
                     </dd>
                   </div>
-                  <div class="border-t border-estetica-primary/20 pt-3">
-                    <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
+                  <div class="border-t border-[#E8D5D8] pt-3">
+                    <dt class="text-xs text-[#2D2224]/70">WhatsApp</dt>
                     <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
-                      <i class="pi pi-phone text-estetica-primary-dark" aria-hidden="true"></i>
+                      <i class="pi pi-phone text-[#7A3B48]" aria-hidden="true"></i>
                       {{ item.telefone | telefone }}
                     </dd>
                   </div>
@@ -365,16 +368,16 @@
           </div>
         } @else {
           <div
-            class="rounded-2xl border border-dashed border-estetica-primary/50 bg-white px-6 py-12 text-center shadow-[0_8px_24px_-18px_rgba(74,74,74,0.3)]"
+            class="rounded-2xl border border-dashed border-[#E8D5D8] bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
           >
             <span
               aria-hidden="true"
-              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-[#F6E4E7] text-[#7A3B48]"
             >
               <i class="pi pi-users text-xl"></i>
             </span>
             <h3 class="text-lg font-semibold">Sua lista começa aqui</h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#2D2224]/75">
               Cadastre clientes para manter os contatos organizados e acompanhar o status do perfil.
             </p>
             <p-button
@@ -382,7 +385,7 @@
               icon="pi pi-plus"
               (onClick)="newClient()"
               [disabled]="state.busy()"
-              styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
+              styleClass="mt-5 !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
             />
           </div>
         }
@@ -395,7 +398,7 @@
           @for (card of [1, 2, 3]; track card) {
             <article
               aria-hidden="true"
-              class="relative overflow-hidden rounded-2xl border border-estetica-primary/25 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.2)] sm:p-6"
+              class="relative overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.12),0_4px_14px_-2px_rgba(74,50,55,0.06)] sm:p-6"
             >
               <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
               <div class="flex items-start justify-between gap-4">
@@ -412,7 +415,7 @@
               </div>
 
               <div
-                class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4"
+                class="mt-5 grid gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4"
               >
                 <div>
                   <p-skeleton
@@ -423,7 +426,7 @@
                   />
                   <p-skeleton width="75%" height="1rem" borderRadius="0.375rem" />
                 </div>
-                <div class="border-t border-estetica-primary/20 pt-3">
+                <div class="border-t border-[#E8D5D8] pt-3">
                   <p-skeleton
                     width="4.5rem"
                     height="0.75rem"

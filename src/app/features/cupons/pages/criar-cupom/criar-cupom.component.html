@@ -5,13 +5,16 @@
 <section aria-labelledby="cupons-title" class="mx-auto max-w-7xl">
   <header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-text/70 uppercase">
+      <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-primary uppercase">
         Benefícios da clínica
       </p>
-      <h1 id="cupons-title" class="font-serif text-4xl leading-tight tracking-tight sm:text-5xl">
+      <h1
+        id="cupons-title"
+        class="font-serif text-4xl leading-tight tracking-tight text-[#2D2224] sm:text-5xl"
+      >
         Cupons
       </h1>
-      <p class="mt-3 max-w-xl text-sm leading-relaxed text-estetica-text/80">
+      <p class="mt-3 max-w-xl text-sm leading-relaxed text-[#2D2224]/80">
         Gerencie os cupons de desconto e as condições de uso disponíveis para seus clientes.
       </p>
     </div>
@@ -22,14 +25,14 @@
         [outlined]="true"
         (onClick)="loadEndpoints()"
         [disabled]="state.busy()"
-        styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+        styleClass="border-[#D8B8BE] bg-white text-[#7A3B48] shadow-xs hover:bg-[#F6E4E7]"
       />
       <p-button
         label="Incluir cupom"
         icon="pi pi-plus"
         (onClick)="novoCupom()"
         [disabled]="state.busy()"
-        styleClass="bg-estetica-primary border-estetica-primary text-estetica-text"
+        styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
       />
     </div>
   </header>
@@ -41,17 +44,17 @@
     (click)="handleDialogClick($event)"
     (close)="handleDialogClose()"
     [attr.aria-busy]="state.busy()"
-    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-7"
+    class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-3xl overflow-y-auto rounded-2xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_24px_70px_-24px_rgba(110,55,65,0.28)] backdrop:bg-[#2D2224]/40 sm:p-7"
   >
     <div class="mb-6 flex items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+        <p class="mb-1 text-xs font-semibold tracking-wide text-[#2D2224]/70 uppercase">
           {{ editing() ? 'Atualização de benefício' : 'Novo benefício' }}
         </p>
         <h2 id="cupom-form-title" class="font-serif text-2xl sm:text-3xl">
           {{ editing() ? 'Editar cupom' : 'Criar cupom' }}
         </h2>
-        <p class="mt-2 text-sm leading-relaxed text-estetica-text/75">
+        <p class="mt-2 text-sm leading-relaxed text-[#2D2224]/75">
           Configure o desconto e ative somente as regras que deseja aplicar.
         </p>
       </div>
@@ -61,7 +64,7 @@
         ariaLabel="Fechar formulário de cupom"
         (onClick)="cancelar()"
         [disabled]="state.busy()"
-        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+        styleClass="text-[#7A3B48] hover:bg-[#F6E4E7]"
       />
     </div>
 
@@ -86,7 +89,7 @@
               autocomplete="off"
               placeholder="Ex.: BEMVINDA10"
               autofocus
-              class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+              class="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] uppercase placeholder:normal-case placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
               [invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
               [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
               aria-describedby="codigo-cupom-ajuda codigo-cupom-erro"
@@ -102,7 +105,7 @@
               styleClass="min-h-12 rounded-r-xl rounded-l-none border-estetica-primary text-estetica-bg hover:bg-estetica-primary hover:text-white"
             />
           </div>
-          <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
+          <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-[#2D2224]/75">
             Use letras, números, hífen ou sublinhado.
           </p>
           @if (form.controls.codigo.invalid && form.controls.codigo.touched) {
@@ -122,7 +125,7 @@
             [options]="tiposDesconto"
             optionLabel="label"
             optionValue="value"
-            styleClass="min-h-12 w-full items-center"
+            styleClass="min-h-12 w-full items-center bg-white"
           />
         </div>
 
@@ -139,7 +142,7 @@
             [suffix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '%' : ''"
             locale="pt-BR"
             styleClass="w-full"
-            inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+            inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
             [invalid]="form.controls.valor.invalid && form.controls.valor.touched"
             [attr.aria-invalid]="form.controls.valor.invalid && form.controls.valor.touched"
           />
@@ -160,7 +163,7 @@
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
               <label for="data-minima" class="mb-2 block text-sm font-semibold">
-                Data mínima <span class="font-normal text-estetica-text/70">(opcional)</span>
+                Data mínima <span class="font-normal text-[#2D2224]/70">(opcional)</span>
               </label>
               <p-datepicker
                 inputId="data-minima"
@@ -174,13 +177,13 @@
                 [showButtonBar]="true"
                 [showClear]="true"
                 styleClass="w-full"
-                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
               />
             </div>
 
             <div>
               <label for="data-maxima" class="mb-2 block text-sm font-semibold">
-                Data máxima <span class="font-normal text-estetica-text/70">(opcional)</span>
+                Data máxima <span class="font-normal text-[#2D2224]/70">(opcional)</span>
               </label>
               <p-datepicker
                 inputId="data-maxima"
@@ -193,12 +196,12 @@
                 [showButtonBar]="true"
                 [showClear]="true"
                 styleClass="w-full"
-                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
               />
             </div>
 
             <fieldset
-              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+              class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-4 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:col-span-2"
             >
               <legend class="px-1 text-sm font-semibold">Limite por cliente</legend>
               <div class="flex items-center justify-between gap-4">
@@ -216,7 +219,7 @@
                     [min]="1"
                     [useGrouping]="false"
                     styleClass="w-full"
-                    inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                    inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
                     [invalid]="
                       form.controls.limitePorCliente.invalid &&
                       form.controls.limitePorCliente.touched
@@ -238,7 +241,7 @@
             </fieldset>
 
             <fieldset
-              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+              class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-4 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:col-span-2"
             >
               <legend class="px-1 text-sm font-semibold">Limite global de usos</legend>
               <div class="flex items-center justify-between gap-4">
@@ -258,7 +261,7 @@
                     [min]="1"
                     [useGrouping]="false"
                     styleClass="w-full"
-                    inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                    inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
                     [invalid]="
                       form.controls.limiteUsoGlobal.invalid && form.controls.limiteUsoGlobal.touched
                     "
@@ -278,7 +281,7 @@
             </fieldset>
 
             <fieldset
-              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+              class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-4 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:col-span-2"
             >
               <legend class="px-1 text-sm font-semibold">Serviços válidos</legend>
               <div class="flex items-center justify-between gap-4">
@@ -303,7 +306,7 @@
                     optionValue="id"
                     placeholder="Escolha um ou mais serviços"
                     display="chip"
-                    styleClass="min-h-12 w-full items-center"
+                    styleClass="min-h-12 w-full items-center bg-white"
                     panelStyleClass="my-2 [&_.p-multiselect-list]:my-2 [&_.p-multiselect-option]:my-1"
                   />
                 </div>
@@ -311,7 +314,7 @@
             </fieldset>
 
             <fieldset
-              class="rounded-xl border border-estetica-secondary bg-estetica-bg/60 p-4 sm:col-span-2"
+              class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-4 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:col-span-2"
             >
               <legend class="px-1 text-sm font-semibold">Quantidade de sessões</legend>
               <div class="flex items-center justify-between gap-4">
@@ -332,7 +335,7 @@
                       [min]="1"
                       [useGrouping]="false"
                       styleClass="w-full"
-                      inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                      inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
                       [invalid]="
                         form.controls.minimoSessoes.invalid && form.controls.minimoSessoes.touched
                       "
@@ -358,7 +361,7 @@
                       [min]="1"
                       [useGrouping]="false"
                       styleClass="w-full"
-                      inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+                      inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-[#2D2224] placeholder:text-[#2D2224]/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
                       [invalid]="
                         form.controls.maximoSessoes.invalid && form.controls.maximoSessoes.touched
                       "
@@ -380,7 +383,9 @@
           </div>
         </p-panel>
 
-        <div class="flex items-center gap-3 rounded-xl bg-estetica-bg px-4 py-3 sm:col-span-2">
+        <div
+          class="flex items-center gap-3 rounded-xl bg-[#FAF4F5] px-4 py-3 shadow-[0_8px_20px_-14px_rgba(110,55,65,0.28)] sm:col-span-2"
+        >
           <p-toggleswitch inputId="cupom-ativo" formControlName="ativo" />
           <label for="cupom-ativo" class="text-sm font-medium">
             Cupom ativo e disponível para utilização
@@ -394,14 +399,14 @@
             [outlined]="true"
             (onClick)="cancelar()"
             [disabled]="state.busy()"
-            styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+            styleClass="w-full border-[#D8B8BE] text-[#7A3B48] hover:bg-[#F6E4E7] sm:w-auto"
           />
           <p-button
             type="submit"
             [label]="editing() ? 'Salvar alterações' : 'Salvar Cupom'"
             icon="pi pi-check"
             [loading]="state.busy()"
-            styleClass="w-full bg-estetica-primary border-estetica-primary text-estetica-text sm:w-auto"
+            styleClass="w-full !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A] sm:w-auto"
           />
         </div>
       </fieldset>
@@ -415,11 +420,11 @@
     (click)="handleDeleteDialogClick($event)"
     (close)="handleDeleteDialogClose()"
     [attr.aria-busy]="state.busy()"
-    class="m-auto w-[calc(100vw-2rem)] max-w-md rounded-2xl border border-estetica-secondary bg-white p-5 text-estetica-text shadow-[0_24px_90px_-35px_rgba(74,74,74,0.45)] backdrop:bg-estetica-text/40 sm:p-6"
+    class="m-auto w-[calc(100vw-2rem)] max-w-md rounded-2xl border border-[#E8D5D8] bg-white p-5 text-[#2D2224] shadow-[0_24px_70px_-24px_rgba(110,55,65,0.28)] backdrop:bg-[#2D2224]/40 sm:p-6"
   >
     <div class="mb-4 flex items-start justify-between gap-4">
       <div>
-        <p class="mb-1 text-xs font-semibold tracking-wide text-estetica-text/70 uppercase">
+        <p class="mb-1 text-xs font-semibold tracking-wide text-[#2D2224]/70 uppercase">
           Confirmação
         </p>
         <h2 id="delete-cupom-title" class="font-serif text-2xl">Excluir cupom</h2>
@@ -430,13 +435,13 @@
         ariaLabel="Fechar confirmação de exclusão"
         (onClick)="cancelDelete()"
         [disabled]="state.busy()"
-        styleClass="text-estetica-primary-dark hover:bg-estetica-secondary"
+        styleClass="text-[#7A3B48] hover:bg-[#F6E4E7]"
       />
     </div>
 
-    <p class="text-sm leading-relaxed text-estetica-text/80">
+    <p class="text-sm leading-relaxed text-[#2D2224]/80">
       Tem certeza de que deseja excluir permanentemente o cupom
-      <strong class="font-semibold text-estetica-text">{{ pendingDelete()?.codigo }}</strong
+      <strong class="font-semibold text-[#2D2224]">{{ pendingDelete()?.codigo }}</strong
       >? Esta ação não pode ser desfeita.
     </p>
 
@@ -447,7 +452,7 @@
         [outlined]="true"
         (onClick)="cancelDelete()"
         [disabled]="state.busy()"
-        styleClass="w-full border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary sm:w-auto"
+        styleClass="w-full border-[#D8B8BE] text-[#7A3B48] hover:bg-[#F6E4E7] sm:w-auto"
       />
       <p-button
         type="button"
@@ -467,7 +472,7 @@
         <div>
           <h2 id="lista-cupons-title" class="text-lg font-semibold">Cupons criados</h2>
           @defer (when !state.busy()) {
-            <p class="mt-1 text-sm text-estetica-text/70">
+            <p class="mt-1 text-sm text-[#2D2224]/70">
               {{ cupons().length }} {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
             </p>
           } @placeholder {
@@ -486,7 +491,7 @@
           <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
             @for (cupom of cupons(); track cupom.id) {
               <article
-                class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/35 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.35)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/70 hover:shadow-[0_18px_40px_-24px_rgba(74,74,74,0.3)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+                class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
               >
                 <div
                   aria-hidden="true"
@@ -498,14 +503,14 @@
                       class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
                       [class]="
                         cupom.ativo
-                          ? 'bg-estetica-tertiary/20 text-estetica-text'
-                          : 'bg-estetica-secondary text-estetica-text/70'
+                          ? 'bg-estetica-tertiary/20 text-[#2D2224]'
+                          : 'bg-[#F6E4E7] text-[#2D2224]/70'
                       "
                     >
                       <span
                         aria-hidden="true"
                         class="size-2 rounded-full"
-                        [class]="cupom.ativo ? 'bg-estetica-tertiary' : 'bg-estetica-text/40'"
+                        [class]="cupom.ativo ? 'bg-estetica-tertiary' : 'bg-[#2D2224]/40'"
                       ></span>
                       {{ cupom.ativo ? 'Ativo' : 'Inativo' }}
                     </span>
@@ -515,11 +520,11 @@
                   </div>
                   <div class="shrink-0 text-right">
                     <p class="text-xl font-semibold">{{ descontoFormatado(cupom) }}</p>
-                    <span class="block text-xs text-estetica-text/70">de desconto</span>
+                    <span class="block text-xs text-[#2D2224]/70">de desconto</span>
                   </div>
                 </div>
 
-                <p class="mt-3 min-h-10 text-sm leading-relaxed text-estetica-text/75">
+                <p class="mt-3 min-h-10 text-sm leading-relaxed text-[#2D2224]/75">
                   {{
                     cupom.tipoDesconto === 'PORCENTAGEM'
                       ? 'Desconto percentual'
@@ -528,23 +533,23 @@
                 </p>
 
                 <dl
-                  class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/60 p-4"
+                  class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4"
                 >
                   <div>
-                    <dt class="text-xs text-estetica-text/70">Limite global</dt>
+                    <dt class="text-xs folt-bold text-[#2D2224]/70">Limite global</dt>
                     <dd class="mt-1 text-sm font-medium">
                       {{ cupom.limiteUsoGlobal ?? 'Ilimitado' }}
                     </dd>
                   </div>
                   <div>
-                    <dt class="text-xs text-estetica-text/70">Por cliente</dt>
+                    <dt class="text-xs font-bold text-[#2D2224]/70">Por cliente</dt>
                     <dd class="mt-1 text-sm font-medium">
                       {{ cupom.limitePorCliente ?? 'Ilimitado' }}
                     </dd>
                   </div>
                   @if (cupom.dataMinima || cupom.dataMaxima) {
-                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
-                      <dt class="text-xs text-estetica-text/70">Período de validade</dt>
+                    <div class="col-span-2 border-t border-[#E8D5D8] pt-3">
+                      <dt class="text-xs font-bold text-[#2D2224]/70">Período de validade</dt>
                       <dd class="mt-1 text-sm font-medium">
                         {{ (cupom.dataMinima | date: 'dd/MM/yyyy') ?? 'Sem data mínima' }} até
                         {{ (cupom.dataMaxima | date: 'dd/MM/yyyy') ?? 'sem data máxima' }}
@@ -552,12 +557,12 @@
                     </div>
                   }
                   @if (cupom.servicosValidos.length) {
-                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
-                      <dt class="text-xs text-estetica-text/70">Serviços válidos</dt>
+                    <div class="col-span-2 border-t border-[#E8D5D8] pt-3">
+                      <dt class="text-xs font-bold text-[#2D2224]/70">Serviços válidos</dt>
                       <dd class="mt-2 flex flex-wrap gap-1.5">
                         @for (nome of servicosDoCupom(cupom); track nome) {
                           <span
-                            class="inline-flex items-center rounded-full border border-estetica-primary/50 bg-white px-2.5 py-0.5 text-xs font-bold text-estetica-text shadow-2xs"
+                            class="inline-flex items-center rounded-full border border-estetica-primary bg-estetica-primary px-2.5 py-0.5 text-xs font-bold text-white shadow-2xs"
                           >
                             {{ nome }}
                           </span>
@@ -566,8 +571,8 @@
                     </div>
                   }
                   @if (cupom.minimoSessoes !== null || cupom.maximoSessoes !== null) {
-                    <div class="col-span-2 border-t border-estetica-secondary pt-3">
-                      <dt class="text-xs text-estetica-text/70">Quantidade de sessões</dt>
+                    <div class="col-span-2 border-t border-[#E8D5D8] pt-3">
+                      <dt class="text-xs font-bold text-[#2D2224]/70">Quantidade de sessões</dt>
                       <dd class="mt-1 text-sm font-medium">
                         {{ cupom.minimoSessoes ?? 'Sem mínimo' }} a
                         {{ cupom.maximoSessoes ?? 'sem máximo' }}
@@ -577,7 +582,7 @@
                 </dl>
 
                 <div
-                  class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-estetica-secondary pt-4"
+                  class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[#E8D5D8] pt-4"
                 >
                   <div class="flex flex-wrap items-center gap-2">
                     <p-button
@@ -587,7 +592,7 @@
                       [ariaLabel]="'Editar cupom ' + cupom.codigo"
                       (onClick)="edit(cupom)"
                       [disabled]="state.busy()"
-                      styleClass="border-estetica-primary-dark text-estetica-primary-dark hover:bg-estetica-secondary"
+                      styleClass="border-[#D8B8BE] text-[#7A3B48] hover:bg-[#F6E4E7]"
                     />
                     @if (cupom.ativo) {
                       <p-button
@@ -618,16 +623,16 @@
           </div>
         } @else {
           <div
-            class="rounded-2xl border border-dashed border-estetica-secondary bg-white px-6 py-12 text-center"
+            class="rounded-2xl border border-dashed border-[#E8D5D8] bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
           >
             <span
               aria-hidden="true"
-              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary"
+              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-[#F6E4E7]"
             >
               <i class="pi pi-ticket text-xl"></i>
             </span>
             <h3 class="text-lg font-semibold">Sua lista de cupons começa aqui</h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#2D2224]/75">
               Crie cupons de desconto para oferecer benefícios e fidelizar seus clientes.
             </p>
             <p-button
@@ -635,7 +640,7 @@
               icon="pi pi-plus"
               (onClick)="novoCupom()"
               [disabled]="state.busy()"
-              styleClass="mt-5 bg-estetica-primary border-estetica-primary text-estetica-text"
+              styleClass="mt-5 !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
             />
           </div>
         }
@@ -648,7 +653,7 @@
           @for (card of [1, 2, 3]; track card) {
             <article
               aria-hidden="true"
-              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-primary/25 bg-white p-5 shadow-[0_8px_24px_-16px_rgba(74,74,74,0.2)] sm:p-6"
+              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.12),0_4px_14px_-2px_rgba(74,50,55,0.06)] sm:p-6"
             >
               <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
               <div class="flex items-start justify-between gap-4">
@@ -682,7 +687,7 @@
               </div>
 
               <div
-                class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-estetica-secondary bg-estetica-secondary/40 p-4"
+                class="mt-5 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4"
               >
                 <div>
                   <p-skeleton
@@ -702,7 +707,7 @@
                   />
                   <p-skeleton width="4rem" height="1rem" borderRadius="0.375rem" />
                 </div>
-                <div class="col-span-2 border-t border-estetica-secondary pt-3">
+                <div class="col-span-2 border-t border-[#E8D5D8] pt-3">
                   <p-skeleton
                     width="6rem"
                     height="0.75rem"
@@ -716,9 +721,7 @@
                 </div>
               </div>
 
-              <div
-                class="mt-auto flex items-center justify-end border-t border-estetica-secondary pt-4"
-              >
+              <div class="mt-auto flex items-center justify-end border-t border-[#E8D5D8] pt-4">
                 <p-skeleton width="6rem" height="2.5rem" borderRadius="0.75rem" />
               </div>
             </article>
