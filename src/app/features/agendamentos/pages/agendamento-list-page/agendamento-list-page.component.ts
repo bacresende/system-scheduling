@@ -4,10 +4,12 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   OnInit,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,6 +22,7 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TextareaModule } from 'primeng/textarea';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { errorMessage } from '../../../../core/api/api-client';
 import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
@@ -185,6 +188,20 @@ export class AgendamentoListPageComponent implements OnInit {
   protected readonly formValorDescontoManual = signal<number | null>(null);
   protected readonly sessoesExtras = signal<SessaoAgendamentoInput[]>([]);
 
+  // --- Validações consultadas no backend ---
+  /** Horários livres por dia vindos do backend (chave: dia|duração|agendamento ignorado). */
+  private readonly slotsServidor = signal<Record<string, HorarioDisponivelSlot[]>>({});
+  private readonly slotsServidorPendentes = new Set<string>();
+  private seqAjustePrimeiraSessao = 0;
+  private seqAjusteReagendamento = 0;
+
+  /** Resultado da validação do cupom no backend (limites de uso global e por cliente). */
+  private readonly validacaoCupomServidor = signal<{ chave: string; erro: string | null } | null>(
+    null,
+  );
+  protected readonly validandoCupom = signal(false);
+  private cupomTimer: ReturnType<typeof setTimeout> | null = null;
+
   protected readonly form = this.fb.group({
     idCliente: this.fb.nonNullable.control('', Validators.required),
     idServico: this.fb.nonNullable.control('', Validators.required),
@@ -341,12 +358,31 @@ export class AgendamentoListPageComponent implements OnInit {
     if (this.formUsarDescontoManual()) return null;
     const cupom = this.cupomSelecionado();
     if (!cupom) return null;
-    return validateCupomForBooking(
+    const erroLocal = validateCupomForBooking(
       cupom,
       this.formServicoId(),
       this.formTotalSessoes(),
       this.formDataHora(),
     );
+    if (erroLocal) return erroLocal;
+    // Limites de uso só o backend conhece: usa a resposta dele para a combinação atual
+    const servidor = this.validacaoCupomServidor();
+    return servidor && servidor.chave === this.chaveCupomAtual() ? servidor.erro : null;
+  });
+
+  /** Identifica a combinação do formulário que influencia a validação do cupom. */
+  private readonly chaveCupomAtual = computed(() => {
+    const codigo = this.formCodigoCupom();
+    const idServico = this.formServicoId();
+    if (this.formUsarDescontoManual() || !codigo || !idServico) return null;
+    const data = this.formDataHora();
+    return [
+      codigo.toUpperCase(),
+      idServico,
+      this.formClienteId(),
+      this.formTotalSessoes(),
+      data ? localDay(data) : '',
+    ].join('|');
   });
 
   protected readonly resumoFinanceiro = computed(() => {
@@ -370,7 +406,10 @@ export class AgendamentoListPageComponent implements OnInit {
     const servico = this.servicoSelecionado();
     const config = this.config();
     if (!start || !servico || !config) return null;
-    return validateSlot(start, servico.duracaoMinutos, config.expediente, this.bookings());
+    return (
+      validateSlot(start, servico.duracaoMinutos, config.expediente, this.bookings()) ??
+      this.erroHorarioServidor(start, servico.duracaoMinutos)
+    );
   });
 
   protected readonly horariosDisponiveisPrimeiraSessao = computed<HorarioDisponivelSlot[]>(() => {
@@ -381,15 +420,7 @@ export class AgendamentoListPageComponent implements OnInit {
     const extrasDatas = this.sessoesExtras()
       .filter((s) => !s.definirDepois && s.dataHora !== null)
       .map((s) => s.dataHora!);
-    return availableSlotsForDay(
-      start,
-      servico.duracaoMinutos,
-      config.expediente,
-      this.bookings(),
-      30,
-      undefined,
-      extrasDatas,
-    );
+    return this.slotsDoDia(start, servico.duracaoMinutos, extrasDatas);
   });
 
   protected readonly horariosManhaPrimeiraSessao = computed(() =>
@@ -405,14 +436,7 @@ export class AgendamentoListPageComponent implements OnInit {
     const novaData = this.reagendarDataHoraSignal();
     const config = this.config();
     if (!booking || !novaData || !config) return [];
-    return availableSlotsForDay(
-      novaData,
-      booking.duracaoMinutos,
-      config.expediente,
-      this.bookings(),
-      30,
-      booking.id,
-    );
+    return this.slotsDoDia(novaData, booking.duracaoMinutos, [], booking.id);
   });
 
   protected readonly horariosManhaReagendamento = computed(() =>
@@ -438,12 +462,14 @@ export class AgendamentoListPageComponent implements OnInit {
     const novaData = this.reagendarDataHoraSignal();
     const config = this.config();
     if (!booking || !novaData || !config) return null;
-    return validateSlot(
-      novaData,
-      booking.duracaoMinutos,
-      config.expediente,
-      this.bookings(),
-      booking.id,
+    return (
+      validateSlot(
+        novaData,
+        booking.duracaoMinutos,
+        config.expediente,
+        this.bookings(),
+        booking.id,
+      ) ?? this.erroHorarioServidor(novaData, booking.duracaoMinutos, booking.id)
     );
   });
 
@@ -495,7 +521,7 @@ export class AgendamentoListPageComponent implements OnInit {
         this.form.controls.totalSessoes.setValue(primeiraOpcao);
         const dataAtual = this.form.controls.dataHora.value;
         if (dataAtual && servico) {
-          this.ajustarParaHorarioValidoPrimeiraSessao(dataAtual);
+          void this.ajustarParaHorarioValidoPrimeiraSessao(dataAtual);
         }
       });
 
@@ -543,6 +569,149 @@ export class AgendamentoListPageComponent implements OnInit {
     this.reagendarForm.controls.novaDataHora.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((dt) => this.reagendarDataHoraSignal.set(dt));
+
+    // Valida o cupom no backend (limites de uso) sempre que a combinação do formulário mudar
+    effect(() => {
+      const chave = this.chaveCupomAtual();
+      untracked(() => this.agendarValidacaoCupomServidor(chave));
+    });
+
+    // Pré-carrega do backend os horários livres dos dias escolhidos no formulário
+    effect(() => {
+      const inicio = this.formDataHora();
+      const servico = this.servicoSelecionado();
+      const extras = this.sessoesExtras();
+      if (!servico) return;
+      untracked(() => {
+        if (inicio) void this.carregarSlotsServidor(inicio, servico.duracaoMinutos);
+        for (const sessao of extras) {
+          if (!sessao.definirDepois && sessao.dataHora) {
+            void this.carregarSlotsServidor(sessao.dataHora, servico.duracaoMinutos);
+          }
+        }
+      });
+    });
+
+    effect(() => {
+      const booking = this.selectedBooking();
+      const novaData = this.reagendarDataHoraSignal();
+      if (!booking || !novaData) return;
+      untracked(
+        () => void this.carregarSlotsServidor(novaData, booking.duracaoMinutos, booking.id),
+      );
+    });
+
+    this.destroyRef.onDestroy(() => {
+      if (this.cupomTimer) clearTimeout(this.cupomTimer);
+    });
+  }
+
+  // --- Integração com as regras do backend ---
+  private chaveSlots(dia: Date, duracao: number, ignorarId?: string): string {
+    return `${localDay(dia)}|${duracao}|${ignorarId ?? ''}`;
+  }
+
+  /** Busca no backend os horários livres do dia (uma vez por dia/duração). */
+  private async carregarSlotsServidor(
+    dia: Date,
+    duracao: number,
+    ignorarId?: string,
+  ): Promise<void> {
+    if (!Number.isFinite(dia.getTime()) || duracao <= 0) return;
+    const chave = this.chaveSlots(dia, duracao, ignorarId);
+    if (chave in this.slotsServidor() || this.slotsServidorPendentes.has(chave)) return;
+    this.slotsServidorPendentes.add(chave);
+    try {
+      const slots = await this.api.listarHorariosDisponiveis({
+        dia,
+        duracaoMinutos: duracao,
+        ignoreBookingId: ignorarId,
+      });
+      this.slotsServidor.update((atual) => ({ ...atual, [chave]: slots }));
+    } catch {
+      // Sem resposta do backend: segue com a prévia local; o backend revalida ao salvar.
+    } finally {
+      this.slotsServidorPendentes.delete(chave);
+    }
+  }
+
+  /**
+   * Horários livres do dia: usa a resposta do backend quando disponível
+   * (conhece todos os agendamentos) e a prévia local enquanto ela não chega.
+   */
+  private slotsDoDia(
+    dia: Date,
+    duracao: number,
+    outrasDatas: Date[] = [],
+    ignorarId?: string,
+  ): HorarioDisponivelSlot[] {
+    const config = this.config();
+    if (!config) return [];
+    const servidor = this.slotsServidor()[this.chaveSlots(dia, duracao, ignorarId)];
+    if (!servidor) {
+      return availableSlotsForDay(
+        dia,
+        duracao,
+        config.expediente,
+        this.bookings(),
+        30,
+        ignorarId,
+        outrasDatas,
+      );
+    }
+    // Remove os horários que conflitam com sessões ainda não salvas deste mesmo pacote
+    return servidor.filter((slot) => {
+      const fim = endTime(slot.date, duracao);
+      return !outrasDatas.some((outra) => slot.date < endTime(outra, duracao) && fim > outra);
+    });
+  }
+
+  /** Retorna erro quando o backend informou que o horário escolhido não está livre. */
+  private erroHorarioServidor(inicio: Date, duracao: number, ignorarId?: string): string | null {
+    const servidor = this.slotsServidor()[this.chaveSlots(inicio, duracao, ignorarId)];
+    if (!servidor) return null;
+    if (servidor.some((slot) => slot.date.getTime() === inicio.getTime())) return null;
+    // Só afirma conflito quando o horário está na mesma grade de 30 min dos slots do backend
+    const naGrade = servidor.some(
+      (slot) => Math.abs(slot.date.getTime() - inicio.getTime()) % (30 * 60000) === 0,
+    );
+    return naGrade || servidor.length === 0
+      ? 'Este horário já está ocupado por outro agendamento ou fora do expediente.'
+      : null;
+  }
+
+  private agendarValidacaoCupomServidor(chave: string | null): void {
+    if (this.cupomTimer) clearTimeout(this.cupomTimer);
+    this.cupomTimer = null;
+    if (!chave) {
+      this.validandoCupom.set(false);
+      return;
+    }
+    this.validandoCupom.set(true);
+    this.cupomTimer = setTimeout(() => void this.validarCupomNoServidor(chave), 400);
+  }
+
+  /** Consulta o resumo financeiro no backend e devolve o erro do cupom (se houver). */
+  private async validarCupomNoServidor(chave: string): Promise<string | null> {
+    const value = this.form.getRawValue();
+    try {
+      const resultado = await this.api.calcularResumoFinanceiro({
+        idServico: value.idServico,
+        idCliente: value.idCliente || undefined,
+        totalSessoes: Math.max(1, value.totalSessoes),
+        codigoCupom: value.codigoCupom,
+        usarDescontoManual: false,
+        dataReferencia: value.dataHora,
+      });
+      const erro = resultado.erroCupom ?? null;
+      this.validacaoCupomServidor.set({ chave, erro });
+      return erro;
+    } catch {
+      // Falha de comunicação: o backend revalida o cupom ao criar o agendamento.
+      return null;
+    } finally {
+      if (this.chaveCupomAtual() === chave) this.validandoCupom.set(false);
+    }
   }
 
   ngOnInit(): void {
@@ -573,7 +742,7 @@ export class AgendamentoListPageComponent implements OnInit {
           `Configure seu dispositivo no fuso da clínica (${loadedConfig.fusoHorario}) para operar a agenda.`,
         );
       }
-
+      debugger;
       this.config.set(loadedConfig);
       if (clientesResult.status === 'fulfilled') {
         this.clientes.set(clientesResult.value);
@@ -604,6 +773,8 @@ export class AgendamentoListPageComponent implements OnInit {
     } catch {
       // Preserva agendamentos em memória caso o endpoint de listagem ainda não esteja disponível
     }
+    // A agenda mudou: horários livres consultados antes podem estar desatualizados
+    this.slotsServidor.set({});
   }
 
   // --- Toolbar Navigation & Filters ---
@@ -834,6 +1005,11 @@ export class AgendamentoListPageComponent implements OnInit {
 
   protected fecharNovoAgendamento(): void {
     if (this.state.busy()) return;
+    this.fecharDialogNovoAgendamento();
+  }
+
+  /** Fecha o modal sem checar `busy` (usado dentro do próprio `state.run`). */
+  private fecharDialogNovoAgendamento(): void {
     const dialog = this.novoDialogRef()?.nativeElement;
     if (dialog?.open) dialog.close();
     this.modalAberto.set(false);
@@ -907,10 +1083,10 @@ export class AgendamentoListPageComponent implements OnInit {
       );
       return;
     }
-    this.preencherSessoesAutomatico(modo);
+    void this.preencherSessoesAutomatico(modo);
   }
 
-  protected preencherSessoesAutomatico(frequencia: '1x_semana' | '2x_semana'): void {
+  protected async preencherSessoesAutomatico(frequencia: '1x_semana' | '2x_semana'): Promise<void> {
     const primeiraData = this.form.controls.dataHora.value;
     const total = this.formTotalSessoes();
     if (!primeiraData || total <= 1) {
@@ -920,6 +1096,13 @@ export class AgendamentoListPageComponent implements OnInit {
       return;
     }
     const sugeridas = suggestPackageDates(primeiraData, total, frequencia);
+    const servico = this.servicoSelecionado();
+    if (servico) {
+      // Consulta no backend a ocupação real das datas sugeridas antes de escolher os horários
+      await Promise.all(
+        sugeridas.map((data) => this.carregarSlotsServidor(data, servico.duracaoMinutos)),
+      );
+    }
     this.sessoesExtras.set(
       sugeridas.map((data, idx) => {
         const sessaoNumero = idx + 2;
@@ -945,10 +1128,11 @@ export class AgendamentoListPageComponent implements OnInit {
       this.form.controls.dataHora.setValue(null);
       return;
     }
-    this.ajustarParaHorarioValidoPrimeiraSessao(day);
+    void this.ajustarParaHorarioValidoPrimeiraSessao(day);
   }
 
-  private ajustarParaHorarioValidoPrimeiraSessao(day: Date): void {
+  private async ajustarParaHorarioValidoPrimeiraSessao(day: Date): Promise<void> {
+    const seq = ++this.seqAjustePrimeiraSessao;
     const servico = this.servicoSelecionado();
     const config = this.config();
     const anterior = this.form.controls.dataHora.value;
@@ -960,18 +1144,13 @@ export class AgendamentoListPageComponent implements OnInit {
     }
 
     if (servico && config) {
+      await this.carregarSlotsServidor(candidato, servico.duracaoMinutos);
+      // Ignora o resultado se a usuária já escolheu outro dia enquanto aguardava
+      if (seq !== this.seqAjustePrimeiraSessao) return;
       const extrasDatas = this.sessoesExtras()
         .filter((s) => !s.definirDepois && s.dataHora !== null)
         .map((s) => s.dataHora!);
-      const slots = availableSlotsForDay(
-        candidato,
-        servico.duracaoMinutos,
-        config.expediente,
-        this.bookings(),
-        30,
-        undefined,
-        extrasDatas,
-      );
+      const slots = this.slotsDoDia(candidato, servico.duracaoMinutos, extrasDatas);
       const horarioPreservado = slots.find((s) => this.isMesmoHorario(candidato, s.date));
       if (horarioPreservado) {
         this.form.controls.dataHora.setValue(horarioPreservado.date);
@@ -1021,10 +1200,7 @@ export class AgendamentoListPageComponent implements OnInit {
     return `${diaSemana}, ${diaMes} ${mes} · ${hIni} – ${hFim}`;
   }
 
-  private calcularSlotsParaDataExtra(
-    day: Date,
-    sessaoNumero: number,
-  ): HorarioDisponivelSlot[] {
+  private calcularSlotsParaDataExtra(day: Date, sessaoNumero: number): HorarioDisponivelSlot[] {
     const servico = this.servicoSelecionado();
     const config = this.config();
     if (!servico || !config) return [];
@@ -1035,18 +1211,10 @@ export class AgendamentoListPageComponent implements OnInit {
         .map((s) => s.dataHora),
     ].filter((d): d is Date => d instanceof Date && Number.isFinite(d.getTime()));
 
-    return availableSlotsForDay(
-      day,
-      servico.duracaoMinutos,
-      config.expediente,
-      this.bookings(),
-      30,
-      undefined,
-      outrasDatas,
-    );
+    return this.slotsDoDia(day, servico.duracaoMinutos, outrasDatas);
   }
 
-  protected onSessaoExtraDiaChange(sessaoNumero: number, day: Date | null): void {
+  protected async onSessaoExtraDiaChange(sessaoNumero: number, day: Date | null): Promise<void> {
     if (!day) {
       this.atualizarSessaoExtraData(sessaoNumero, null);
       return;
@@ -1058,6 +1226,10 @@ export class AgendamentoListPageComponent implements OnInit {
     } else {
       candidato.setHours(9, 0, 0, 0);
     }
+    const servico = this.servicoSelecionado();
+    if (servico) {
+      await this.carregarSlotsServidor(candidato, servico.duracaoMinutos);
+    }
     const slots = this.calcularSlotsParaDataExtra(candidato, sessaoNumero);
     const preservado = slots.find((s) => this.isMesmoHorario(candidato, s.date));
     const escolhida = preservado?.date ?? slots[0]?.date ?? candidato;
@@ -1068,11 +1240,12 @@ export class AgendamentoListPageComponent implements OnInit {
     this.atualizarSessaoExtraData(sessaoNumero, new Date(slotDate));
   }
 
-  protected onReagendarDiaChange(day: Date | null): void {
+  protected async onReagendarDiaChange(day: Date | null): Promise<void> {
     if (!day) {
       this.reagendarForm.controls.novaDataHora.setValue(null);
       return;
     }
+    const seq = ++this.seqAjusteReagendamento;
     const booking = this.selectedBooking();
     const config = this.config();
     const atual = this.reagendarForm.controls.novaDataHora.value;
@@ -1084,14 +1257,9 @@ export class AgendamentoListPageComponent implements OnInit {
     }
 
     if (booking && config) {
-      const slots = availableSlotsForDay(
-        candidato,
-        booking.duracaoMinutos,
-        config.expediente,
-        this.bookings(),
-        30,
-        booking.id,
-      );
+      await this.carregarSlotsServidor(candidato, booking.duracaoMinutos, booking.id);
+      if (seq !== this.seqAjusteReagendamento) return;
+      const slots = this.slotsDoDia(candidato, booking.duracaoMinutos, [], booking.id);
       const preservado = slots.find((s) => this.isMesmoHorario(candidato, s.date));
       if (preservado) {
         this.reagendarForm.controls.novaDataHora.setValue(preservado.date);
@@ -1162,6 +1330,9 @@ export class AgendamentoListPageComponent implements OnInit {
     );
     if (erroAgenda) return erroAgenda;
 
+    const erroServidor = this.erroHorarioServidor(sessao.dataHora, servico.duracaoMinutos);
+    if (erroServidor) return erroServidor;
+
     const outrasDatas = [
       this.formDataHora(),
       ...this.sessoesExtras()
@@ -1196,6 +1367,9 @@ export class AgendamentoListPageComponent implements OnInit {
     });
     this.sessoesExtras.set([]);
     this.modoRepeticaoPacote.set('definir_depois');
+    // Novo formulário: força nova consulta de horários livres no backend
+    this.slotsServidor.set({});
+    this.validacaoCupomServidor.set(null);
   }
 
   protected save(): void {
@@ -1219,6 +1393,13 @@ export class AgendamentoListPageComponent implements OnInit {
       }
       if (this.erroValidacaoCupom()) {
         throw new Error(this.erroValidacaoCupom()!);
+      }
+
+      // Confirma no backend os limites de uso do cupom antes de criar as sessões
+      const chaveCupom = this.chaveCupomAtual();
+      if (chaveCupom) {
+        const erroCupomServidor = await this.validarCupomNoServidor(chaveCupom);
+        if (erroCupomServidor) throw new Error(erroCupomServidor);
       }
 
       const dayStart = new Date(start);
@@ -1280,62 +1461,37 @@ export class AgendamentoListPageComponent implements OnInit {
         criadoPor: 'ADMIN',
       };
 
-      const criados: Agendamento[] = [];
+      // Erros do backend (horário ocupado, cupom esgotado etc.) interrompem o fluxo
+      // e são exibidos pelo RequestState; nada é adicionado à agenda sem ter sido salvo.
+      await this.api.create(basePayload);
+
+      let sessoesCriadas = 1;
       try {
-        const primeiroCriado = await this.api.create(basePayload);
-        criados.push({
-          ...basePayload,
-          ...primeiroCriado,
-          id: primeiroCriado?.id ?? `ag-${Date.now()}-1`,
-          duracaoMinutos: primeiroCriado?.duracaoMinutos ?? service.duracaoMinutos,
-          valor:
-            primeiroCriado?.valor ??
-            (totalSessoes > 1 ? financeiro.valorPorSessao : financeiro.valorFinal),
-          status: primeiroCriado?.status ?? 'Confirmado',
-        });
-      } catch {
-        criados.push({
-          ...basePayload,
-          id: `ag-${Date.now()}-1`,
-          duracaoMinutos: service.duracaoMinutos,
-          valor: totalSessoes > 1 ? financeiro.valorPorSessao : financeiro.valorFinal,
-          status: 'Confirmado',
-        });
-      }
-
-      for (const extra of this.sessoesExtras()) {
-        const extraPayload: NovoAgendamento = {
-          ...basePayload,
-          sessaoNumero: extra.sessaoNumero,
-          dataDefinida: !extra.definirDepois && Boolean(extra.dataHora),
-          dataHora:
-            !extra.definirDepois && extra.dataHora
-              ? extra.dataHora.toISOString()
-              : start.toISOString(),
-        };
-        try {
-          const extraCriado = await this.api.create(extraPayload);
-          criados.push({
-            ...extraPayload,
-            ...extraCriado,
-            id: extraCriado?.id ?? `ag-${Date.now()}-${extra.sessaoNumero}`,
-            duracaoMinutos: extraCriado?.duracaoMinutos ?? service.duracaoMinutos,
-            valor: extraCriado?.valor ?? financeiro.valorPorSessao,
-            status: extraCriado?.status ?? 'Confirmado',
-          });
-        } catch {
-          criados.push({
-            ...extraPayload,
-            id: `ag-${Date.now()}-${extra.sessaoNumero}`,
-            duracaoMinutos: service.duracaoMinutos,
-            valor: financeiro.valorPorSessao,
-            status: 'Confirmado',
-          });
+        for (const extra of this.sessoesExtras()) {
+          const extraPayload: NovoAgendamento = {
+            ...basePayload,
+            sessaoNumero: extra.sessaoNumero,
+            dataDefinida: !extra.definirDepois && Boolean(extra.dataHora),
+            dataHora:
+              !extra.definirDepois && extra.dataHora
+                ? extra.dataHora.toISOString()
+                : start.toISOString(),
+          };
+          await this.api.create(extraPayload);
+          sessoesCriadas++;
         }
+      } catch (error: unknown) {
+        // Parte do pacote já foi salva: fecha o formulário (evita duplicar ao salvar de novo)
+        // e recarrega a agenda para refletir o que existe no banco
+        this.fecharDialogNovoAgendamento();
+        this.limparFormularioNovo();
+        await this.fetch();
+        throw new Error(
+          `${sessoesCriadas} de ${totalSessoes} sessões foram criadas. A ${sessoesCriadas + 1}ª falhou: ${errorMessage(error)} Defina-a pelo pacote na agenda.`,
+        );
       }
 
-      this.bookings.update((atuais) => [...atuais, ...criados]);
-      this.fecharNovoAgendamento();
+      this.fecharDialogNovoAgendamento();
       this.limparFormularioNovo();
       await this.fetch();
     }, 'Agendamento criado.');
@@ -1455,7 +1611,11 @@ export class AgendamentoListPageComponent implements OnInit {
       if (alvo?.previewUrl && this.imagemExpandida()?.url === alvo.previewUrl) {
         this.fecharImagemExpandida();
       }
-      if (alvo?.previewUrl && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+      if (
+        alvo?.previewUrl &&
+        typeof URL !== 'undefined' &&
+        typeof URL.revokeObjectURL === 'function'
+      ) {
         URL.revokeObjectURL(alvo.previewUrl);
       }
       return atuais.filter((item) => item.id !== id);
@@ -1509,33 +1669,15 @@ export class AgendamentoListPageComponent implements OnInit {
 
   protected confirmarAgendamento(item: Agendamento): void {
     void this.state.run(async () => {
-      let atualizado: Agendamento = {
-        ...item,
-        status: 'Confirmado',
-        alteracaoVistaPeloAdmin: true,
-      };
-      try {
-        const res = await this.api.confirm(item.id);
-        atualizado = { ...atualizado, ...res, status: 'Confirmado', alteracaoVistaPeloAdmin: true };
-      } catch {
-        // Mantém atualização otimista caso endpoint ainda não exista no backend
-      }
-      this.atualizarBookingNaLista(atualizado);
+      const res = await this.api.confirm(item.id);
+      this.atualizarBookingNaLista({ ...item, ...res });
     }, 'Horário confirmado com sucesso.');
   }
 
   protected marcarAlertaVisto(item: Agendamento): void {
     void this.state.run(async () => {
-      const atualizado: Agendamento = {
-        ...item,
-        alteracaoVistaPeloAdmin: true,
-      };
-      try {
-        await this.api.markAlertSeen(item.id);
-      } catch {
-        // Mantém atualização em memória
-      }
-      this.atualizarBookingNaLista(atualizado);
+      const res = await this.api.markAlertSeen(item.id);
+      this.atualizarBookingNaLista({ ...item, ...res, alteracaoVistaPeloAdmin: true });
     }, 'Alteração marcada como ciente.');
   }
 
@@ -1556,29 +1698,15 @@ export class AgendamentoListPageComponent implements OnInit {
 
     void this.state.run(
       async () => {
-        let atualizado: Agendamento = {
-          ...booking,
-          dataHoraAnterior: eraDataEmAberto ? null : booking.dataHora,
-          dataHora: novaDataIso,
+        const res = await this.api.reschedule(booking.id, {
+          novaDataHora: novaDataIso,
           idFuncionario: valor.idFuncionario || booking.idFuncionario,
-          dataDefinida: true,
-          reagendado: !eraDataEmAberto,
           reagendadoPor: 'ADMIN',
-          alteracaoVistaPeloAdmin: true,
-          status: booking.status === 'AguardandoConfirmacao' ? 'Confirmado' : booking.status,
-        };
-        try {
-          const res = await this.api.reschedule(booking.id, {
-            novaDataHora: novaDataIso,
-            idFuncionario: valor.idFuncionario || booking.idFuncionario,
-            reagendadoPor: 'ADMIN',
-          });
-          atualizado = { ...atualizado, ...res, dataHora: novaDataIso, dataDefinida: true };
-        } catch {
-          // Mantém atualização local caso endpoint não esteja disponível
-        }
-        this.atualizarBookingNaLista(atualizado);
+        });
+        this.atualizarBookingNaLista({ ...booking, ...res });
         this.detalhePainelAtivo.set('nenhum');
+        // Horários livres mudaram com o reagendamento
+        this.slotsServidor.set({});
       },
       eraDataEmAberto
         ? 'Data e horário definidos para a sessão.'
@@ -1597,58 +1725,28 @@ export class AgendamentoListPageComponent implements OnInit {
 
     void this.state.run(async () => {
       const selecionadas = this.photos();
-      let novasUrls: string[] = [];
-      let usouFallbackLocal = false;
-
-      if (selecionadas.length > 0) {
-        try {
-          novasUrls = await this.api.uploadMany(
-            booking.id,
-            selecionadas.map((item) => item.file),
-          );
-        } catch {
-          novasUrls = selecionadas
-            .map((item) => item.previewUrl)
-            .filter((u): u is string => Boolean(u));
-          usouFallbackLocal = true;
-        }
-      }
+      // Se o upload falhar, o erro é exibido e as fotos continuam selecionadas para nova tentativa
+      const novasUrls =
+        selecionadas.length > 0
+          ? await this.api.uploadMany(
+              booking.id,
+              selecionadas.map((item) => item.file),
+            )
+          : [];
 
       const fotosExistentes = this.fotosDoAgendamento(booking);
       const todasFotos = [...fotosExistentes, ...novasUrls];
-      const fotoPrincipal = todasFotos[0];
       const formVal = this.concluirForm.getRawValue();
 
-      let atualizado: Agendamento = {
-        ...booking,
-        status: 'Concluido',
+      const res = await this.api.complete(booking.id, {
         metodoPagamento: formVal.metodoPagamento,
-        anotacoesFinais: formVal.anotacoesFinais.trim() || undefined,
-        fotoResultadoUrl: fotoPrincipal,
+        anotacoesFinais: formVal.anotacoesFinais,
+        fotoResultadoUrl: todasFotos[0],
         fotosResultadoUrls: todasFotos.length ? todasFotos : undefined,
-      };
+      });
 
-      try {
-        const res = await this.api.complete(booking.id, {
-          metodoPagamento: formVal.metodoPagamento,
-          anotacoesFinais: formVal.anotacoesFinais,
-          fotoResultadoUrl: fotoPrincipal,
-          fotosResultadoUrls: todasFotos.length ? todasFotos : undefined,
-        });
-        atualizado = {
-          ...atualizado,
-          ...res,
-          status: 'Concluido',
-          fotoResultadoUrl: res?.fotoResultadoUrl ?? fotoPrincipal,
-          fotosResultadoUrls:
-            res?.fotosResultadoUrls?.length ? res.fotosResultadoUrls : atualizado.fotosResultadoUrls,
-        };
-      } catch {
-        // Atualização local caso endpoint ainda não exista
-      }
-
-      this.atualizarBookingNaLista(atualizado);
-      this.limparFotoSelecionada(!usouFallbackLocal);
+      this.atualizarBookingNaLista({ ...booking, ...res });
+      this.limparFotoSelecionada();
       this.detalhePainelAtivo.set('nenhum');
     }, 'Atendimento concluído e pagamento registrado.');
   }
@@ -1661,18 +1759,11 @@ export class AgendamentoListPageComponent implements OnInit {
     }
 
     void this.state.run(async () => {
-      let atualizado: Agendamento = {
-        ...booking,
-        status: 'Cancelado',
-      };
-      try {
-        const res = await this.api.cancel(booking.id);
-        atualizado = { ...atualizado, ...res, status: 'Cancelado' };
-      } catch {
-        // Atualização local caso endpoint ainda não exista
-      }
-      this.atualizarBookingNaLista(atualizado);
+      const res = await this.api.cancel(booking.id);
+      this.atualizarBookingNaLista({ ...booking, ...res });
       this.detalhePainelAtivo.set('nenhum');
+      // O horário cancelado volta a ficar livre
+      this.slotsServidor.set({});
     }, 'Agendamento cancelado.');
   }
 
