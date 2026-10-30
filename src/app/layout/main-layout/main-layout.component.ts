@@ -21,12 +21,12 @@ export class MainLayoutComponent {
     { label: 'Agendamentos', mobileLabel: 'Agenda', icon: 'pi pi-calendar', path: '/agendamentos' },
     { label: 'Clientes', mobileLabel: 'Clientes', icon: 'pi pi-users', path: '/clientes' },
     { label: 'Serviços', mobileLabel: 'Serviços', icon: 'pi pi-briefcase', path: '/servicos' },
-    {
+    /*{
       label: 'Oportunidades',
       mobileLabel: 'Retornos',
       icon: 'pi pi-refresh',
       path: '/oportunidades',
-    },
+    },*/
     { label: 'Cupons', mobileLabel: 'Cupons', icon: 'pi pi-gift', path: '/cupons' },
   ];
   protected logout(): void {
