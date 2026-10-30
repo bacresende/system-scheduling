@@ -1,26 +1,27 @@
 import { Routes } from '@angular/router';
-import { adminGuard, clientGuard, sessionGuard } from './features/auth/services/auth.guard';
-import { LoginPageComponent } from './features/auth/pages/login-page/login-page.component';
-import { PreCadastroPage } from './features/auth/pages/pre-cadastro-page/pre-cadastro-page';
-import { CompletarCadastroPage } from './features/clientes/pages/completar-cadastro-page';
-import { DashboardPageComponent } from './features/dashboard/pages/dashboard-page/dashboard-page.component';
-import { AgendamentoListPageComponent } from './features/agendamentos/pages/agendamento-list-page/agendamento-list-page.component';
-import { AgendamentoDetailPageComponent } from './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component';
-import { ClienteListPageComponent } from './features/clientes/pages/cliente-list-page/cliente-list-page.component';
-import { ServicoListPageComponent } from './features/servicos/pages/servico-list-page/servico-list-page.component';
-import { OportunidadePageComponent } from './features/oportunidades/pages/oportunidade-page/oportunidade-page.component';
-import { AnamnesePageComponent } from './features/anamnese/pages/anamnese-page/anamnese-page.component';
-import { PortalPage } from './features/portal/pages/portal-page';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
-import { NotFoundPage } from './not-found-page';
-import { CriarCupomComponent } from './features/cupons/pages/criar-cupom/criar-cupom.component';
+import { clientGuard } from './features/auth/services/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginPageComponent },
-  { path: 'pre-cadastro', component: PreCadastroPage },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/pages/login-page/login-page.component').then(
+        (module) => module.LoginPageComponent,
+      ),
+  },
+  {
+    path: 'pre-cadastro',
+    loadComponent: () =>
+      import('./features/auth/pages/pre-cadastro-page/pre-cadastro-page').then(
+        (module) => module.PreCadastroPage,
+      ),
+  },
   {
     path: 'completar-cadastro',
-    component: CompletarCadastroPage,
+    loadComponent: () =>
+      import('./features/clientes/pages/completar-cadastro-page').then(
+        (module) => module.CompletarCadastroPage,
+      ),
     //canActivate: [sessionGuard],
   },
   {
@@ -30,30 +31,86 @@ export const routes: Routes = [
     children: [
       {
         path: 'portal',
-        component: PortalPage,
+        loadComponent: () =>
+          import('./features/portal/pages/portal-page').then((module) => module.PortalPage),
         canActivate: [clientGuard],
       },
       { path: 'anamnese/facial', pathMatch: 'full', redirectTo: 'anamnese' },
       { path: 'anamnese/corporal', pathMatch: 'full', redirectTo: 'anamnese' },
       { path: 'anamnese/capilar', pathMatch: 'full', redirectTo: 'anamnese' },
       { path: 'anamnese/sobrancelha', pathMatch: 'full', redirectTo: 'anamnese' },
-      { path: 'anamnese', component: AnamnesePageComponent },
+      {
+        path: 'anamnese',
+        loadComponent: () =>
+          import('./features/anamnese/pages/anamnese-page/anamnese-page.component').then(
+            (module) => module.AnamnesePageComponent,
+          ),
+      },
       {
         path: '',
-        component: MainLayoutComponent,
+        loadComponent: () =>
+          import('./layout/main-layout/main-layout.component').then(
+            (module) => module.MainLayoutComponent,
+          ),
         //canActivateChild: [adminGuard],
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-          { path: 'dashboard', component: DashboardPageComponent },
-          { path: 'agendamentos', component: AgendamentoListPageComponent },
-          { path: 'agendamentos/:id', component: AgendamentoDetailPageComponent },
-          { path: 'clientes', component: ClienteListPageComponent },
-          { path: 'servicos', component: ServicoListPageComponent },
-          { path: 'oportunidades', component: OportunidadePageComponent },
-          { path: 'cupons', component: CriarCupomComponent },
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./features/dashboard/pages/dashboard-page/dashboard-page.component').then(
+                (module) => module.DashboardPageComponent,
+              ),
+          },
+          {
+            path: 'agendamentos',
+            loadComponent: () =>
+              import(
+                './features/agendamentos/pages/agendamento-list-page/agendamento-list-page.component'
+              ).then((module) => module.AgendamentoListPageComponent),
+          },
+          {
+            path: 'agendamentos/:id',
+            loadComponent: () =>
+              import(
+                './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component'
+              ).then((module) => module.AgendamentoDetailPageComponent),
+          },
+          {
+            path: 'clientes',
+            loadComponent: () =>
+              import('./features/clientes/pages/cliente-list-page/cliente-list-page.component').then(
+                (module) => module.ClienteListPageComponent,
+              ),
+          },
+          {
+            path: 'servicos',
+            loadComponent: () =>
+              import('./features/servicos/pages/servico-list-page/servico-list-page.component').then(
+                (module) => module.ServicoListPageComponent,
+              ),
+          },
+          {
+            path: 'oportunidades',
+            loadComponent: () =>
+              import(
+                './features/oportunidades/pages/oportunidade-page/oportunidade-page.component'
+              ).then((module) => module.OportunidadePageComponent),
+          },
+          {
+            path: 'cupons',
+            loadComponent: () =>
+              import('./features/cupons/pages/criar-cupom/criar-cupom.component').then(
+                (module) => module.CriarCupomComponent,
+              ),
+          },
         ],
       },
     ],
   },
-  { path: '**', component: NotFoundPage },
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./not-found-page').then((module) => module.NotFoundPage),
+  },
 ];

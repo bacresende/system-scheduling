@@ -60,9 +60,10 @@ não imagens estáticas do projeto.
   lógica de restauração/redirecionamento, mas precisa ser ligado às rotas.
 
 São usados imports estáticos e `component`, conforme a preferência do projeto.
-O bundle inicial medido é de aproximadamente 1,22 MB (235 kB de transferência
-estimada). Com autorização, o orçamento passou a aviso em 1,25 MB e erro em
-1,35 MB; não foi introduzido lazy loading.
+As páginas das funcionalidades são carregadas sob demanda com lazy loading.
+No build de produção, o bundle inicial medido ficou em aproximadamente 655 kB
+(149 kB de transferência estimada), abaixo dos limites de aviso (1,25 MB) e erro
+(1,35 MB) configurados no orçamento do Angular.
 
 ### Conectar uma API real
 
