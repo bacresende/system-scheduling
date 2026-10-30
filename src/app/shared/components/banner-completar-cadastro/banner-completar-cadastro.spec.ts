@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
 import { BannerCompletarCadastro } from './banner-completar-cadastro';
 
@@ -8,7 +9,8 @@ describe('BannerCompletarCadastro', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [BannerCompletarCadastro]
+      imports: [BannerCompletarCadastro],
+      providers: [provideRouter([])],
     })
     .compileComponents();
 

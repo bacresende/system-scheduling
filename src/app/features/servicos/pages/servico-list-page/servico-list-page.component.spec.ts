@@ -18,6 +18,15 @@ describe('ServicoListPageComponent', () => {
   };
 
   beforeEach(async () => {
+    // jsdom não implementa <dialog>.showModal/close
+    const dialogProto = HTMLDialogElement.prototype;
+    dialogProto.showModal ??= function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    dialogProto.close ??= function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    };
+
     request.mockReset();
     request.mockImplementation((_method, path) => {
       if (path === '/listServicos') return Promise.resolve([initialService]);

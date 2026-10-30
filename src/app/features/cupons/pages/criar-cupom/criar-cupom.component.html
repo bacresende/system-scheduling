@@ -137,6 +137,7 @@
             inputId="valor-desconto"
             formControlName="valor"
             [min]="0"
+            [max]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? 100 : null"
             [maxFractionDigits]="2"
             [prefix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '' : 'R$ '"
             [suffix]="form.controls.tipoDesconto.value === 'PORCENTAGEM' ? '%' : ''"
@@ -148,7 +149,11 @@
           />
           @if (form.controls.valor.invalid && form.controls.valor.touched) {
             <p class="mt-1 text-sm text-red-700" role="alert">
-              Informe um valor de desconto maior que zero.
+              @if (form.controls.valor.hasError('max')) {
+                Percentuais de desconto não podem ultrapassar 100%.
+              } @else {
+                Informe um valor de desconto maior que zero.
+              }
             </p>
           }
         </div>

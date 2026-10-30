@@ -107,6 +107,19 @@ export class CriarCupomComponent implements OnInit {
     this.configurarCampoCondicional('limitarPorCliente', 'limitePorCliente');
     this.configurarCampoCondicional('restringirSessoes', 'minimoSessoes');
     this.configurarCampoCondicional('restringirSessoes', 'maximoSessoes');
+
+    const valorControl = this.form.controls.valor;
+    valorControl.addValidators((control) => {
+      const valor = control.value;
+      return this.form.controls.tipoDesconto.value === 'PORCENTAGEM' &&
+        typeof valor === 'number' &&
+        valor > 100
+        ? { max: { max: 100, actual: valor } }
+        : null;
+    });
+    this.form.controls.tipoDesconto.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => valorControl.updateValueAndValidity({ emitEvent: false }));
   }
 
   ngOnInit(): void {
