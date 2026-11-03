@@ -28,5 +28,4 @@ describe('DashboardService', () => {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
   });
-
 });
