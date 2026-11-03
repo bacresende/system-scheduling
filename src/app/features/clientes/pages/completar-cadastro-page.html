@@ -25,54 +25,10 @@
           <div class="mb-5">
             <h2 id="dados-pessoais-title" class="text-lg font-semibold">Dados pessoais</h2>
             <p class="mt-1 text-sm leading-relaxed text-estetica-text/70">
-              Informe seus dados de identificação. A ocupação é opcional.
+              Informe sua data de nascimento. A ocupação é opcional.
             </p>
           </div>
           <div class="grid gap-5 sm:grid-cols-2">
-            <div>
-              <div class="mb-2 flex items-center gap-2">
-                <label for="cpf-perfil" class="text-sm font-semibold">
-                  CPF <span class="font-normal text-estetica-text/70">(11 dígitos)</span>
-                </label>
-                <span class="profile-help relative inline-flex">
-                  <button
-                    type="button"
-                    class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
-                    aria-label="Ajuda sobre o CPF"
-                    aria-controls="cpf-perfil-hint"
-                    aria-describedby="cpf-perfil-hint"
-                    [attr.aria-expanded]="activeHint() === 'cpf'"
-                    (click)="toggleHint('cpf')"
-                  >
-                    <i class="pi pi-question-circle" aria-hidden="true"></i>
-                  </button>
-                  <span
-                    id="cpf-perfil-hint"
-                    role="tooltip"
-                    class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
-                    [class.visible]="activeHint() === 'cpf'"
-                    [class.opacity-100]="activeHint() === 'cpf'"
-                  >
-                    Digite os 11 números do CPF; a pontuação é aplicada automaticamente.
-                  </span>
-                </span>
-              </div>
-              <input
-                pInputText
-                id="cpf-perfil"
-                formControlName="cpf"
-                mask="000.000.000-00"
-                inputmode="numeric"
-                autocomplete="off"
-                placeholder="000.000.000-00"
-                class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
-                [invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
-                [attr.aria-invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
-                aria-describedby="cpf-perfil-error"
-              />
-              <app-field-error id="cpf-perfil-error" [control]="form.controls.cpf" />
-            </div>
-
             <div>
               <div class="mb-2 flex items-center gap-2">
                 <label

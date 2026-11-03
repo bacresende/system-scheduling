@@ -202,7 +202,7 @@ function normalizeAddress(value) {
 }
 
 Parse.Cloud.define('preCadastro', async (request) => {
-  const { nome, email, telefone, senha } = request.params;
+  const { nome, email, telefone, cpf, senha } = request.params;
 
   if (
     typeof nome !== 'string' ||
@@ -226,6 +226,9 @@ Parse.Cloud.define('preCadastro', async (request) => {
   if (!/^\+?[1-9]\d{9,14}$/.test(normalizedPhone)) {
     throw new Error('Informe um telefone válido.');
   }
+  if (typeof cpf !== 'string' || !isValidCpf(cpf)) {
+    throw profileError('Informe um CPF válido.');
+  }
 
   const clientRoleQuery = new Parse.Query(Parse.Role);
   clientRoleQuery.equalTo('name', 'CLIENTE');
@@ -238,6 +241,7 @@ Parse.Cloud.define('preCadastro', async (request) => {
   user.set('password', senha);
   user.set('nome', normalizedName);
   user.set('telefone', normalizedPhone);
+  user.set('cpf', cpf);
 
   const registeredUser = await user.signUp();
   clientRole.getUsers().add(registeredUser);
@@ -333,10 +337,7 @@ Parse.Cloud.define('consultarCep', async (request) => {
 Parse.Cloud.define('completarCadastro', async (request) => {
   if (!request.user) throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'É necessário entrar.');
 
-  const { cpf, nasc, endereco, ocupacaoProfissional } = request.params;
-  if (typeof cpf !== 'string' || !isValidCpf(cpf)) {
-    throw profileError('Informe um CPF válido.');
-  }
+  const { nasc, endereco, ocupacaoProfissional } = request.params;
   if (
     typeof nasc !== 'string' ||
     !/^\d{4}-\d{2}-\d{2}$/.test(nasc) ||
@@ -355,7 +356,6 @@ Parse.Cloud.define('completarCadastro', async (request) => {
 
   const normalizedAddress = normalizeAddress(endereco);
   const user = request.user;
-  user.set('cpf', cpf);
   user.set('nasc', new Date(`${nasc}T00:00:00.000Z`));
   const Endereco = Parse.Object.extend('Endereco');
   const address = user.get('endereco') || new Endereco();
@@ -381,7 +381,8 @@ Parse.Cloud.define('completarCadastro', async (request) => {
     clientQuery.equalTo('usuario', user);
     const client = await clientQuery.first({ useMasterKey: true });
     if (client) {
-      client.set('cpf', cpf);
+      const cpf = user.get('cpf');
+      if (cpf) client.set('cpf', cpf);
       client.set('nasc', new Date(`${nasc}T00:00:00.000Z`));
       client.set('cadastroCompleto', true);
       const address = client.get('endereco');

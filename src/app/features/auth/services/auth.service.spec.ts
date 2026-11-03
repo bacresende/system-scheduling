@@ -21,6 +21,7 @@ describe('AuthService', () => {
       nome: 'Cliente',
       email: ' Cliente@example.test ',
       telefone: '5511999999999',
+      cpf: '529.982.247-25',
       senha: 'senha-segura',
     });
     const request = TestBed.inject(HttpTestingController).expectOne(
@@ -28,6 +29,7 @@ describe('AuthService', () => {
     );
     expect(request.request.method).toBe('POST');
     expect(request.request.body.email).toBe('cliente@example.test');
+    expect(request.request.body.cpf).toBe('52998224725');
     request.flush({
       result: {
         sessionToken: 'parse-session-token',
@@ -72,6 +74,7 @@ describe('AuthService', () => {
       nome: 'Cliente',
       email: 'cliente@example.test',
       telefone: '5511999999999',
+      cpf: '52998224725',
       senha: 'senha-segura',
     });
     const request = TestBed.inject(HttpTestingController).expectOne(
@@ -100,7 +103,6 @@ describe('AuthService', () => {
   it('completes the authenticated profile with the optional professional occupation', async () => {
     const auth = TestBed.inject(AuthService);
     const completion = auth.complete({
-      cpf: '52998224725',
       nasc: '1990-01-01',
       ocupacaoProfissional: 'Esteticista',
       endereco: {
@@ -117,6 +119,7 @@ describe('AuthService', () => {
       'https://parseapi.back4app.com/functions/completarCadastro',
     );
     expect(request.request.method).toBe('POST');
+    expect(request.request.body).not.toHaveProperty('cpf');
     expect(request.request.body.ocupacaoProfissional).toBe('Esteticista');
     request.flush({
       result: {

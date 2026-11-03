@@ -141,6 +141,26 @@
           <app-field-error id="telefone-error" [control]="form.controls.telefone" />
         </div>
         <div>
+          <label for="cpf" class="mb-2 block text-sm font-semibold">CPF</label>
+          <input
+            pInputText
+            id="cpf"
+            formControlName="cpf"
+            mask="000.000.000-00"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="000.000.000-00"
+            class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text placeholder:text-estetica-text/70 focus:border-estetica-text focus:ring-1 focus:ring-estetica-text"
+            [invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
+            [attr.aria-invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
+            aria-describedby="cpf-hint cpf-error"
+          />
+          <p id="cpf-hint" class="mt-2 text-xs leading-relaxed">
+            Digite os 11 números do CPF; a pontuação é aplicada automaticamente.
+          </p>
+          <app-field-error id="cpf-error" [control]="form.controls.cpf" />
+        </div>
+        <div>
           <label for="senha" class="mb-2 block text-sm font-semibold">Senha</label>
           <div class="relative">
             <input

@@ -48,6 +48,7 @@ export class AuthService {
       const response = await this.api.request<Usuario>('POST', '/preCadastro', {
         ...payload,
         email: payload.email.trim().toLowerCase(),
+        cpf: payload.cpf.replace(/\D/g, ''),
       });
       this.acceptAuthenticationResponse(response);
     } catch (error: unknown) {

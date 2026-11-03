@@ -1,5 +1,5 @@
 import { FormControl } from '@angular/forms';
-import { cpfValidator } from './cliente-validators';
+import { cpfValidator } from '../../usuarios/models/usuario-validators';
 
 describe('CPF validation', () => {
   it('validates check digits', () => { expect(cpfValidator(new FormControl('52998224725'))).toBeNull(); });

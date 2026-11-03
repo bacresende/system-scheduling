@@ -104,11 +104,29 @@ describe('Frontend forms and clinical flows', () => {
   it('keeps self-registration available and validates its required fields', async () => {
     const fixture = await setup(PreCadastroPage);
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelectorAll('input')).toHaveLength(4);
+    expect(root.querySelectorAll('input')).toHaveLength(5);
     submit(root);
     await fixture.whenStable();
     expect(request).not.toHaveBeenCalled();
     expect(root.textContent).toContain('Preencha este campo');
+  });
+  it('enables registration when the CPF and all other fields are valid', async () => {
+    const fixture = await setup(PreCadastroPage);
+    const root: HTMLElement = fixture.nativeElement;
+    input(root, 'nome', 'Bruno');
+    input(root, 'email', 'ba@gmail.com');
+    input(root, 'telefone', '65465465465');
+    input(root, 'cpf', '046.924.841-60');
+    input(root, 'senha', 'senha1234');
+    fixture.detectChanges();
+
+    const submitButton = root.querySelector<HTMLButtonElement>('button[type="submit"]');
+    if (!submitButton) throw new Error('Registration button not found');
+    expect(submitButton.disabled).toBe(false);
+
+    input(root, 'senha', 'curta');
+    fixture.detectChanges();
+    expect(submitButton.disabled).toBe(true);
   });
   it('validates client contact fields before sending a registration', async () => {
     const fixture = await setup(ClienteListPageComponent);

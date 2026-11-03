@@ -32,6 +32,6 @@ export interface Usuario {
 
 export type CadastroUsuario = Pick<Usuario, 'nome' | 'email' | 'telefone'>;
 export type NovoUsuario = CadastroUsuario & { perfil: PerfilUsuario };
-export type CompletarPerfil = Required<Pick<Usuario, 'cpf' | 'nasc' | 'endereco'>> &
+export type CompletarPerfil = Required<Pick<Usuario, 'nasc' | 'endereco'>> &
   Pick<Usuario, 'ocupacaoProfissional'>;
-export type PreCadastro = CadastroUsuario & { senha: string };
+export type PreCadastro = CadastroUsuario & Required<Pick<Usuario, 'cpf'>> & { senha: string };

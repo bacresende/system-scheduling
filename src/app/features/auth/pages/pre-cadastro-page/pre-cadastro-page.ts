@@ -9,6 +9,7 @@ import { FieldError } from '../../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { ElegantButton } from '../../../../shared/components/elegant-button/elegant-button';
 import { homeFor } from '../../services/auth.guard';
+import { cpfValidator } from '../../../usuarios/models/usuario-validators';
 
 @Component({
   selector: 'app-pre-cadastro-page',
@@ -36,7 +37,8 @@ export class PreCadastroPage {
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{9,14}$/)]],
-    senha: ['', Validators.required, Validators.minLength(8)],
+    cpf: ['', [Validators.required, cpfValidator]],
+    senha: ['', [Validators.required, Validators.minLength(8)]],
   });
 
   protected togglePassword(): void {
