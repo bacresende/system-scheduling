@@ -121,6 +121,16 @@ describe('ClienteDetailPageComponent', () => {
     expect(root.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe(
       'Seções do prontuário da cliente',
     );
+    const photoVisits = root.querySelectorAll(
+      'ol[aria-label="Fotos dos atendimentos em ordem cronológica"] > li',
+    );
+    expect(photoVisits).toHaveLength(2);
+    expect(photoVisits[0].querySelectorAll('img')).toHaveLength(2);
+    expect(photoVisits[0].querySelector('a[href="/agendamentos?data=2026-10-10"]')?.textContent).toContain(
+      'Ir para o dia na agenda',
+    );
+    expect(photoVisits[1].querySelectorAll('img')).toHaveLength(1);
+    expect(root.querySelectorAll('a[href="/agendamentos?data=2026-10-10"]')).toHaveLength(2);
   });
 
   it('displays API errors instead of showing an empty client record', async () => {

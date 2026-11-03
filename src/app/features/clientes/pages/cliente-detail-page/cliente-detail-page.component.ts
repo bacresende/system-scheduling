@@ -13,6 +13,7 @@ import { CepPipe } from '../../../../shared/pipes/cep.pipe';
 import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
+import { localDay } from '../../../../shared/utils/date';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { AtendimentoCliente, ClienteProntuario } from '../../models/cliente-prontuario.model';
 import { ClienteProntuarioService } from '../../services/cliente-prontuario.service';
@@ -20,9 +21,14 @@ import { ClienteProntuarioService } from '../../services/cliente-prontuario.serv
 interface FotoTimelineItem {
   id: string;
   url: string;
+}
+
+interface AtendimentoFotos {
+  id: string;
   dataHora: Date;
   nomeServico: string;
   idAgendamento: string;
+  fotos: FotoTimelineItem[];
 }
 
 @Component({
@@ -59,7 +65,7 @@ export class ClienteDetailPageComponent implements OnInit {
   );
 
   protected readonly fotos = computed(() => {
-    const items: FotoTimelineItem[] = [];
+    const items: AtendimentoFotos[] = [];
 
     for (const atendimento of this.agendamentos()) {
       const urls = atendimento.fotosResultadoUrls?.length
@@ -70,19 +76,28 @@ export class ClienteDetailPageComponent implements OnInit {
       const dataHora = new Date(atendimento.dataHora);
       if (!Number.isFinite(dataHora.getTime())) continue;
 
-      for (const [index, url] of [...new Set(urls)].entries()) {
+      const fotos = [...new Set(urls)].map((url, index) => ({
+        id: `${atendimento.id}:${index}`,
+        url,
+      }));
+
+      if (fotos.length) {
         items.push({
-          id: `${atendimento.id}:${index}`,
-          url,
+          id: atendimento.id,
           dataHora,
           nomeServico: atendimento.nomeServico,
           idAgendamento: atendimento.id,
+          fotos,
         });
       }
     }
 
     return items.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
   });
+
+  protected readonly totalFotos = computed(() =>
+    this.fotos().reduce((total, atendimento) => total + atendimento.fotos.length, 0),
+  );
 
   ngOnInit(): void {
     void this.state.run(async () => {
@@ -109,5 +124,9 @@ export class ClienteDetailPageComponent implements OnInit {
 
   protected simNao(value: boolean): string {
     return value ? 'Sim' : 'Não';
+  }
+
+  protected agendaDate(value: Date | string): string {
+    return localDay(new Date(value));
   }
 }

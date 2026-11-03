@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -121,6 +122,7 @@ export class AgendamentoListPageComponent implements OnInit {
   private readonly cuponsApi = inject(CuponsService);
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
 
   private readonly novoDialogRef =
     viewChild<ElementRef<HTMLDialogElement>>('novoAgendamentoDialog');
@@ -715,7 +717,21 @@ export class AgendamentoListPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const initialDate = this.readDateQueryParam();
+    if (initialDate) {
+      this.selectedDay.set(initialDate);
+      this.filter.controls.data.setValue(initialDate, { emitEvent: false });
+    }
     this.loadAll();
+  }
+
+  private readDateQueryParam(): Date | null {
+    const value = this.route.snapshot.queryParamMap.get('data');
+    if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    return localDay(date) === value ? date : null;
   }
 
   protected loadAll(): void {
