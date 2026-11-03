@@ -14,6 +14,31 @@
 <app-request-feedback />
 <app-banner-completar-cadastro />
 
+<section
+  aria-labelledby="anamnese-link-title"
+  class="mt-1 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
+>
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="min-w-0">
+      <h2 id="anamnese-link-title" class="text-lg font-semibold">Ficha de anamnese</h2>
+      <p class="text-sm text-estetica-text/75">
+        Compartilhe este link com a cliente. Ela precisará entrar ou criar uma conta; a ficha ficará
+        vinculada ao perfil.
+      </p>
+      <p class="mt-3 break-all rounded-lg bg-estetica-bg p-3 font-mono text-xs text-estetica-text">
+        {{ anamneseLink }}
+      </p>
+    </div>
+    <p-button
+      label="Copiar link"
+      icon="pi pi-copy"
+      (onClick)="copyAnamneseLink()"
+      [disabled]="state.busy()"
+      styleClass="min-h-11 shrink-0"
+    />
+  </div>
+</section>
+
 @if (summary(); as item) {
   <section aria-label="Resumo gerencial" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
     <article class="rounded-xl bg-white p-6">
@@ -108,28 +133,3 @@
     </div>
   </section>
 }
-
-<section
-  aria-labelledby="anamnese-link-title"
-  class="mt-8 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
->
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="min-w-0">
-      <h2 id="anamnese-link-title" class="text-lg font-semibold">Ficha de anamnese avulsa</h2>
-      <p class="mt-1 max-w-2xl text-sm text-estetica-text/75">
-        Compartilhe este link com a cliente. Ela precisará entrar ou criar uma conta; a ficha ficará
-        vinculada ao perfil, sem associação inicial a serviço ou agendamento.
-      </p>
-      <p class="mt-3 break-all rounded-lg bg-estetica-bg p-3 font-mono text-xs text-estetica-text">
-        {{ anamneseLink }}
-      </p>
-    </div>
-    <p-button
-      label="Copiar link"
-      icon="pi pi-copy"
-      (onClick)="copyAnamneseLink()"
-      [disabled]="state.busy()"
-      styleClass="min-h-11 shrink-0"
-    />
-  </div>
-</section>

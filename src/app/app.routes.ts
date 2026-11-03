@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import {
+  adminGuard,
   clientAnamneseGuard,
   clientGuard,
   sessionGuard,
@@ -26,12 +27,11 @@ export const routes: Routes = [
       import('./features/clientes/pages/completar-cadastro-page').then(
         (module) => module.CompletarCadastroPage,
       ),
-    //canActivate: [sessionGuard],
+    canActivate: [sessionGuard],
   },
   {
     path: '',
-    //canActivate: [sessionGuard],
-    //canActivateChild: [sessionGuard],
+    canActivate: [sessionGuard],
     children: [
       {
         path: 'portal',
@@ -57,7 +57,7 @@ export const routes: Routes = [
           import('./layout/main-layout/main-layout.component').then(
             (module) => module.MainLayoutComponent,
           ),
-        //canActivateChild: [adminGuard],
+        canActivateChild: [adminGuard],
         children: [
           { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
           {

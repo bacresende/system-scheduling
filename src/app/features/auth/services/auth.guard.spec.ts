@@ -4,7 +4,13 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Usuario } from '../../usuarios/models/usuario.model';
 import { AuthService } from './auth.service';
-import { adminGuard, clientAnamneseGuard, homeFor, sessionGuard } from './auth.guard';
+import {
+  adminGuard,
+  clientAnamneseGuard,
+  clientGuard,
+  homeFor,
+  sessionGuard,
+} from './auth.guard';
 
 @Component({ template: '<h1>Página de teste</h1>' })
 class TestPage {}
@@ -18,7 +24,7 @@ describe('Access and progressive profile guards', () => {
       provideRouter([
         { path: 'login', component: TestPage },
         { path: 'completar-cadastro', component: TestPage, canActivate: [sessionGuard] },
-        { path: 'portal', component: TestPage, canActivate: [sessionGuard] },
+        { path: 'portal', component: TestPage, canActivate: [sessionGuard, clientGuard] },
         {
           path: 'anamnese',
           component: TestPage,
@@ -48,6 +54,19 @@ describe('Access and progressive profile guards', () => {
     const harness = await setup(client(false)); await harness.navigateByUrl('/portal');
     const { Router } = await import('@angular/router');
     expect(TestBed.inject(Router).url).toBe('/portal');
+  });
+  it('redirects administrators from the portal to the dashboard', async () => {
+    const harness = await setup({
+      id: 'admin',
+      nome: 'Admin',
+      email: 'admin@example.test',
+      telefone: '',
+      cadastroCompleto: true,
+      perfil: 'ADMIN',
+    });
+    await harness.navigateByUrl('/portal');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/dashboard');
   });
   it('preserves the standalone anamnesis URL for anonymous users', async () => {
     const harness = await setup(null);
