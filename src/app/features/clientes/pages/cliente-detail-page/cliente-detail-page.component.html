@@ -34,7 +34,25 @@
       </span>
     </header>
 
-    <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+    <p-tabs value="dados" [scrollable]="true" class="block">
+      <p-tablist [pt]="{ tabList: { 'aria-label': 'Seções do prontuário da cliente' } }">
+        <p-tab value="dados">Dados cadastrais</p-tab>
+        <p-tab value="fotos">
+          Fotos
+          <span class="ml-1 text-xs text-[#2D2224]/70">({{ fotos().length }})</span>
+        </p-tab>
+        <p-tab value="anamneses">
+          Anamneses
+          <span class="ml-1 text-xs text-[#2D2224]/70">({{ ficha.anamnesesAvulsas.length }})</span>
+        </p-tab>
+        <p-tab value="agendamentos">
+          Agendamentos
+          <span class="ml-1 text-xs text-[#2D2224]/70">({{ agendamentos().length }})</span>
+        </p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="dados">
       <section
         aria-labelledby="dados-cliente-title"
         class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-6"
@@ -117,7 +135,9 @@
           }
         </section>
       </section>
+        </p-tabpanel>
 
+        <p-tabpanel value="fotos">
       <section aria-labelledby="fotos-cliente-title" class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-6">
         <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -180,8 +200,9 @@
           </p>
         }
       </section>
-    </div>
+        </p-tabpanel>
 
+        <p-tabpanel value="anamneses">
     <section aria-labelledby="anamneses-avulsas-title" class="mt-6">
       <header class="mb-4">
         <h2 id="anamneses-avulsas-title" class="text-2xl font-semibold text-[#2D2224]">
@@ -221,7 +242,9 @@
         </p>
       }
     </section>
+        </p-tabpanel>
 
+        <p-tabpanel value="agendamentos">
     <section aria-labelledby="historico-cliente-title" class="mt-6">
       <header class="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -317,5 +340,8 @@
         </p>
       }
     </section>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
   </div>
 }

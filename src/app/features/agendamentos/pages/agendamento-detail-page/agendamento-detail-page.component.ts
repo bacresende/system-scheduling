@@ -16,12 +16,22 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
 
 @Component({
   selector: 'app-agendamento-detail-page',
-  imports: [DatePipe, CurrencyPipe, ReactiveFormsModule, RouterLink, ButtonModule, SelectModule,
-    TextareaModule, FileUploadModule, FieldError, RequestFeedback],
+  imports: [
+    DatePipe,
+    CurrencyPipe,
+    ReactiveFormsModule,
+    RouterLink,
+    ButtonModule,
+    SelectModule,
+    TextareaModule,
+    FileUploadModule,
+    FieldError,
+    RequestFeedback,
+  ],
   providers: [RequestState],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './agendamento-detail-page.component.html',
-  styleUrl: './agendamento-detail-page.component.css'
+  styleUrl: './agendamento-detail-page.component.css',
 })
 export class AgendamentoDetailPageComponent implements OnInit {
   protected readonly state = inject(RequestState);
@@ -33,13 +43,13 @@ export class AgendamentoDetailPageComponent implements OnInit {
   protected readonly clientName = signal('');
   protected readonly serviceName = signal('');
   protected readonly reminder = signal('');
-  protected readonly anamnese = signal('');
+
   protected readonly photo = signal<File | null>(null);
   protected readonly cancelConfirmation = signal(false);
   protected readonly pagamentos: MetodoPagamento[] = ['PIX', 'Cartao', 'Dinheiro'];
   protected readonly form = inject(FormBuilder).nonNullable.group({
     metodoPagamento: ['PIX' as MetodoPagamento, Validators.required],
-    anotacoesFinais: ['']
+    anotacoesFinais: [''],
   });
   ngOnInit(): void {
     void this.state.run(async () => {
@@ -47,23 +57,31 @@ export class AgendamentoDetailPageComponent implements OnInit {
       const [booking, clients, services] = await Promise.all([
         this.api.get(this.id),
         this.usuariosApi.listByProfile('CLIENTE'),
-        this.servicesApi.list()
+        this.servicesApi.list(),
       ]);
       this.booking.set(booking);
-      const client = clients.find(item => item.id === booking.idCliente);
-      const service = services.find(item => item.id === booking.idServico);
+      const client = clients.find((item) => item.id === booking.idCliente);
+      const service = services.find((item) => item.id === booking.idServico);
       this.clientName.set(client?.nome ?? booking.idCliente);
       this.serviceName.set(service?.nome ?? booking.idServico);
-      if (service) this.anamnese.set('/anamnese');
-      if (client) this.reminder.set(whatsappLink(client.telefone,
-        `Olá, ${client.nome}! Lembramos seu agendamento de ${service?.nome ?? 'procedimento'} em ${new Date(booking.dataHora).toLocaleString('pt-BR')}.`));
+
+      if (client)
+        this.reminder.set(
+          whatsappLink(
+            client.telefone,
+            `Olá, ${client.nome}! Lembramos seu agendamento de ${service?.nome ?? 'procedimento'} em ${new Date(booking.dataHora).toLocaleString('pt-BR')}.`,
+          ),
+        );
     });
   }
-  protected choose(files: File[]): void { this.photo.set(files[0] ?? null); }
+  protected choose(files: File[]): void {
+    this.photo.set(files[0] ?? null);
+  }
   protected cancel(): void {
     const booking = this.booking();
     if (!booking || booking.status !== 'Pendente') {
-      this.state.error.set('Somente agendamentos pendentes podem ser cancelados.'); return;
+      this.state.error.set('Somente agendamentos pendentes podem ser cancelados.');
+      return;
     }
     void this.state.run(async () => {
       this.booking.set(await this.api.cancel(booking.id));
@@ -75,14 +93,18 @@ export class AgendamentoDetailPageComponent implements OnInit {
     if (this.form.invalid) return;
     const booking = this.booking();
     if (!booking || booking.status !== 'Pendente') {
-      this.state.error.set('Somente agendamentos pendentes podem ser concluídos.'); return;
+      this.state.error.set('Somente agendamentos pendentes podem ser concluídos.');
+      return;
     }
     void this.state.run(async () => {
       const file = this.photo();
       const fotoResultadoUrl = file ? await this.api.upload(booking.id, file) : undefined;
-      this.booking.set(await this.api.complete(booking.id, {
-        ...this.form.getRawValue(), fotoResultadoUrl
-      }));
+      this.booking.set(
+        await this.api.complete(booking.id, {
+          ...this.form.getRawValue(),
+          fotoResultadoUrl,
+        }),
+      );
       this.photo.set(null);
     }, 'Agendamento concluído e pagamento registrado.');
   }

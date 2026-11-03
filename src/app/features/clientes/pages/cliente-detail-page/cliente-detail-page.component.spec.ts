@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 import { ApiClient } from '../../../../core/api/api-client';
 import { ClienteProntuario } from '../../models/cliente-prontuario.model';
 import { ClienteDetailPageComponent } from './cliente-detail-page.component';
@@ -78,6 +78,14 @@ describe('ClienteDetailPageComponent', () => {
   beforeEach(async () => {
     request.mockReset();
     request.mockResolvedValue(prontuario);
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observe(): void {}
+        unobserve(): void {}
+        disconnect(): void {}
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [ClienteDetailPageComponent],
@@ -89,6 +97,10 @@ describe('ClienteDetailPageComponent', () => {
         },
       ],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('loads the complete client record and presents appointments and photos', async () => {
@@ -105,6 +117,10 @@ describe('ClienteDetailPageComponent', () => {
     expect(root.textContent).toContain('Ácido glicólico');
     expect(root.querySelectorAll('img')).toHaveLength(3);
     expect(root.textContent).toContain('3 fotos');
+    expect(root.querySelectorAll('[role="tab"]')).toHaveLength(4);
+    expect(root.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe(
+      'Seções do prontuário da cliente',
+    );
   });
 
   it('displays API errors instead of showing an empty client record', async () => {
