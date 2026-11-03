@@ -12,9 +12,10 @@ Para retomar o trabalho com outra IA, consulte o
 observado do código, as lacunas de integração e as prioridades de continuidade.
 
 **A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
-Functions de pré-cadastro, login, sessão, consulta de CEP e conclusão do perfil.
-As operações administrativas de usuários e serviços, agendamentos, anamneses,
-dashboard e oportunidades ainda precisam de funções/endpoints.
+Functions de pré-cadastro, login, sessão, consulta de CEP, conclusão do perfil e
+resumo administrativo do dashboard. As demais operações administrativas de
+usuários e serviços, agendamentos, anamneses e oportunidades ainda precisam de
+funções/endpoints.
 Não há autenticação simulada nem contas de demonstração.
 
 ### Organização
@@ -105,6 +106,7 @@ As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
 | `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
 | `POST /functions/completarCadastro` | Requer sessão; `{ cpf, nasc, endereco, ocupacaoProfissional? }` -> atualiza o perfil do usuário autenticado, cliente ou admin, e calcula a conclusão no servidor; endereço pode ser preenchido manualmente mesmo se a consulta do CEP falhar |
 | `POST /functions/consultarCep` | Requer sessão; `{ cep }` -> consulta ViaCEP e retorna CEP, logradouro, complemento, bairro, cidade e UF |
+| `POST /functions/dashboard` | Requer sessão administrativa; `{ timeZone }` -> resumo, incluindo `agendaHoje` com horário, status e nomes de cliente/serviço |
 
 O Cloud Code atual determina o perfil pela associação do usuário aos papéis
 `ADMIN`/`CLIENTE`; o fluxo de pré-cadastro associa novos usuários ao papel
@@ -134,8 +136,16 @@ ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `PUT /anamnese/:idAgendamento` | Respostas da ficha única -> `Anamnese` |
 | `POST /functions/createAnamneseAvulsa` | Respostas da ficha -> `Anamnese` associada à sessão cliente e sem `idServico`/`idAgendamento`; somente clientes autenticadas |
 | `GET /usuarios/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
-| `GET /dashboard` | `{ agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades }` |
 | `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, usuario, servico }` |
+
+O resumo soma agendamentos com horário definido hoje, excluindo cancelados;
+conta clientes associados ao papel `CLIENTE`, soma os valores de atendimentos
+concluídos hoje e conta oportunidades de retorno pelo último atendimento
+concluído de cada combinação cliente/serviço. `agendaHoje` traz os dados
+necessários para a lista diária e indicadores de confirmações, reagendamentos
+não vistos e horários vencidos (`id`, `dataHora`, `status`, duração, dados de
+reagendamento, `cliente` e `servico`), sem chamadas adicionais do dashboard. O
+campo `timeZone` deve ser um fuso IANA e define os limites do dia para os cálculos.
 
 `Usuario` contém os dados da conta e `perfil: 'ADMIN' | 'CLIENTE'`; não há uma
 classe separada `Cliente`. Não devolver senha em nenhuma resposta. A política de

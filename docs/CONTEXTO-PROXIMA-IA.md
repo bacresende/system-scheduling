@@ -88,13 +88,20 @@ considerar esses fluxos prontos:
   conclusão de agendamentos e upload de fotos.
 - Anamnese: leitura e gravação por agendamento.
 - Portal: endpoint de linha do tempo da cliente.
-- Indicadores e retornos: dashboard e oportunidades.
+- Retornos: endpoint de oportunidades.
 
 Os contratos esperados e as regras de payload estão detalhados em
 [README.md](../README.md), seção “Contratos de integração pendentes”. Datas de
 eventos devem preservar fuso/offset; nascimento usa `YYYY-MM-DD`. O servidor
 precisa validar permissões por registro, validar entrada e aplicar as regras de
 agenda de forma atômica. Não colocar Master Key no frontend.
+
+O resumo administrativo `POST /functions/dashboard` está implementado em
+`cloud/main.js`; exige usuário autenticado no papel `ADMIN` e recebe o fuso IANA
+do navegador para calcular os limites do dia. Retorna também os atendimentos do
+dia com os nomes de cliente/serviço, evitando dependência de outras consultas
+administrativas para renderizar o dashboard. Consulte a tabela “Cloud Functions
+implementadas” no README para a resposta e as regras de agregação.
 
 ## Pontos a confirmar/corrigir na retomada
 

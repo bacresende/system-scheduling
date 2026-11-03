@@ -9,6 +9,85 @@ function valueFor(record, key) {
   return typeof record.get === 'function' ? record.get(key) : record[key];
 }
 
+function objectIdFor(value) {
+  if (typeof value === 'string') return value;
+  if (value && typeof value.id === 'string') return value.id;
+  if (value && typeof value.objectId === 'string') return value.objectId;
+  return undefined;
+}
+
+function datePartsInTimeZone(date, timeZone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  return Object.fromEntries(
+    parts
+      .filter((part) => part.type !== 'literal')
+      .map((part) => [part.type, Number(part.value)]),
+  );
+}
+
+function localDateTimeToUtc(year, month, day, hour, timeZone) {
+  const target = Date.UTC(year, month - 1, day, hour);
+  let timestamp = target;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const parts = datePartsInTimeZone(new Date(timestamp), timeZone);
+    const represented = Date.UTC(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second,
+    );
+    timestamp = target - (represented - timestamp);
+  }
+  return new Date(timestamp);
+}
+
+function dayBoundsInTimeZone(date, timeZone) {
+  const parts = datePartsInTimeZone(date, timeZone);
+  const nextDay = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + 1));
+  return {
+    start: localDateTimeToUtc(parts.year, parts.month, parts.day, 0, timeZone),
+    end: localDateTimeToUtc(
+      nextDay.getUTCFullYear(),
+      nextDay.getUTCMonth() + 1,
+      nextDay.getUTCDate(),
+      0,
+      timeZone,
+    ),
+  };
+}
+
+async function findAll(query) {
+  const results = [];
+  const pageSize = 1000;
+  let offset = 0;
+  query.ascending('objectId');
+  while (true) {
+    if (offset > 10000) {
+      throw new Parse.Error(
+        Parse.Error.INTERNAL_SERVER_ERROR,
+        'Há muitos registros para calcular o dashboard em uma única consulta.',
+      );
+    }
+    query.limit(pageSize);
+    query.skip(offset);
+    const page = await query.find({ useMasterKey: true });
+    results.push(...page);
+    if (page.length < pageSize) return results;
+    offset += pageSize;
+  }
+}
+
 function serializeDate(value) {
   if (value instanceof Date) return value.toISOString().slice(0, 10);
   return value;
@@ -320,4 +399,191 @@ Parse.Cloud.define('completarCadastro', async (request) => {
   session.nasc = nasc;
   session.endereco = normalizedAddress;
   return session;
+});
+
+Parse.Cloud.define('dashboard', async (request) => {
+  if (!request.user) {
+    throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'É necessário entrar.');
+  }
+
+  const adminRoleQuery = new Parse.Query(Parse.Role);
+  adminRoleQuery.equalTo('name', 'ADMIN');
+  adminRoleQuery.equalTo('users', request.user);
+  const adminRole = await adminRoleQuery.first({ useMasterKey: true });
+  if (!adminRole) {
+    throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, 'Somente administradores podem acessar o dashboard.');
+  }
+
+  const timeZone =
+    typeof request.params.timeZone === 'string' && request.params.timeZone.trim()
+      ? request.params.timeZone.trim()
+      : 'UTC';
+  let now;
+  let today;
+  try {
+    now = new Date();
+    today = dayBoundsInTimeZone(now, timeZone);
+  } catch {
+    throw new Parse.Error(Parse.Error.VALIDATION_ERROR, 'Informe um fuso horário IANA válido.');
+  }
+
+  const clientRoleQuery = new Parse.Query(Parse.Role);
+  clientRoleQuery.equalTo('name', 'CLIENTE');
+  const clientRole = await clientRoleQuery.first({ useMasterKey: true });
+  if (!clientRole) {
+    throw new Parse.Error(Parse.Error.INTERNAL_SERVER_ERROR, 'O papel CLIENTE não está configurado.');
+  }
+
+  const todayQuery = new Parse.Query('Agendamento');
+  todayQuery.greaterThanOrEqualTo('dataHora', today.start);
+  todayQuery.lessThan('dataHora', today.end);
+  const completedTodayQuery = new Parse.Query('Agendamento');
+  completedTodayQuery.greaterThanOrEqualTo('dataHora', today.start);
+  completedTodayQuery.lessThan('dataHora', today.end);
+  completedTodayQuery.equalTo('status', 'Concluido');
+
+  const clientsQuery = clientRole.getUsers().query();
+  const completedBookingsQuery = new Parse.Query('Agendamento');
+  completedBookingsQuery.equalTo('status', 'Concluido');
+  completedBookingsQuery.lessThanOrEqualTo('dataHora', now);
+  const [todayBookings, completedTodayBookings, clients, completedBookings] = await Promise.all([
+    findAll(todayQuery),
+    findAll(completedTodayQuery),
+    clientsQuery.count({ useMasterKey: true }),
+    findAll(completedBookingsQuery),
+  ]);
+
+  const latestByClientService = new Map();
+  for (const booking of completedBookings) {
+    const dataHora = valueFor(booking, 'dataHora');
+    const timestamp = new Date(dataHora).getTime();
+    const idCliente = objectIdFor(valueFor(booking, 'idCliente'));
+    const idServico = objectIdFor(valueFor(booking, 'idServico'));
+    if (!Number.isFinite(timestamp) || !idCliente || !idServico) continue;
+
+    const key = `${idCliente}|${idServico}`;
+    const current = latestByClientService.get(key);
+    if (!current || timestamp > current.timestamp) {
+      latestByClientService.set(key, { timestamp, idCliente, idServico, dataHora });
+    }
+  }
+
+  const serviceIds = [
+    ...new Set([
+      ...[...latestByClientService.values()].map((item) => item.idServico),
+      ...todayBookings
+        .filter((booking) => valueFor(booking, 'dataDefinida') !== false)
+        .map((booking) => objectIdFor(valueFor(booking, 'idServico')))
+        .filter(Boolean),
+    ]),
+  ];
+  const services = [];
+  for (let index = 0; index < serviceIds.length; index += 100) {
+    const query = new Parse.Query('Servico');
+    query.containedIn('objectId', serviceIds.slice(index, index + 100));
+    services.push(...(await query.find({ useMasterKey: true })));
+  }
+  const servicesById = new Map(services.map((service) => [service.id, service]));
+
+  const clientIds = [
+    ...new Set(
+      todayBookings
+        .filter((booking) => valueFor(booking, 'dataDefinida') !== false)
+        .map((booking) => objectIdFor(valueFor(booking, 'idCliente')))
+        .filter(Boolean),
+    ),
+  ];
+  const users = [];
+  for (let index = 0; index < clientIds.length; index += 100) {
+    const query = new Parse.Query(Parse.User);
+    query.containedIn('objectId', clientIds.slice(index, index + 100));
+    users.push(...(await query.find({ useMasterKey: true })));
+  }
+  const usersById = new Map(users.map((user) => [user.id, user]));
+  const missingClientIds = clientIds.filter((id) => !usersById.has(id));
+  const legacyClients = [];
+  for (let index = 0; index < missingClientIds.length; index += 100) {
+    const query = new Parse.Query('Cliente');
+    query.containedIn('objectId', missingClientIds.slice(index, index + 100));
+    legacyClients.push(...(await query.find({ useMasterKey: true })));
+  }
+  const clientsById = new Map(
+    [...users, ...legacyClients].map((client) => [client.id, client]),
+  );
+
+  const agendaHoje = todayBookings
+    .filter((booking) => valueFor(booking, 'dataDefinida') !== false)
+    .map((booking) => {
+      const idCliente = objectIdFor(valueFor(booking, 'idCliente'));
+      const idServico = objectIdFor(valueFor(booking, 'idServico'));
+      if (!idCliente || !idServico) {
+        throw new Parse.Error(
+          Parse.Error.INTERNAL_SERVER_ERROR,
+          'Há um agendamento de hoje sem cliente ou serviço válido.',
+        );
+      }
+      const client = clientsById.get(idCliente);
+      const service = servicesById.get(idServico);
+      return {
+        id: booking.id,
+        dataHora: valueFor(booking, 'dataHora'),
+        idCliente,
+        idServico,
+        status: valueFor(booking, 'status'),
+        duracaoMinutos: valueFor(booking, 'duracaoMinutos'),
+        reagendado: valueFor(booking, 'reagendado'),
+        reagendadoPor: valueFor(booking, 'reagendadoPor'),
+        alteracaoVistaPeloAdmin: valueFor(booking, 'alteracaoVistaPeloAdmin'),
+        dataDefinida: valueFor(booking, 'dataDefinida'),
+        cliente: valueFor(client, 'nome') || 'Cliente não encontrada',
+        servico: valueFor(service, 'nome') || 'Serviço não encontrado',
+      };
+    })
+    .sort((a, b) => new Date(a.dataHora).getTime() - new Date(b.dataHora).getTime());
+
+  let opportunities = 0;
+  for (const appointment of latestByClientService.values()) {
+    const service = servicesById.get(appointment.idServico);
+    const days = valueFor(service, 'diasParaRetorno');
+    if (!Number.isInteger(days) || days < 1) continue;
+
+    const completedAt = new Date(appointment.dataHora);
+    const appointmentDay = datePartsInTimeZone(completedAt, timeZone);
+    const dueDay = new Date(
+      Date.UTC(appointmentDay.year, appointmentDay.month - 1, appointmentDay.day + days),
+    );
+    const dueDayStart = localDateTimeToUtc(
+      dueDay.getUTCFullYear(),
+      dueDay.getUTCMonth() + 1,
+      dueDay.getUTCDate(),
+      0,
+      timeZone,
+    );
+    if (dueDayStart.getTime() <= today.start.getTime()) opportunities++;
+  }
+
+  const receitaConcluidaHoje = completedTodayBookings
+    .filter((booking) => valueFor(booking, 'dataDefinida') !== false)
+    .reduce((total, booking) => {
+      const valor = valueFor(booking, 'valor');
+      if (typeof valor !== 'number' || !Number.isFinite(valor)) {
+        throw new Parse.Error(
+          Parse.Error.INTERNAL_SERVER_ERROR,
+          'Há um agendamento concluído hoje sem valor financeiro válido.',
+        );
+      }
+      return total + valor;
+    }, 0);
+
+  return {
+    agendamentosHoje: todayBookings.filter(
+      (booking) =>
+        valueFor(booking, 'dataDefinida') !== false &&
+        valueFor(booking, 'status') !== 'Cancelado',
+    ).length,
+    clientes: clients,
+    receitaConcluidaHoje,
+    oportunidades: opportunities,
+    agendaHoje,
+  };
 });

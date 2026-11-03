@@ -1,14 +1,19 @@
-<h1 class="mb-4 text-3xl font-bold">Dashboard</h1>
+<header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <p class="mb-1 text-sm font-semibold text-estetica-primary">Visão geral da clínica</p>
+    <h1 class="text-3xl font-bold">Dashboard</h1>
+  </div>
+  <p-button
+    label="Atualizar"
+    icon="pi pi-refresh"
+    severity="secondary"
+    (onClick)="load()"
+    [disabled]="state.busy()"
+  />
+</header>
 <app-request-feedback />
 <app-banner-completar-cadastro />
 
-<p-button
-  label="Atualizar"
-  severity="secondary"
-  (onClick)="load()"
-  [disabled]="state.busy()"
-  styleClass="mb-4"
-/>
 @if (summary(); as item) {
   <section aria-label="Resumo gerencial" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
     <article class="rounded-xl bg-white p-6">
@@ -23,16 +28,90 @@
       <h2>Receita concluída hoje</h2>
       <p class="text-3xl font-bold">{{ item.receitaConcluidaHoje | currency: 'BRL' }}</p>
     </article>
-    <article class="rounded-xl bg-white p-6">
+    <!-- <article class="rounded-xl bg-white p-6">
       <h2>Oportunidades</h2>
       <p class="text-3xl font-bold">{{ item.oportunidades }}</p>
       <a routerLink="/oportunidades" class="underline">Ver retornos</a>
-    </article>
+    </article> -->
+  </section>
+
+  <section aria-labelledby="attention-title" class="mt-8">
+    <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <h2 id="attention-title" class="text-xl font-semibold">Atenção para hoje</h2>
+        <p class="text-sm text-estetica-text/75">Pendências que podem precisar da sua ação.</p>
+      </div>
+      <a routerLink="/agendamentos" class="text-sm font-medium underline">Abrir agenda</a>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <a
+        routerLink="/agendamentos"
+        class="rounded-xl border border-amber-200 bg-amber-50 p-5 transition hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+      >
+        <p class="text-sm font-medium">Aguardando confirmação</p>
+        <p class="mt-1 text-3xl font-bold">{{ attention().confirmacoes }}</p>
+      </a>
+      <a
+        routerLink="/agendamentos"
+        class="rounded-xl border border-rose-200 bg-rose-50 p-5 transition hover:bg-rose-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+      >
+        <p class="text-sm font-medium">Alterações de clientes não vistas</p>
+        <p class="mt-1 text-3xl font-bold">{{ attention().alteracoes }}</p>
+      </a>
+      <a
+        routerLink="/agendamentos"
+        class="rounded-xl border border-estetica-secondary bg-white p-5 transition hover:bg-estetica-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+      >
+        <p class="text-sm font-medium">Horários vencidos sem conclusão</p>
+        <p class="mt-1 text-3xl font-bold">{{ attention().vencidos }}</p>
+      </a>
+    </div>
+  </section>
+
+  <section aria-labelledby="today-bookings-title" class="mt-8">
+    <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <h2 id="today-bookings-title" class="text-xl font-semibold">Agenda de hoje</h2>
+        <p class="text-sm text-estetica-text/75">
+          {{ agendamentosHoje().length }} atendimento(s) com horário definido.
+        </p>
+      </div>
+      <a routerLink="/agendamentos" class="text-sm font-medium underline">Ver agenda completa</a>
+    </div>
+    <div class="overflow-hidden rounded-xl border border-estetica-secondary bg-white">
+      @for (item of agendamentosHoje(); track item.id) {
+        <a
+          [routerLink]="['/agendamentos', item.id]"
+          class="flex flex-col gap-3 border-b border-estetica-secondary p-4 last:border-b-0 hover:bg-estetica-bg focus-visible:relative focus-visible:outline-2 focus-visible:outline-estetica-primary sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="flex min-w-0 items-center gap-4">
+            <time class="shrink-0 text-lg font-semibold" [attr.datetime]="item.dataHora">
+              {{ item.dataHora | date: 'HH:mm' }}
+            </time>
+            <div class="min-w-0">
+              <p class="truncate font-medium">{{ item.cliente }}</p>
+              <p class="truncate text-sm text-estetica-text/75">{{ item.servico }}</p>
+            </div>
+          </div>
+          <span
+            class="w-fit rounded-full px-3 py-1 text-xs font-semibold"
+            [class]="statusClass(item.status)"
+          >
+            {{ statusLabel(item.status) }}
+          </span>
+        </a>
+      } @empty {
+        <p class="p-5 text-sm text-estetica-text/75">
+          Nenhum atendimento com horário definido para hoje.
+        </p>
+      }
+    </div>
   </section>
 }
+
 <section
   aria-labelledby="anamnese-link-title"
-  class="mt-6 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
+  class="mt-8 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
 >
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <div class="min-w-0">
@@ -54,8 +133,3 @@
     />
   </div>
 </section>
-<a
-  routerLink="/agendamentos"
-  class="mt-6 inline-block rounded-xl bg-estetica-secondary p-4 underline"
-  >Abrir agenda</a
->
