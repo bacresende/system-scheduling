@@ -38,7 +38,7 @@ body {
 .p-datepicker-day-selected,
 .p-datepicker-day-selected:hover {
   background-color: var(--cor-primaria);
-  color: #222;
+  color: #fff;
 }
 
 @media (hover: hover) {
