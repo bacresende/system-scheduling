@@ -14,4 +14,5 @@ export interface NovoCupomPayload {
 
 export interface Cupom extends NovoCupomPayload {
   id: string;
+  usosGlobais: number;
 }

@@ -59,6 +59,25 @@ describe('CriarCupomComponent', () => {
     expect(request).not.toHaveBeenCalled();
   });
 
+  it('displays the number of global uses on the coupon card', async () => {
+    const { fixture, component } = await createComponent();
+    component.cupons.set([
+      {
+        id: 'cupom-1',
+        usosGlobais: 4,
+        codigo: 'BEMVINDA',
+        tipoDesconto: 'PORCENTAGEM',
+        valor: 10,
+        servicosValidos: [],
+        ativo: true,
+      },
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Usos realizados');
+    expect(fixture.nativeElement.textContent).toContain('4');
+  });
+
   it('limits percentage discounts to 100 while allowing larger fixed discounts', async () => {
     const { component } = await createComponent();
     component.form.patchValue({ codigo: 'DESCONTO', valor: 100 });
@@ -115,6 +134,7 @@ describe('CriarCupomComponent', () => {
     const { fixture, component } = await createComponent();
     const cupom: Cupom = {
       id: 'cupom-1',
+      usosGlobais: 4,
       codigo: 'ANTIGO',
       tipoDesconto: 'VALOR_FIXO',
       valor: 25,
@@ -159,6 +179,7 @@ describe('CriarCupomComponent', () => {
     const { fixture, component } = await createComponent();
     const cupom: Cupom = {
       id: 'cupom-1',
+      usosGlobais: 0,
       codigo: 'BEMVINDA',
       tipoDesconto: 'PORCENTAGEM',
       valor: 10,

@@ -59,13 +59,25 @@ describe('CuponsService', () => {
 
   it('lists coupons and normalizes null and date values', async () => {
     request.mockResolvedValue([
-      { id: 'cupom-1', ...payload, dataMinima: '2026-10-01', dataMaxima: null },
-      { id: 'cupom-2', ...payload, dataMinima: '', dataMaxima: new Date('2026-11-01T00:00:00Z') },
+      {
+        id: 'cupom-1',
+        ...payload,
+        usosGlobais: 4,
+        dataMinima: '2026-10-01',
+        dataMaxima: null,
+      },
+      {
+        id: 'cupom-2',
+        ...payload,
+        usosGlobais: 0,
+        dataMinima: '',
+        dataMaxima: new Date('2026-11-01T00:00:00Z'),
+      },
     ]);
 
     await expect(TestBed.inject(CuponsService).list()).resolves.toMatchObject([
-      { id: 'cupom-1', dataMinima: '2026-10-01', dataMaxima: null },
-      { id: 'cupom-2', dataMinima: null, dataMaxima: '2026-11-01' },
+      { id: 'cupom-1', usosGlobais: 4, dataMinima: '2026-10-01', dataMaxima: null },
+      { id: 'cupom-2', usosGlobais: 0, dataMinima: null, dataMaxima: '2026-11-01' },
     ]);
     expect(request).toHaveBeenCalledWith('POST', '/listCupons');
   });

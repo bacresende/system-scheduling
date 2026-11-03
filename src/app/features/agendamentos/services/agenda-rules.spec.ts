@@ -80,6 +80,7 @@ describe('Agenda business rules', () => {
   it('validates coupon eligibility and calculates discounts accurately', () => {
     const cupom: Cupom = {
       id: 'cup-1',
+      usosGlobais: 0,
       codigo: 'BEMVINDA10',
       tipoDesconto: 'PORCENTAGEM',
       valor: 10,

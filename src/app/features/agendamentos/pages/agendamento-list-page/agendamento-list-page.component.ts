@@ -1463,7 +1463,14 @@ export class AgendamentoListPageComponent implements OnInit {
 
       // Erros do backend (horário ocupado, cupom esgotado etc.) interrompem o fluxo
       // e são exibidos pelo RequestState; nada é adicionado à agenda sem ter sido salvo.
-      await this.api.create(basePayload);
+      try {
+        await this.api.create(basePayload);
+      } catch (error: unknown) {
+        this.slotsServidor.set({});
+        void this.carregarSlotsServidor(start, service.duracaoMinutos);
+        void this.fetch();
+        throw error;
+      }
 
       let sessoesCriadas = 1;
       try {
@@ -1698,15 +1705,28 @@ export class AgendamentoListPageComponent implements OnInit {
 
     void this.state.run(
       async () => {
-        const res = await this.api.reschedule(booking.id, {
-          novaDataHora: novaDataIso,
-          idFuncionario: valor.idFuncionario || booking.idFuncionario,
-          reagendadoPor: 'ADMIN',
-        });
-        this.atualizarBookingNaLista({ ...booking, ...res });
-        this.detalhePainelAtivo.set('nenhum');
-        // Horários livres mudaram com o reagendamento
-        this.slotsServidor.set({});
+        try {
+          const res = await this.api.reschedule(booking.id, {
+            novaDataHora: novaDataIso,
+            idFuncionario: valor.idFuncionario || booking.idFuncionario,
+            reagendadoPor: 'ADMIN',
+          });
+          this.atualizarBookingNaLista({ ...booking, ...res });
+          this.detalhePainelAtivo.set('nenhum');
+          // Horários livres mudaram com o reagendamento
+          this.slotsServidor.set({});
+        } catch (error: unknown) {
+          this.slotsServidor.set({});
+          if (valor.novaDataHora) {
+            void this.carregarSlotsServidor(
+              valor.novaDataHora,
+              booking.duracaoMinutos,
+              booking.id,
+            );
+          }
+          void this.fetch();
+          throw error;
+        }
       },
       eraDataEmAberto
         ? 'Data e horário definidos para a sessão.'
