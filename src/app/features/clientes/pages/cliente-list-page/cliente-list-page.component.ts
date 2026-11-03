@@ -8,6 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -25,6 +26,7 @@ import { BirthdatePipe } from '../../../../shared/pipes/birthdate.pipe';
   selector: 'app-cliente-list-page',
   imports: [
     ReactiveFormsModule,
+    RouterLink,
     NgxMaskDirective,
     ButtonModule,
     InputTextModule,

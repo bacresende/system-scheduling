@@ -52,8 +52,12 @@ não imagens estáticas do projeto.
   `clientGuard`, que verifica a sessão já carregada.
 - `/anamnese?agendamento=ID` é a rota da ficha única vinculada ao agendamento,
   mas não tem guard ativado atualmente.
+- `/anamnese` sem parâmetro exige sessão de cliente e salva ficha ligada ao
+  perfil, sem associação inicial a serviço ou agendamento. O dashboard permite
+  copiar o link para compartilhá-lo; clientes sem conta podem preservar o
+  destino no fluxo de cadastro. Com `?agendamento=ID`, mantém a ficha vinculada.
 - Administração: `/dashboard`, `/clientes`, `/servicos`, `/agendamentos`,
-  `/agendamentos/:id`, `/oportunidades`.
+  `/clientes/:id` (prontuário), `/agendamentos/:id`, `/oportunidades`.
 - As proteções `sessionGuard` na raiz e `adminGuard` na área administrativa estão
   comentadas em `src/app/app.routes.ts`; por isso, as rotas administrativas não
   estão protegidas por esses guards no estado atual. O `sessionGuard` contém a
@@ -121,12 +125,14 @@ ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
 | `GET /clinica/agenda` | `ConfiguracaoAgenda` com fuso IANA, janelas de expediente e profissionais |
 | `GET /agendamentos?inicio=ISO&fim=ISO` | `Agendamento[]`; intervalo `[inicio, fim)`, incluindo eventos que interceptem a janela |
 | `GET /agendamentos/:id` | `Agendamento`; admin ou cliente proprietária |
+| `POST /functions/getClienteProntuario` | `{ id }` -> `{ cliente: Usuario, agendamentos: AtendimentoCliente[] }`; somente admin, incluindo dados cadastrais, serviço, anamnese, anotações e URLs de fotos autorizadas de todos os atendimentos do cliente |
 | `POST /agendamentos` | `NovoAgendamento` -> `Agendamento`; servidor calcula duração, valor e status pendente |
 | `POST /agendamentos/:id/cancelar` | `{}` -> `Agendamento` cancelado |
 | `POST /agendamentos/:id/concluir` | `{ metodoPagamento, anotacoesFinais, fotoResultadoUrl? }` -> `Agendamento` concluído |
 | `POST /agendamentos/:id/foto` | Multipart `foto` -> `{ url: "https://..." }`; upload autorizado para Storage |
 | `GET /anamnese?agendamento=ID` | `Anamnese` única ou `null` se ainda não preenchida |
 | `PUT /anamnese/:idAgendamento` | Respostas da ficha única -> `Anamnese` |
+| `POST /functions/createAnamneseAvulsa` | Respostas da ficha -> `Anamnese` associada à sessão cliente e sem `idServico`/`idAgendamento`; somente clientes autenticadas |
 | `GET /usuarios/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
 | `GET /dashboard` | `{ agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades }` |
 | `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, usuario, servico }` |
@@ -139,6 +145,13 @@ pelo backend.
 `Agendamento` inclui `valor` e `duracaoMinutos` como snapshots do momento da
 reserva, além dos campos da especificação. Alterar um serviço não pode alterar
 retroativamente duração ou valor de reservas existentes.
+
+`AtendimentoCliente` estende `Agendamento` com `nomeServico` e `anamnese`
+(`Anamnese | null`). O prontuário é uma consulta completa por cliente, sem
+intervalo de datas; o backend deve verificar o papel administrativo e retornar
+URLs de fotos que o administrador esteja autorizado a consultar. A interface
+usa a data do atendimento como referência para cada foto, pois o modelo atual
+não registra uma data individual por imagem.
 
 `ConfiguracaoAgenda`:
 

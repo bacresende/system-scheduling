@@ -1,8 +1,8 @@
 export interface AnamneseBase {
   id?: string;
   idCliente: string;
-  idServico: string;
-  idAgendamento: string;
+  idServico?: string;
+  idAgendamento?: string;
   dataPreenchimento: Date | string;
 }
 

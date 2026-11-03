@@ -270,6 +270,14 @@
           </p>
         }
       </section>
+
+      <a
+        [routerLink]="['/clientes', cliente.id]"
+        class="mt-6 inline-flex min-h-11 items-center gap-2 rounded-lg bg-estetica-primary px-4 py-2 text-sm font-semibold text-white hover:bg-estetica-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+      >
+        Abrir prontuário completo
+        <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </a>
     }
   </dialog>
 

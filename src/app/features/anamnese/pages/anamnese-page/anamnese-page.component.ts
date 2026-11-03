@@ -37,11 +37,15 @@ export class AnamnesePageComponent implements OnInit {
   ngOnInit(): void {
     void this.state.run(async () => {
       const id = await this.context.load();
-      const existing = await this.api.get(id);
-      if (existing) {
-        this.form.patchValue({ ...existing, quaisAcidos: existing.quaisAcidos ?? '' });
+      if (id) {
+        const existing = await this.api.get(id);
+        if (existing) {
+          this.form.patchValue({ ...existing, quaisAcidos: existing.quaisAcidos ?? '' });
+        }
       }
-      this.context.editable.set(this.context.booking()?.status === 'Pendente');
+      this.context.editable.set(
+        this.context.standalone() || this.context.booking()?.status === 'Pendente',
+      );
       if (!this.context.editable()) this.form.disable();
     });
   }
@@ -50,10 +54,15 @@ export class AnamnesePageComponent implements OnInit {
     if (this.form.invalid) return;
     void this.state.run(async () => {
       const value = this.form.getRawValue();
-      await this.api.save(this.context.editableId(), {
+      const respostas = {
         ...value,
         quaisAcidos: value.usaAcidos ? value.quaisAcidos.trim() : undefined,
-      });
+      };
+      if (this.context.standalone()) {
+        await this.api.saveStandalone(respostas);
+      } else {
+        await this.api.save(this.context.editableId(), respostas);
+      }
     }, 'Ficha de anamnese salva.');
   }
 }

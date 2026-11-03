@@ -14,11 +14,17 @@ export type RespostasAnamnese = Omit<
 @Injectable({ providedIn: 'root' })
 export class AnamneseService {
   private readonly api = inject(ApiClient);
+
   get(id: string): Promise<Anamnese | null> {
     return this.api.request('GET', `/anamnese?agendamento=${encodeURIComponent(id)}`);
   }
+
   save(id: string, respostas: RespostasAnamnese): Promise<Anamnese> {
     return this.api.request('PUT', `/anamnese/${encodeURIComponent(id)}`, respostas);
+  }
+
+  saveStandalone(respostas: RespostasAnamnese): Promise<Anamnese> {
+    return this.api.request('POST', '/createAnamneseAvulsa', respostas);
   }
 }
 
@@ -29,8 +35,21 @@ export class AnamneseContext {
   private readonly route = inject(ActivatedRoute);
   readonly booking = signal<Agendamento | null>(null);
   readonly editable = signal(false);
+  readonly standalone = signal(false);
 
-  async load(): Promise<string> {
+  async load(): Promise<string | null> {
+    if (
+      this.route.snapshot.routeConfig?.path === 'anamnese' &&
+      !this.route.snapshot.queryParamMap.get('agendamento')
+    ) {
+      if (this.auth.session()?.perfil !== 'CLIENTE') {
+        throw new Error('Entre como cliente para preencher a ficha de anamnese.');
+      }
+      this.standalone.set(true);
+      this.editable.set(true);
+      return null;
+    }
+
     const id = this.route.snapshot.queryParamMap.get('agendamento');
     if (!id)
       throw new Error(

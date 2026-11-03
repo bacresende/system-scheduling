@@ -23,11 +23,15 @@ export const sessionGuard: CanActivateFn = async (
   const router = inject(Router);
   try {
     const session = await auth.restore();
-    if (!session) return router.createUrlTree(['/login'], { queryParams: { retorno: state.url } });
+    if (!session) {
+      return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+    }
     if (
       session.perfil === 'CLIENTE' &&
       !session?.cadastroCompleto &&
-      !['/completar-cadastro', '/portal'].includes(state.url.split('?')[0])
+      !['/completar-cadastro', '/portal', '/anamnese'].includes(
+        state.url.split('?')[0],
+      )
     ) {
       return router.createUrlTree(['/portal']);
     }
@@ -51,4 +55,13 @@ export const adminGuard: CanActivateChildFn = () => {
 export const clientGuard: CanActivateFn = () => {
   const session = inject(AuthService).session();
   return session?.perfil === 'CLIENTE' || inject(Router).createUrlTree(['/login']);
+};
+
+export const clientAnamneseGuard: CanActivateFn = (route, state) => {
+  const session = inject(AuthService).session();
+  const router = inject(Router);
+  if (route.queryParamMap.get('agendamento')) return true;
+  if (session?.perfil === 'CLIENTE') return true;
+  if (session) return router.createUrlTree(['/dashboard']);
+  return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 };

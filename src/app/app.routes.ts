@@ -1,5 +1,9 @@
 import { Routes } from '@angular/router';
-import { clientGuard } from './features/auth/services/auth.guard';
+import {
+  clientAnamneseGuard,
+  clientGuard,
+  sessionGuard,
+} from './features/auth/services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -45,6 +49,7 @@ export const routes: Routes = [
           import('./features/anamnese/pages/anamnese-page/anamnese-page.component').then(
             (module) => module.AnamnesePageComponent,
           ),
+        canActivate: [sessionGuard, clientAnamneseGuard],
       },
       {
         path: '',
@@ -82,6 +87,13 @@ export const routes: Routes = [
               import('./features/clientes/pages/cliente-list-page/cliente-list-page.component').then(
                 (module) => module.ClienteListPageComponent,
               ),
+          },
+          {
+            path: 'clientes/:id',
+            loadComponent: () =>
+              import(
+                './features/clientes/pages/cliente-detail-page/cliente-detail-page.component'
+              ).then((module) => module.ClienteDetailPageComponent),
           },
           {
             path: 'servicos',

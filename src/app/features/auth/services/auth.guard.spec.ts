@@ -4,7 +4,7 @@ import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Usuario } from '../../usuarios/models/usuario.model';
 import { AuthService } from './auth.service';
-import { adminGuard, homeFor, sessionGuard } from './auth.guard';
+import { adminGuard, clientAnamneseGuard, homeFor, sessionGuard } from './auth.guard';
 
 @Component({ template: '<h1>Página de teste</h1>' })
 class TestPage {}
@@ -19,6 +19,11 @@ describe('Access and progressive profile guards', () => {
         { path: 'login', component: TestPage },
         { path: 'completar-cadastro', component: TestPage, canActivate: [sessionGuard] },
         { path: 'portal', component: TestPage, canActivate: [sessionGuard] },
+        {
+          path: 'anamnese',
+          component: TestPage,
+          canActivate: [sessionGuard, clientAnamneseGuard],
+        },
         { path: '', canActivate: [sessionGuard], canActivateChild: [adminGuard], children: [
           { path: 'dashboard', component: TestPage }
         ] }
@@ -37,12 +42,37 @@ describe('Access and progressive profile guards', () => {
   it('redirects anonymous access to login preserving return URL', async () => {
     const harness = await setup(null); await harness.navigateByUrl('/dashboard');
     const { Router } = await import('@angular/router');
-    expect(TestBed.inject(Router).url).toContain('/login?retorno=%2Fdashboard');
+    expect(TestBed.inject(Router).url).toContain('/login?returnUrl=%2Fdashboard');
   });
   it('allows incomplete profiles to access the portal', async () => {
     const harness = await setup(client(false)); await harness.navigateByUrl('/portal');
     const { Router } = await import('@angular/router');
     expect(TestBed.inject(Router).url).toBe('/portal');
+  });
+  it('preserves the standalone anamnesis URL for anonymous users', async () => {
+    const harness = await setup(null);
+    await harness.navigateByUrl('/anamnese');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/login?returnUrl=%2Fanamnese');
+  });
+  it('allows an authenticated client with an incomplete profile to fill a standalone anamnesis', async () => {
+    const harness = await setup(client(false));
+    await harness.navigateByUrl('/anamnese');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/anamnese');
+  });
+  it('allows an administrator to reach a booking anamnesis', async () => {
+    const harness = await setup({
+      id: 'admin',
+      nome: 'Admin',
+      email: 'admin@example.test',
+      telefone: '',
+      cadastroCompleto: true,
+      perfil: 'ADMIN',
+    });
+    await harness.navigateByUrl('/anamnese?agendamento=booking-1');
+    const { Router } = await import('@angular/router');
+    expect(TestBed.inject(Router).url).toBe('/anamnese?agendamento=booking-1');
   });
   it('uses the portal as the home page for incomplete client profiles', () => {
     expect(homeFor(null, client(false).perfil)).toBe('/portal');

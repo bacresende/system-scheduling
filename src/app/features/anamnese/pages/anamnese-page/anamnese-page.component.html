@@ -1,5 +1,12 @@
 <h1 class="mb-2 font-serif text-4xl tracking-tight">Ficha de anamnese</h1>
-<p class="mb-6 text-sm text-estetica-text/75">Responda às perguntas para que a clínica prepare seu atendimento.</p>
+<p class="mb-6 text-sm text-estetica-text/75">
+  @if (context.standalone()) {
+    Responda à ficha para registrar suas informações no seu perfil, sem vínculo com serviço ou
+    agendamento.
+  } @else {
+    Responda às perguntas para que a clínica prepare seu atendimento.
+  }
+</p>
 <app-request-feedback />
 <form
   [formGroup]="form"
