@@ -31,6 +31,10 @@ body {
   font-family: var(--p-font-family, sans-serif);
 }
 
+.agendamento-select-panel .p-select-option {
+  min-height: 48px;
+}
+
 .p-datepicker-day-selected,
 .p-datepicker-day-selected:hover {
   background-color: var(--cor-primaria);

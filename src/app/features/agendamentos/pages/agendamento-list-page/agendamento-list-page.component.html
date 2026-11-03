@@ -1053,6 +1053,7 @@
                 [filter]="true"
                 filterBy="nome,email,telefone"
                 placeholder="Selecione a cliente"
+                panelStyleClass="agendamento-select-panel"
                 styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
               />
               <app-field-error [control]="form.controls.idCliente" />
@@ -1093,6 +1094,7 @@
                 [filter]="true"
                 filterBy="nome,descricao"
                 placeholder="Escolha o procedimento estético"
+                panelStyleClass="agendamento-select-panel"
                 styleClass="min-h-12 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
               />
               <app-field-error [control]="form.controls.idServico" />
@@ -1553,6 +1555,7 @@
                 filterBy="codigo"
                 [showClear]="true"
                 placeholder="Selecione ou pesquise um cupom ativo (ex.: BEMVINDA10)"
+                panelStyleClass="agendamento-select-panel"
                 styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
               />
               @if (erroValidacaoCupom(); as msgCupom) {
