@@ -5,8 +5,8 @@ import { CompletarCadastroPage } from './completar-cadastro-page';
 import { AuthService } from '../../auth/services/auth.service';
 
 describe('Cadastro progressivo de cliente criada pelo administrador', () => {
-  it('exige CPF e envia os dígitos normalizados junto com nascimento/endereço', async () => {
-    const session = vi.fn().mockReturnValue({ perfil: 'CLIENTE', cadastroCompleto: false });
+  it('envia nascimento/endereço sem solicitar novamente o CPF cadastrado', async () => {
+    const session = vi.fn().mockReturnValue({ perfil: 'CLIENTE', cadastroCompleto: false, cpf: '52998224725' });
     const complete = vi.fn().mockImplementation(async () => {
       session.mockReturnValue({ perfil: 'CLIENTE', cadastroCompleto: true });
     });
@@ -27,15 +27,9 @@ describe('Cadastro progressivo de cliente criada pelo administrador', () => {
       cidade: 'Brasília', estado: 'DF', pais: 'Brasil',
     } });
     page.submit();
-    expect(complete).not.toHaveBeenCalled();
-    expect(page.form.controls.cpf.hasError('required')).toBe(true);
-    page.form.controls.cpf.setValue('111.111.111-11');
-    page.submit();
-    expect(complete).not.toHaveBeenCalled();
-    page.form.controls.cpf.setValue('529.982.247-25');
-    page.submit();
     await fixture.whenStable();
-    expect(complete).toHaveBeenCalledWith(expect.objectContaining({ cpf: '52998224725', nasc: '1990-01-01' }));
+    expect(complete).toHaveBeenCalledWith(expect.objectContaining({ nasc: '1990-01-01', endereco: expect.objectContaining({ cep: '70000000' }) }));
+    expect(complete.mock.calls[0][0]).not.toHaveProperty('cpf');
     expect(navigateByUrl).toHaveBeenCalledWith('/portal');
   });
 });

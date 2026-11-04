@@ -11,7 +11,6 @@ import { RequestFeedback, RequestState } from '../../../shared/ui/request-feedba
 import { Endereco } from '../../usuarios/models/usuario.model';
 import { localDay } from '../../../shared/utils/date';
 import { homeFor } from '../../auth/services/auth.guard';
-import { cpfValidator } from '../../usuarios/models/usuario-validators';
 
 @Component({
   selector: 'app-completar-cadastro-page',
@@ -47,7 +46,6 @@ export class CompletarCadastroPage {
   }
 
   protected readonly form = this.fb.group({
-    cpf: [this.auth.session()?.cpf ?? '', [Validators.required, cpfValidator]],
     ocupacaoProfissional: ['', Validators.maxLength(120)],
     nasc: this.fb.control<Date | null>(null, [
       Validators.required,
@@ -167,7 +165,6 @@ export class CompletarCadastroPage {
       if (!payload.nasc) throw new Error('Informe uma data de nascimento válida.');
       await this.auth.complete({
         ...payload,
-        cpf: payload.cpf.replace(/\D/g, ''),
         nasc: localDay(payload.nasc),
       });
       if (!this.auth.session()?.cadastroCompleto) {
