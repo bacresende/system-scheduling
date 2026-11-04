@@ -7,6 +7,7 @@ import {
   effect,
   ElementRef,
   inject,
+  AfterViewInit,
   OnInit,
   signal,
   untracked,
@@ -113,7 +114,7 @@ const DIAS_SEMANA_LONGOS = [
   templateUrl: './agendamento-list-page.component.html',
   styleUrl: './agendamento-list-page.component.css',
 })
-export class AgendamentoListPageComponent implements OnInit {
+export class AgendamentoListPageComponent implements OnInit, AfterViewInit {
   protected readonly state = inject(RequestState);
   private readonly api = inject(AgendamentosService);
   private readonly usuariosApi = inject(UsuariosService);
@@ -719,6 +720,11 @@ export class AgendamentoListPageComponent implements OnInit {
       this.filter.controls.data.setValue(initialDate, { emitEvent: false });
     }
     this.loadAll();
+  }
+
+  ngAfterViewInit(): void {
+    if (this.route.snapshot.queryParamMap.get('novo') !== 'true') return;
+    queueMicrotask(() => this.abrirNovoAgendamento(this.selectedDay()));
   }
 
   private readDateQueryParam(): Date | null {

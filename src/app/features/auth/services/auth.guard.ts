@@ -24,14 +24,12 @@ export const sessionGuard: CanActivateFn = async (
   try {
     const session = await auth.restore();
     if (!session) {
-      return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+      return router.createUrlTree(['/login']);
     }
     if (
       session.perfil === 'CLIENTE' &&
       !session?.cadastroCompleto &&
-      !['/completar-cadastro', '/portal', '/anamnese'].includes(
-        state.url.split('?')[0],
-      )
+      !['/completar-cadastro', '/portal', '/anamnese'].includes(state.url.split('?')[0])
     ) {
       return router.createUrlTree(['/portal']);
     }

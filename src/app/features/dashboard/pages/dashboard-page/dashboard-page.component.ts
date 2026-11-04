@@ -37,6 +37,7 @@ export class DashboardPageComponent implements OnInit {
 
   protected readonly summary = signal<ResumoDashboard | null>(null);
   protected readonly agendamentosHoje = computed(() => this.summary()?.agendaHoje ?? []);
+  protected readonly endTime = endTime;
   protected readonly attention = computed(() => {
     const agendamentos = this.agendamentosHoje();
     const ativos = agendamentos.filter((item) => this.isAtivo(item.status));

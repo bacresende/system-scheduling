@@ -49,7 +49,7 @@ export const routes: Routes = [
           import('./features/anamnese/pages/anamnese-page/anamnese-page.component').then(
             (module) => module.AnamnesePageComponent,
           ),
-        canActivate: [sessionGuard, clientAnamneseGuard],
+        canActivate: [clientAnamneseGuard],
       },
       {
         path: '',
@@ -70,16 +70,16 @@ export const routes: Routes = [
           {
             path: 'agendamentos',
             loadComponent: () =>
-              import(
-                './features/agendamentos/pages/agendamento-list-page/agendamento-list-page.component'
-              ).then((module) => module.AgendamentoListPageComponent),
+              import('./features/agendamentos/pages/agendamento-list-page/agendamento-list-page.component').then(
+                (module) => module.AgendamentoListPageComponent,
+              ),
           },
           {
             path: 'agendamentos/:id',
             loadComponent: () =>
-              import(
-                './features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component'
-              ).then((module) => module.AgendamentoDetailPageComponent),
+              import('./features/agendamentos/pages/agendamento-detail-page/agendamento-detail-page.component').then(
+                (module) => module.AgendamentoDetailPageComponent,
+              ),
           },
           {
             path: 'clientes',
@@ -91,9 +91,9 @@ export const routes: Routes = [
           {
             path: 'clientes/:id',
             loadComponent: () =>
-              import(
-                './features/clientes/pages/cliente-detail-page/cliente-detail-page.component'
-              ).then((module) => module.ClienteDetailPageComponent),
+              import('./features/clientes/pages/cliente-detail-page/cliente-detail-page.component').then(
+                (module) => module.ClienteDetailPageComponent,
+              ),
           },
           {
             path: 'servicos',
@@ -120,7 +120,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () =>
-      import('./not-found-page').then((module) => module.NotFoundPage),
+    loadComponent: () => import('./not-found-page').then((module) => module.NotFoundPage),
   },
 ];

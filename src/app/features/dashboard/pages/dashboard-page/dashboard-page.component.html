@@ -1,131 +1,334 @@
-<header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+<div class="mx-auto w-full max-w-[1440px]">
+<header class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <p class="mb-1 text-sm font-semibold text-estetica-primary">Visão geral da clínica</p>
-    <h1 class="text-3xl font-bold">Dashboard</h1>
+    <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-primary uppercase">
+      Visão geral da clínica
+    </p>
+    <h1 class="font-serif text-3xl font-semibold tracking-tight text-estetica-text sm:text-4xl">
+      Dashboard
+    </h1>
+    <p class="mt-2 max-w-xl text-sm leading-relaxed text-estetica-text/70">
+      Acompanhe o movimento do dia e acesse rapidamente o que precisa da sua atenção.
+    </p>
   </div>
-  <p-button
-    label="Atualizar"
-    icon="pi pi-refresh"
-    severity="secondary"
-    (onClick)="load()"
-    [disabled]="state.busy()"
-  />
+  <div class="flex flex-col-reverse gap-3 sm:flex-row">
+    <p-button
+      label="Atualizar"
+      icon="pi pi-refresh"
+      [outlined]="true"
+      (onClick)="load()"
+      [disabled]="state.busy()"
+      styleClass="w-full border-estetica-secondary bg-white text-estetica-primary-dark shadow-xs hover:bg-estetica-secondary sm:w-auto"
+    />
+    <a
+      routerLink="/agendamentos"
+      [queryParams]="{ novo: 'true' }"
+      class="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-estetica-primary bg-estetica-primary px-4 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] transition hover:bg-estetica-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+    >
+      <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+      Novo agendamento
+    </a>
+  </div>
 </header>
+
 <app-request-feedback />
 <app-banner-completar-cadastro />
 
+@if (summary(); as item) {
+  <section aria-label="Resumo gerencial" class="mt-6 grid gap-4 md:grid-cols-3">
+    <article
+      class="relative overflow-hidden rounded-2xl border border-estetica-secondary/80 bg-white p-5 shadow-[0_8px_24px_-14px_rgba(110,55,65,0.22)] sm:p-6"
+    >
+      <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary"></div>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-medium text-estetica-text/65">Agendamentos hoje</h2>
+          <p class="mt-2 text-3xl font-semibold tracking-tight text-estetica-text">
+            {{ item.agendamentosHoje }}
+          </p>
+          <p class="mt-1 text-xs text-estetica-text/60">Atendimentos previstos para o dia</p>
+        </div>
+        <span
+          aria-hidden="true"
+          class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-estetica-secondary text-estetica-primary-dark"
+        >
+          <i class="pi pi-calendar"></i>
+        </span>
+      </div>
+    </article>
+
+    <article
+      class="relative overflow-hidden rounded-2xl border border-estetica-secondary/80 bg-white p-5 shadow-[0_8px_24px_-14px_rgba(110,55,65,0.22)] sm:p-6"
+    >
+      <div class="absolute inset-y-0 left-0 w-1 bg-estetica-tertiary"></div>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-medium text-estetica-text/65">Clientes cadastrados</h2>
+          <p class="mt-2 text-3xl font-semibold tracking-tight text-estetica-text">
+            {{ item.clientes }}
+          </p>
+          <p class="mt-1 text-xs text-estetica-text/60">Total da base de clientes</p>
+        </div>
+        <span
+          aria-hidden="true"
+          class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-estetica-tertiary/20 text-estetica-text"
+        >
+          <i class="pi pi-users"></i>
+        </span>
+      </div>
+    </article>
+
+    <article
+      class="relative overflow-hidden rounded-2xl border border-estetica-secondary/80 bg-white p-5 shadow-[0_8px_24px_-14px_rgba(110,55,65,0.22)] sm:p-6"
+    >
+      <div class="absolute inset-y-0 left-0 w-1 bg-emerald-500"></div>
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="text-sm font-medium text-estetica-text/65">Receita concluída hoje</h2>
+          <p class="mt-2 text-3xl font-semibold tracking-tight text-estetica-text">
+            {{ item.receitaConcluidaHoje | currency: 'BRL' }}
+          </p>
+          <p class="mt-1 text-xs text-estetica-text/60">Somente atendimentos concluídos</p>
+        </div>
+        <span
+          aria-hidden="true"
+          class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"
+        >
+          <i class="pi pi-wallet"></i>
+        </span>
+      </div>
+    </article>
+  </section>
+}
+
 <section
   aria-labelledby="anamnese-link-title"
-  class="mt-1 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
+  class="mt-6 rounded-2xl border border-estetica-secondary/80 bg-white p-4 shadow-[0_8px_24px_-14px_rgba(110,55,65,0.2)] sm:px-5"
 >
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="min-w-0">
-      <h2 id="anamnese-link-title" class="text-lg font-semibold">Ficha de anamnese</h2>
-      <p class="text-sm text-estetica-text/75">
-        Compartilhe este link com a cliente. Ela precisará entrar ou criar uma conta; a ficha ficará
-        vinculada ao perfil.
-      </p>
-      <p class="mt-3 break-all rounded-lg bg-estetica-bg p-3 font-mono text-xs text-estetica-text">
-        {{ anamneseLink }}
-      </p>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div class="flex min-w-0 items-start gap-3">
+      <span
+        aria-hidden="true"
+        class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-estetica-secondary text-estetica-primary-dark"
+      >
+        <i class="pi pi-file-edit"></i>
+      </span>
+      <div class="min-w-0">
+        <h2 id="anamnese-link-title" class="font-semibold text-estetica-text">Ficha de anamnese</h2>
+        <p class="mt-0.5 text-sm leading-relaxed text-estetica-text/70">
+          Compartilhe com a cliente após o login; a ficha ficará vinculada ao perfil.
+        </p>
+        <p
+          class="font-mono mt-2 max-w-xl truncate rounded-lg border border-estetica-secondary/70 bg-estetica-bg px-3 py-1.5 text-xs text-estetica-text/80"
+          [title]="anamneseLink"
+        >
+          {{ anamneseLink }}
+        </p>
+      </div>
     </div>
     <p-button
       label="Copiar link"
       icon="pi pi-copy"
+      [outlined]="true"
       (onClick)="copyAnamneseLink()"
       [disabled]="state.busy()"
-      styleClass="min-h-11 shrink-0"
+      styleClass="min-h-11 w-full shrink-0 border-estetica-secondary text-estetica-primary-dark hover:bg-estetica-secondary lg:w-auto"
     />
   </div>
 </section>
 
-@if (summary(); as item) {
-  <section aria-label="Resumo gerencial" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-    <article class="rounded-xl bg-white p-6">
-      <h2>Agendamentos hoje</h2>
-      <p class="text-3xl font-bold">{{ item.agendamentosHoje }}</p>
-    </article>
-    <article class="rounded-xl bg-white p-6">
-      <h2>Clientes cadastrados</h2>
-      <p class="text-3xl font-bold">{{ item.clientes }}</p>
-    </article>
-    <article class="rounded-xl bg-white p-6">
-      <h2>Receita concluída hoje</h2>
-      <p class="text-3xl font-bold">{{ item.receitaConcluidaHoje | currency: 'BRL' }}</p>
-    </article>
-
-  </section>
-
-  <section aria-labelledby="attention-title" class="mt-8">
-    <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
-      <div>
-        <h2 id="attention-title" class="text-xl font-semibold">Atenção para hoje</h2>
-        <p class="text-sm text-estetica-text/75">Pendências que podem precisar da sua ação.</p>
-      </div>
-      <a routerLink="/agendamentos" class="text-sm font-medium underline">Abrir agenda</a>
-    </div>
-    <div class="grid gap-4 sm:grid-cols-3">
-      <a
-        routerLink="/agendamentos"
-        class="rounded-xl border border-amber-200 bg-amber-50 p-5 transition hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+@if (summary()) {
+  <div class="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(19rem,0.75fr)]">
+    <section
+      aria-labelledby="today-bookings-title"
+      class="overflow-hidden rounded-2xl border border-estetica-secondary/80 bg-white shadow-[0_8px_24px_-14px_rgba(110,55,65,0.2)]"
+    >
+      <div
+        class="flex flex-wrap items-end justify-between gap-3 border-b border-estetica-secondary/80 px-5 py-5 sm:px-6"
       >
-        <p class="text-sm font-medium">Aguardando confirmação</p>
-        <p class="mt-1 text-3xl font-bold">{{ attention().confirmacoes }}</p>
-      </a>
-      <a
-        routerLink="/agendamentos"
-        class="rounded-xl border border-rose-200 bg-rose-50 p-5 transition hover:bg-rose-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
-      >
-        <p class="text-sm font-medium">Alterações de clientes não vistas</p>
-        <p class="mt-1 text-3xl font-bold">{{ attention().alteracoes }}</p>
-      </a>
-      <a
-        routerLink="/agendamentos"
-        class="rounded-xl border border-estetica-secondary bg-white p-5 transition hover:bg-estetica-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
-      >
-        <p class="text-sm font-medium">Horários vencidos sem conclusão</p>
-        <p class="mt-1 text-3xl font-bold">{{ attention().vencidos }}</p>
-      </a>
-    </div>
-  </section>
-
-  <section aria-labelledby="today-bookings-title" class="mt-8">
-    <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
-      <div>
-        <h2 id="today-bookings-title" class="text-xl font-semibold">Agenda de hoje</h2>
-        <p class="text-sm text-estetica-text/75">
-          {{ agendamentosHoje().length }} atendimento(s) com horário definido.
-        </p>
-      </div>
-      <a routerLink="/agendamentos" class="text-sm font-medium underline">Ver agenda completa</a>
-    </div>
-    <div class="overflow-hidden rounded-xl border border-estetica-secondary bg-white">
-      @for (item of agendamentosHoje(); track item.id) {
+        <div>
+          <p class="mb-1 text-xs font-semibold tracking-wider text-estetica-primary uppercase">
+            Rotina do dia
+          </p>
+          <h2 id="today-bookings-title" class="text-xl font-semibold text-estetica-text">
+            Agenda de hoje
+          </h2>
+          <p class="mt-1 text-sm text-estetica-text/65">
+            {{ agendamentosHoje().length }}
+            {{ agendamentosHoje().length === 1 ? 'atendimento' : 'atendimentos' }} com horário
+            definido
+          </p>
+        </div>
         <a
-          [routerLink]="['/agendamentos', item.id]"
-          class="flex flex-col gap-3 border-b border-estetica-secondary p-4 last:border-b-0 hover:bg-estetica-bg focus-visible:relative focus-visible:outline-2 focus-visible:outline-estetica-primary sm:flex-row sm:items-center sm:justify-between"
+          routerLink="/agendamentos"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-estetica-primary-dark hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
         >
-          <div class="flex min-w-0 items-center gap-4">
-            <time class="shrink-0 text-lg font-semibold" [attr.datetime]="item.dataHora">
-              {{ item.dataHora | date: 'HH:mm' }}
-            </time>
-            <div class="min-w-0">
-              <p class="truncate font-medium">{{ item.cliente }}</p>
-              <p class="truncate text-sm text-estetica-text/75">{{ item.servico }}</p>
-            </div>
-          </div>
-          <span
-            class="w-fit rounded-full px-3 py-1 text-xs font-semibold"
-            [class]="statusClass(item.status)"
-          >
-            {{ statusLabel(item.status) }}
-          </span>
+          Ver agenda completa
+          <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
         </a>
-      } @empty {
-        <p class="p-5 text-sm text-estetica-text/75">
-          Nenhum atendimento com horário definido para hoje.
-        </p>
-      }
-    </div>
-  </section>
+      </div>
+
+      <div>
+        @for (item of agendamentosHoje(); track item.id) {
+          <a
+            [routerLink]="['/agendamentos', item.id]"
+            class="group flex flex-col gap-3 border-b border-estetica-secondary/70 px-5 py-4 transition last:border-b-0 hover:bg-estetica-bg focus-visible:relative focus-visible:outline-2 focus-visible:outline-estetica-primary sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          >
+            <div class="flex min-w-0 items-center gap-4">
+              <time
+                class="flex min-w-16 shrink-0 items-center justify-center rounded-xl bg-estetica-secondary px-3 py-2 text-sm font-semibold text-estetica-primary-dark"
+                [attr.datetime]="item.dataHora"
+              >
+                {{ item.dataHora | date: 'HH:mm' }}–{{
+                  endTime(item.dataHora, item.duracaoMinutos) | date: 'HH:mm'
+                }}
+              </time>
+              <div class="min-w-0">
+                <p class="truncate text-base font-semibold text-estetica-text">{{ item.cliente }}</p>
+                <p class="mt-0.5 truncate text-sm text-estetica-text/65">{{ item.servico }}</p>
+              </div>
+            </div>
+            <div class="flex items-center justify-between gap-3 sm:justify-end">
+              <span
+                class="inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold"
+                [class]="statusClass(item.status)"
+              >
+                <span class="size-1.5 rounded-full bg-current opacity-60" aria-hidden="true"></span>
+                {{ statusLabel(item.status) }}
+              </span>
+              <i
+                class="pi pi-chevron-right text-xs text-estetica-text/35 transition group-hover:translate-x-0.5 group-hover:text-estetica-primary"
+                aria-hidden="true"
+              ></i>
+            </div>
+          </a>
+        } @empty {
+          <div class="px-6 py-12 text-center">
+            <span
+              aria-hidden="true"
+              class="mx-auto mb-3 flex size-11 items-center justify-center rounded-full bg-estetica-secondary text-estetica-primary"
+            >
+              <i class="pi pi-calendar"></i>
+            </span>
+            <p class="font-medium text-estetica-text">Agenda livre por enquanto</p>
+            <p class="mt-1 text-sm text-estetica-text/65">
+              Nenhum atendimento com horário definido para hoje.
+            </p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section
+      aria-labelledby="attention-title"
+      class="rounded-2xl border border-estetica-secondary/80 bg-white p-5 shadow-[0_8px_24px_-14px_rgba(110,55,65,0.2)] sm:p-6"
+    >
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p class="mb-1 text-xs font-semibold tracking-wider text-estetica-primary uppercase">
+            Pendências
+          </p>
+          <h2 id="attention-title" class="text-xl font-semibold text-estetica-text">
+            Atenção para hoje
+          </h2>
+          <p class="mt-1 text-sm text-estetica-text/65">O que pode precisar da sua ação.</p>
+        </div>
+        <span
+          aria-hidden="true"
+          class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"
+        >
+          <i class="pi pi-bell"></i>
+        </span>
+      </div>
+
+      <div class="grid gap-2">
+        <a
+          routerLink="/agendamentos"
+          class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition hover:border-amber-200 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+          [class]="
+            attention().confirmacoes > 0
+              ? 'border-amber-200 bg-amber-50/70'
+              : 'border-transparent bg-estetica-bg/60'
+          "
+        >
+          <span class="flex items-center gap-3 text-sm font-medium text-estetica-text">
+            <i
+              [class]="
+                attention().confirmacoes > 0
+                  ? 'pi pi-clock text-amber-700'
+                  : 'pi pi-clock text-estetica-text/40'
+              "
+              aria-hidden="true"
+            ></i>
+            Aguardando confirmação
+          </span>
+          <strong
+            class="text-lg font-semibold"
+            [class]="attention().confirmacoes > 0 ? 'text-amber-800' : 'text-estetica-text/50'"
+          >{{ attention().confirmacoes }}</strong>
+        </a>
+
+        <a
+          routerLink="/agendamentos"
+          class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition hover:border-rose-200 hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+          [class]="
+            attention().alteracoes > 0
+              ? 'border-rose-200 bg-rose-50/70'
+              : 'border-transparent bg-estetica-bg/60'
+          "
+        >
+          <span class="flex items-center gap-3 text-sm font-medium text-estetica-text">
+            <i
+              [class]="
+                attention().alteracoes > 0
+                  ? 'pi pi-sync text-rose-700'
+                  : 'pi pi-sync text-estetica-text/40'
+              "
+              aria-hidden="true"
+            ></i>
+            Alterações não vistas
+          </span>
+          <strong
+            class="text-lg font-semibold"
+            [class]="attention().alteracoes > 0 ? 'text-rose-800' : 'text-estetica-text/50'"
+          >{{ attention().alteracoes }}</strong>
+        </a>
+
+        <a
+          routerLink="/agendamentos"
+          class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition hover:border-estetica-secondary hover:bg-estetica-secondary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+          [class]="
+            attention().vencidos > 0
+              ? 'border-estetica-secondary bg-estetica-secondary/45'
+              : 'border-transparent bg-estetica-bg/60'
+          "
+        >
+          <span class="flex items-center gap-3 text-sm font-medium text-estetica-text">
+            <i
+              [class]="
+                attention().vencidos > 0
+                  ? 'pi pi-history text-estetica-primary'
+                  : 'pi pi-history text-estetica-text/40'
+              "
+              aria-hidden="true"
+            ></i>
+            Horários vencidos
+          </span>
+          <strong
+            class="text-lg font-semibold"
+            [class]="attention().vencidos > 0 ? 'text-estetica-text' : 'text-estetica-text/50'"
+          >{{ attention().vencidos }}</strong>
+        </a>
+      </div>
+
+      <a
+        routerLink="/agendamentos"
+        class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-estetica-primary-dark hover:text-estetica-text focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+      >
+        Abrir agenda
+        <i class="pi pi-arrow-right text-xs" aria-hidden="true"></i>
+      </a>
+    </section>
+  </div>
 }
+</div>
