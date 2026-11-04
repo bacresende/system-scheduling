@@ -152,6 +152,9 @@ describe('ClienteDetailPageComponent', () => {
     expect(root.textContent).toContain('Avaliação corporal');
     expect(root.textContent).toContain('Histórico de saúde');
     expect(root.textContent).toContain('Caminhada');
+    expect(root.textContent).toContain('Prefiro não informar');
+    expect(root.textContent).not.toContain('Saúde feminina');
+    expect(root.textContent).not.toContain('Saúde masculina');
     expect(root.textContent).toContain('Informações verdadeiras');
     expect(root.textContent).not.toContain('[object Object]');
   });

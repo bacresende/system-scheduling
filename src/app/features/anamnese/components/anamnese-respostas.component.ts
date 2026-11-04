@@ -9,6 +9,7 @@ import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @for (section of sections; track section.key) {
+      @if (hasSection(section.key)) {
       <details class="mt-3 rounded-lg border border-estetica-secondary p-3">
         <summary class="cursor-pointer font-semibold">{{ section.label }}</summary>
         <dl class="mt-3 grid gap-3 sm:grid-cols-2">
@@ -20,6 +21,7 @@ import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
           }
         </dl>
       </details>
+      }
     }
     <p class="mt-3 text-sm">{{ anamnese().declaracao.texto }}
       Confirmado em {{ anamnese().declaracao.aceitaEm | date: 'dd/MM/yyyy HH:mm' }}.</p>
@@ -28,6 +30,9 @@ import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
 export class AnamneseRespostasComponent {
   readonly anamnese = input.required<AnamneseCorporal>();
   protected readonly sections = SECOES_ANAMNESE;
+  protected hasSection(section: string): boolean {
+    return Object.prototype.hasOwnProperty.call(this.anamnese().respostas, section);
+  }
   protected value(section: string, field: string): unknown {
     const respostas = this.anamnese().respostas as unknown as Record<string, Record<string, unknown>>;
     return respostas[section]?.[field];

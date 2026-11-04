@@ -167,4 +167,44 @@ describe('Avaliação corporal autenticada', () => {
     expect(component.form.controls.respostas.controls['habitos'].controls['fuma'].value).toBe(false);
     expect(root.querySelector('#habitos-cigarrosDia')).toBeNull();
   });
+
+  it('exibe o bloco correspondente ao sexo e limpa respostas ao mudar a seleção', async () => {
+    const { component, fixture, root } = await setup();
+    component.goToStep(2);
+    await fixture.whenStable();
+    expect(root.querySelector('#saudePessoal-sexo')).not.toBeNull();
+    expect(root.querySelector('#saudeFeminina-temFilhos')).toBeNull();
+    expect(root.querySelector('#saudeMasculina-ejaculacao')).toBeNull();
+    component.next();
+    expect(component.currentStep()).toBe(2);
+
+    const respostas = component.form.controls.respostas;
+    const sexo = respostas.controls['saudePessoal'].controls['sexo'];
+    sexo.setValue('Feminino');
+    component.refreshValidation();
+    await fixture.whenStable();
+    expect(root.querySelector('#saudeFeminina-temFilhos')).not.toBeNull();
+    expect(root.querySelector('#saudeMasculina-ejaculacao')).toBeNull();
+    component.next();
+    expect(component.currentStep()).toBe(2);
+    respostas.controls['saudeFeminina'].controls['temFilhos'].setValue(true);
+
+    sexo.setValue('Masculino');
+    component.refreshValidation();
+    await fixture.whenStable();
+    expect(respostas.controls['saudeFeminina'].controls['temFilhos'].value).toBeNull();
+    expect(root.querySelector('#saudeFeminina-temFilhos')).toBeNull();
+    expect(root.querySelector('#saudeMasculina-ejaculacao')).not.toBeNull();
+    respostas.controls['saudeMasculina'].patchValue({ ejaculacao: 'Normal', disfuncaoEretil: false });
+    component.next();
+    expect(component.currentStep()).toBe(3);
+
+    component.goToStep(2);
+    sexo.setValue('Prefiro não informar');
+    component.refreshValidation();
+    component.next();
+    expect(component.currentStep()).toBe(3);
+    expect(respostas.controls['saudeMasculina'].controls['ejaculacao'].value).toBeNull();
+    expect(request).not.toHaveBeenCalled();
+  });
 });

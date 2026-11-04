@@ -34,27 +34,29 @@ export interface Queixas {
   qualAcompanhamento?: string;
 }
 
+export interface SaudePessoal {
+  sexo: "Feminino" | "Masculino" | "Prefiro não informar";
+}
+
 export interface SaudeFeminina {
-  aplicavel: boolean;
-  temFilhos?: boolean;
+  temFilhos: boolean;
   partoNormal?: boolean;
   cesarea?: boolean;
   quantidadeFilhos?: number;
   idadesFilhos?: string;
-  amamentando?: boolean;
-  diu?: boolean;
-  desejoSexual?: "Normal" | "Muito" | "Pouco" | "Nenhum";
-  cicloMenstrual?: "Regular" | "Irregular" | "Não tenho";
-  contraceptivo?: boolean;
+  amamentando: boolean;
+  diu: boolean;
+  desejoSexual: "Normal" | "Muito" | "Pouco" | "Nenhum";
+  cicloMenstrual: "Regular" | "Irregular" | "Não tenho";
+  contraceptivo: boolean;
   qualContraceptivo?: string;
-  menopausa?: boolean;
+  menopausa: boolean;
   ultimaMenstruacao?: string;
 }
 
 export interface SaudeMasculina {
-  aplicavel: boolean;
-  ejaculacao?: "Normal" | "Tardia" | "Precoce";
-  disfuncaoEretil?: boolean;
+  ejaculacao: "Normal" | "Tardia" | "Precoce";
+  disfuncaoEretil: boolean;
 }
 
 export interface Alimentacao {
@@ -140,8 +142,9 @@ export interface RespostasAnamneseCorporal {
   contraindicacoesAbsolutas: ContraindicacoesAbsolutas;
   contraindicacoesRelativas: ContraindicacoesRelativas;
   queixas: Queixas;
-  saudeFeminina: SaudeFeminina;
-  saudeMasculina: SaudeMasculina;
+  saudePessoal: SaudePessoal;
+  saudeFeminina?: SaudeFeminina;
+  saudeMasculina?: SaudeMasculina;
   alimentacao: Alimentacao;
   habitos: Habitos;
   historico: Historico;

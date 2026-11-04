@@ -28,12 +28,7 @@ export const fichaCorporal = {
       "procedimentosEsteticos": false,
       "acompanhamentoMedico": false
     },
-    "saudeFeminina": {
-      "aplicavel": false
-    },
-    "saudeMasculina": {
-      "aplicavel": false
-    },
+    "saudePessoal": { "sexo": "Prefiro não informar" },
     "alimentacao": {
       "frequenciaIntestinal": "Uma vez ao dia",
       "ingereAgua": true,

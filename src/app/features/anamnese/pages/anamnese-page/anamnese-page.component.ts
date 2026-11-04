@@ -11,7 +11,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { AnamneseContext, AnamneseService } from '../../services/anamnese.service';
 import { AuthService } from '../../../auth/services/auth.service';
-import { CampoAnamnese, SECOES_ANAMNESE } from '../../models/anamnese-corporal.config';
+import { CampoAnamnese, SecaoAnamnese, SECOES_ANAMNESE } from '../../models/anamnese-corporal.config';
 import { RespostasAnamneseCorporal } from '../../models/anamnese-corporal.model';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { FieldError } from '../../../../shared/ui/field-error';
@@ -43,7 +43,7 @@ export class AnamnesePageComponent implements OnInit {
   protected readonly steps = [
     { title: 'Sobre você', icon: 'pi-user', description: 'Conte o que você busca e como podemos cuidar de você.', sections: ['informacoesGerais', 'queixas'] },
     { title: 'Segurança', icon: 'pi-shield', description: 'Estas informações ajudam o profissional a avaliar os cuidados necessários.', sections: ['contraindicacoesAbsolutas', 'contraindicacoesRelativas'] },
-    { title: 'Saúde pessoal', icon: 'pi-heart', description: 'Preencha os blocos que se aplicam a você.', sections: ['saudeFeminina', 'saudeMasculina'] },
+    { title: 'Saúde pessoal', icon: 'pi-heart', description: 'Selecione seu sexo para exibir as perguntas correspondentes. Você também pode optar por não informar.', sections: ['saudePessoal', 'saudeFeminina', 'saudeMasculina'] },
     { title: 'Sua rotina', icon: 'pi-sun', description: 'Vamos conhecer sua alimentação, seu sono e seus hábitos.', sections: ['alimentacao', 'habitos'] },
     { title: 'Histórico', icon: 'pi-file', description: 'Compartilhe seu histórico de saúde e os cuidados que já realiza.', sections: ['historico'] },
     { title: 'Revisão', icon: 'pi-check-circle', description: 'Confira as etapas e confirme suas informações para enviar a ficha.', sections: [] },
@@ -137,7 +137,12 @@ export class AnamnesePageComponent implements OnInit {
   }
 
   protected visible(section: string, field: CampoAnamnese): boolean {
-    return !field.when || this.control(section, field.when).value === true;
+    const definition = this.sections.find(item => item.key === section)!;
+    return this.sectionVisible(definition) && (!field.when || this.control(section, field.when).value === true);
+  }
+
+  protected sectionVisible(section: SecaoAnamnese): boolean {
+    return !section.when || this.control(section.when.section, section.when.field).value === section.when.equals;
   }
 
   protected refreshValidation(): void {
@@ -176,7 +181,7 @@ export class AnamnesePageComponent implements OnInit {
       if (incomplete >= 0) this.goToStep(incomplete);
       return;
     }
-    const respostas = Object.fromEntries(this.sections.map(section => [section.key,
+    const respostas = Object.fromEntries(this.sections.filter(section => this.sectionVisible(section)).map(section => [section.key,
       Object.fromEntries(section.fields.filter(field => this.visible(section.key, field))
         .map(field => [field.key, this.control(section.key, field.key).value])
         .filter(([, value]) => value !== null && value !== '')),

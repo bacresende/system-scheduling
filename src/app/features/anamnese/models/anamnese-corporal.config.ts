@@ -4,7 +4,7 @@ export interface CampoAnamnese {
   required: boolean; when?: string; options?: string[]; maxLength?: number;
   min?: number; max?: number; integer?: boolean;
 }
-export interface SecaoAnamnese { key: string; label: string; fields: CampoAnamnese[]; }
+export interface SecaoAnamnese { key: string; label: string; fields: CampoAnamnese[]; when?: { section: string; field: string; equals: string }; }
 export const SECOES_ANAMNESE: SecaoAnamnese[] = [
   {
     "key": "informacoesGerais",
@@ -195,21 +195,31 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
     ]
   },
   {
+    "key": "saudePessoal",
+    "label": "Saúde pessoal",
+    "fields": [
+      {
+        "key": "sexo",
+        "label": "Sexo",
+        "type": "select",
+        "options": [
+          "Feminino",
+          "Masculino",
+          "Prefiro não informar"
+        ],
+        "required": true
+      }
+    ]
+  },
+  {
     "key": "saudeFeminina",
     "label": "Saúde feminina",
     "fields": [
       {
-        "key": "aplicavel",
-        "label": "Deseja preencher este bloco? (Não = não se aplica)",
-        "type": "boolean",
-        "required": true
-      },
-      {
         "key": "temFilhos",
         "label": "6a. Tem filhos?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "partoNormal",
@@ -247,15 +257,13 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
         "key": "amamentando",
         "label": "6b. Está amamentando?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "diu",
         "label": "6c. Faz uso de DIU?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "desejoSexual",
@@ -267,8 +275,7 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
           "Pouco",
           "Nenhum"
         ],
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "cicloMenstrual",
@@ -279,15 +286,13 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
           "Irregular",
           "Não tenho"
         ],
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "contraceptivo",
         "label": "8. Usa contraceptivo?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "qualContraceptivo",
@@ -301,28 +306,25 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
         "key": "menopausa",
         "label": "9. Menopausa?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "ultimaMenstruacao",
         "label": "Data da última menstruação (se souber)",
         "type": "date",
-        "required": false,
-        "when": "aplicavel"
+        "required": false
       }
-    ]
+    ],
+    "when": {
+      "section": "saudePessoal",
+      "field": "sexo",
+      "equals": "Feminino"
+    }
   },
   {
     "key": "saudeMasculina",
     "label": "Saúde masculina",
     "fields": [
-      {
-        "key": "aplicavel",
-        "label": "Deseja preencher este bloco? (Não = não se aplica)",
-        "type": "boolean",
-        "required": true
-      },
       {
         "key": "ejaculacao",
         "label": "10a. Ejaculação",
@@ -332,17 +334,20 @@ export const SECOES_ANAMNESE: SecaoAnamnese[] = [
           "Tardia",
           "Precoce"
         ],
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       },
       {
         "key": "disfuncaoEretil",
         "label": "10b. Disfunção erétil?",
         "type": "boolean",
-        "required": true,
-        "when": "aplicavel"
+        "required": true
       }
-    ]
+    ],
+    "when": {
+      "section": "saudePessoal",
+      "field": "sexo",
+      "equals": "Masculino"
+    }
   },
   {
     "key": "alimentacao",

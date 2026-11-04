@@ -83,7 +83,7 @@
           </div>
           <app-request-feedback />
           @for (section of sections; track section.key) {
-            <fieldset [hidden]="!activeStep().sections.includes(section.key)" [formGroup]="group(section.key)" [attr.inert]="state.busy() || !context.editable() ? '' : null" [disabled]="state.busy() || !context.editable()" class="mb-5 min-w-0 rounded-2xl border border-estetica-secondary bg-white px-4 pb-5 pt-3 shadow-md shadow-estetica-primary/10 sm:px-6 sm:pb-6">
+            <fieldset [hidden]="!activeStep().sections.includes(section.key) || !sectionVisible(section)" [formGroup]="group(section.key)" [attr.inert]="state.busy() || !context.editable() ? '' : null" [disabled]="state.busy() || !context.editable()" class="mb-5 min-w-0 rounded-2xl border border-estetica-secondary bg-white px-4 pb-5 pt-3 shadow-md shadow-estetica-primary/10 sm:px-6 sm:pb-6">
               <legend class="max-w-full px-2 text-base font-semibold">{{ section.label.replace(' — conforme a ficha', '') }}</legend>
               <p class="mb-5 mt-1 text-xs text-estetica-text/65">Campos com <span class="font-semibold text-estetica-primary">*</span> são obrigatórios.</p>
               <div class="grid items-start gap-4 sm:grid-cols-2">
@@ -97,7 +97,7 @@
                             <p-selectbutton [id]="section.key + '-' + field.key" [ariaLabelledBy]="section.key + '-' + field.key + '-label'" [formControlName]="field.key" [options]="simNao" optionLabel="label" optionValue="value" [allowEmpty]="false" (onChange)="refreshValidation()" class="shrink-0" styleClass="min-h-11 min-w-20" />
                           }
                           @case ('select') {
-                            <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" placeholder="Selecione uma opção" styleClass="min-h-12 w-full rounded-xl" />
+                            <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" (onChange)="refreshValidation()" placeholder="Selecione uma opção" styleClass="min-h-12 w-full items-center rounded-xl" />
                           }
                           @case ('text') {
                             <textarea pTextarea [id]="section.key + '-' + field.key" [formControlName]="field.key" [attr.maxlength]="field.maxLength" [rows]="field.key === 'principaisQueixas' ? 4 : 2" class="w-full resize-y rounded-xl border-estetica-secondary bg-estetica-bg/50 p-3 text-sm" [placeholder]="field.key === 'principaisQueixas' ? 'Conte o que mais incomoda e o que você gostaria de melhorar…' : 'Descreva aqui…'"></textarea>
