@@ -1,111 +1,45 @@
 # Sistema de Agendamentos de Estética
 
-## 1. Visão do Projeto
-Sistema de Produto Mínimo Viável (MVP) para gerenciar e otimizar a rotina de agendamentos e fichas de anamnese de uma clínica de estética, substituindo o controle manual e de papel, com foco na fidelização de clientes e construção de histórico visual (Linha do Tempo).
+MVP para administrar clientes, serviços, agenda, pagamentos, histórico visual e fichas da clínica. Escopo atualizado em 03/11/2026 conforme decisões do usuário.
 
-## 2. Requisitos Funcionais (RF)
-* **RF01 - Gestão de Serviços:** O sistema deve permitir cadastrar, editar e inativar procedimentos estéticos (nome, preço, duração em minutos, flag ativo e tempo médio para retorno).
-* **RF02 - Gestão de Clientes:** Cadastro de clientes.
-* **RF03 - Calendário Interativo:** Exibição da agenda em visões diária e semanal para o administrador.
-* **RF04 - Bloqueio Automático:** O sistema bloqueia a agenda automaticamente usando a `duração em minutos` do serviço escolhido. Apenas 1 serviço por agendamento.
-* **RF05 - Controle Financeiro:** Agendamentos devem ter status (Pendente, Cancelado, Concluído). Ao concluir, registrar método de pagamento.
-* **RF06 - Lembretes via WhatsApp:** Geração de link pré-formatado para disparar mensagem via API do WhatsApp web/mobile.
-* **RF07 - Acesso do Usuário:** O administrador pode cadastrar uma pessoa como `Usuario` com perfil `CLIENTE`. A pessoa pode solicitar redefinição de senha pelo e-mail cadastrado para definir sua senha de acesso.
-* **RF08 - Cadastro Progressivo:** Quando a cliente logar no sistema, se o perfil estiver incompleto (`cadastroCompleto: false`), o sistema deve solicitar a conclusão do cadastro (Endereço, CPF, Nasc) antes de liberar outras funcionalidades.
-* **RF09 - Ficha de Anamnese Única:** O sistema deve disponibilizar uma ficha única por agendamento, reunindo informações de pele, saúde e rotina, sem selecionar a ficha por serviço.
-* **RF10 - Linha do Tempo e Histórico Visual:** Ao concluir um agendamento, o sistema deve permitir o upload de uma fotografia de resultado (salvando a URL atrelada ao agendamento). A interface da cliente deve exibir essas fotos em formato de "Linha do Tempo", permitindo visualizar a evolução dos procedimentos passados.
-* **RF11 - Alertas de Retorno (Fidelização):** Um painel gerencial ("Oportunidades do Dia") que lista clientes que atingiram o tempo de manutenção de um serviço passado, gerando um atalho para envio de convite via WhatsApp.
+## Requisitos funcionais
 
-## 3. Requisitos Não Funcionais (RNF)
-* **RNF01 - Responsividade (Mobile First):** Interface otimizada para uso em smartphones.
-* **RNF02 - Validação Imediata:** Uso de Reactive Forms no Angular para impedir salvamentos de dados inválidos com feedback instantâneo.
-* **RNF03 - Rota de Anamnese:** A ficha única deve ser acessada pela rota `/anamnese?agendamento=ID`, com validação tipada e contrato de API único.
-* **RNF04 - Otimização de Storage:** O sistema não deve salvar imagens em base64 no banco relacional. Deve-se fazer upload para um Storage em nuvem e salvar apenas a URL pública/assinada na tabela de agendamento.
+- **RF01 — Serviços:** cadastrar, editar e inativar procedimentos com nome, preço, duração, opções de sessões e dias para retorno opcionais. Serviço com agendamentos não pode ser excluído.
+- **RF02 — Clientes:** ADMIN cadastra nome, e-mail, telefone e CPF válido e único. A cliente define a senha pela redefinição de e-mail e completa nascimento e endereço depois.
+- **RF03 — Agenda:** visões diária/semanal, busca, detalhes, confirmação, reagendamento, cancelamento e pacotes com sessões futuras em aberto.
+- **RF04 — Horários:** um serviço por sessão; duração inteira dentro do expediente, sem sobreposição.
+- **RF05 — Financeiro:** concluir atendimento ativo com data definida exige PIX, Cartao ou Dinheiro. Valor e duração são snapshots; rateio preserva o total em centavos.
+- **RF06 — WhatsApp:** gerar link com mensagem preenchida; envio iniciado pelo usuário, sem automação ou garantia de entrega.
+- **RF07 — Acesso:** autenticação Parse real, restauração, redefinição de senha e autorização ADMIN/CLIENTE no servidor e nas rotas.
+- **RF08 — Cadastro progressivo:** cliente acessa portal e anamnese mesmo incompleta e pode completar o perfil depois. cadastroCompleto exige CPF válido, nascimento e endereço; o CPF informado pelo ADMIN é preservado.
+- **RF09 — Anamnese:** ficha de perguntas pelo link /anamnese após login como CLIENTE. Cada envio registra respostas no perfil autenticado, sem serviço ou agendamento. ADMIN compartilha o link e consulta o histórico no prontuário.
+- **RF10 — Histórico e fotos:** ADMIN consulta dados da cliente, fichas, atendimentos, anotações e fotos. Upload vincula fotos ao atendimento ativo com data e preserva o vínculo se a conclusão falhar.
+- **RF11 — Retornos:** futura inclusão no dashboard, fora desta entrega. Não há tela separada de oportunidades; o contador legado da API pode permanecer por compatibilidade.
 
-## 4. Regras de Negócio (RN)
-* **RN01 - Agendamento Simples:** Cada agendamento comporta estritamente 1 serviço (para facilitar cálculo de agenda e cancelamentos).
-* **RN02 - Prevenção de Choque de Agenda:** Proibida a sobreposição de horários. A lógica deve calcular o `horário de início + duração média do serviço` para garantir que o bloco de tempo esteja 100% livre.
-* **RN03 - Limite de Expediente:** O sistema só deve aceitar horários que comecem e terminem dentro da janela de funcionamento da clínica.
-* **RN04 - Integridade Financeira:** Agendamentos marcados como "Concluídos" (com pagamento registrado) ou "Cancelados" não podem ter serviços ou valores alterados posteriormente.
-* **RN05 - Gatilho de Fidelização:** O alerta de retorno (RF11) só é acionado se o serviço configurado tiver os "dias para retorno" preenchidos e se o agendamento original estiver com status "Concluído".
+## Requisitos não funcionais
 
-## 5. Modelagem de Dados (Interfaces TypeScript)
+- Angular standalone, zoneless, TypeScript estrito, Reactive Forms, PrimeNG e Tailwind mobile-first.
+- Erros HTTP visíveis; não presumir sucesso/dados quando consultas essenciais falharem.
+- Eventos em ISO 8601; nascimento em YYYY-MM-DD; expediente no fuso da clínica.
+- JPEG/PNG/WebP até 5 MB por arquivo, com validação de tamanho/assinatura no servidor. Base64 apenas no transporte para Storage; persistir URLs.
+- Não retornar senhas/Master Key. Autorizar por perfil/propriedade no servidor; configurar ACL/CLP no ambiente real.
+- Validar responsividade, teclado, foco e contraste em navegador; testes unitários não certificam acessibilidade.
 
-```typescript
-export interface Endereco {
-  cep: string;
-  logradouro: string;
-  numeroResidencia: string;
-  bairro: string;
-  complemento?: string;
-  cidade: string;
-  estado: string;
-  pais: string;
-}
+## Regras de negócio
 
-export interface Usuario {
-  id?: string;
-  perfil: 'ADMIN' | 'CLIENTE';
-  // --- Campos do Pré-cadastro (Obrigatórios) ---
-  nome: string;
-  email: string;                 // Chave de login (Unique)
-  telefone: string;              // Para lembretes via WhatsApp
-  senha?: string;                // Opcional no retorno da API, mas obrigatório na criação da conta
-  
-  // --- Campos do Cadastro Progressivo (Opcionais no início) ---
-  nasc?: Date | string;          
-  cpf?: string;                  
-  ocupacaoProfissional?: string; 
-  endereco?: Endereco;           
-  
-  // --- Controle de Estado ---
-  cadastroCompleto: boolean;     // Flag: true se já preencheu CPF/Endereço
-}
+- **RN01:** um serviço por sessão. Pacote contém a quantidade total de sessões informada e primeira data definida.
+- **RN02:** proibir sobreposição; permitir intervalos adjacentes; cancelados não bloqueiam. Revalidar no servidor.
+- **RN03:** começo e fim na mesma janela de expediente do dia.
+- **RN04:** concluídos/cancelados não são alteráveis como ativos. Sessão sem data não pode receber pagamento ou fotos.
+- **RN05:** distribuir o restante dos centavos entre as sessões; soma igual ao total líquido contratado.
+- **RN06:** pacote em uma requisição com idPacote estável. Repetição não duplica reservas. Falha intermediária desfaz registros ou informa falha de compensação com retomada pela mesma chave. Locks locais não equivalem a transações distribuídas.
+- **RN07:** preservar histórico: inativar serviços referenciados e impedir renomear códigos de cupons utilizados. Cancelados não contam no limite, mas preservam referência histórica ao código.
+- **RN08:** idCliente da anamnese vem da sessão. Parâmetros de serviço/agendamento não criam associações.
 
-export interface Servico {
-  id?: string;
-  nome: string;
-  descricao?: string;
-  preco: number;
-  duracaoMinutos: number; // Tempo para o cálculo de bloqueio de agenda
-  ativo: boolean;         // Soft delete
-  // --- Módulo de Fidelização (RF11) ---
-  diasParaRetorno?: number; // Ex: 30 dias. Usado para sugerir novo agendamento.
-}
+## Modelos e contratos
 
-export interface Agendamento {
-  id?: string;
-  dataHora: Date | string;
-  idServico: string;       // Restrito a 1 serviço por agendamento (RN01)
-  idCliente: string;
-  idFuncionario: string;
-  status: 'Pendente' | 'Concluido' | 'Cancelado';
-  metodoPagamento?: 'PIX' | 'Cartao' | 'Dinheiro';
-  
-  // --- Linha do Tempo e Histórico Visual (RF10) ---
-  fotoResultadoUrl?: string; // URL da imagem salva em Storage em nuvem (S3, Firebase, etc.)
-  anotacoesFinais?: string;  // Comentários da sessão sobre a reação da pele, produtos indicados, etc.
-}
+Os tipos atuais estão em src/app/features/*/models; funções e payloads no README.
 
-// --- Estrutura de Anamnese com Herança ---
+Usuario contém perfil ADMIN/CLIENTE, nome, e-mail, telefone, cadastroCompleto e dados progressivos. Agendamento contém AguardandoConfirmacao, Confirmado, Pendente (legado), Concluido ou Cancelado; duração/valor reservados e dados opcionais de pacote, pagamento e fotos.
 
-// A base que toda anamnese obrigatoriamente tem
-export interface AnamneseBase {
-  id?: string;
-  idCliente: string;
-  idServico: string; 
-  idAgendamento: string;
-  dataPreenchimento: Date | string;
-}
-
-// Ficha única com informações de pele, saúde e rotina
-export interface Anamnese extends AnamneseBase {
-  tipoPele: 'Seca' | 'Oleosa' | 'Mista' | 'Normal';
-  usaAcidos: boolean;
-  quaisAcidos?: string;
-  sensibilidadeSol: boolean;
-  temVarizes: boolean;
-  fezCirurgiaRecente: boolean;
-  praticaAtividadeFisica: boolean;
-  alergiaCosmeticos: boolean;
-}
+Anamnese contém id, idCliente, dataPreenchimento, tipoPele (Seca/Oleosa/Mista/Normal), usaAcidos, quaisAcidos opcional, sensibilidadeSol, temVarizes, fezCirurgiaRecente, praticaAtividadeFisica e alergiaCosmeticos. Quando usaAcidos é verdadeiro, quaisAcidos é obrigatório, até 500 caracteres. O modelo não contém idServico/idAgendamento.

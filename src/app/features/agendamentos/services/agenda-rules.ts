@@ -85,6 +85,7 @@ export interface ResumoFinanceiroAgendamento {
   valorDesconto: number;
   valorFinal: number;
   valorPorSessao: number;
+  valoresSessoes: number[];
 }
 
 export function calculateBookingPricing(
@@ -120,12 +121,17 @@ export function calculateBookingPricing(
   valorDesconto = Math.round(valorDesconto * 100) / 100;
   const valorFinal = Math.max(0, Math.round((valorOriginal - valorDesconto) * 100) / 100);
   const valorPorSessao = Math.round((valorFinal / sessoes) * 100) / 100;
+  const centavos = Math.round(valorFinal * 100);
+  const valoresSessoes = Array.from({ length: sessoes }, (_, index) =>
+    (Math.floor(centavos / sessoes) + (index < centavos % sessoes ? 1 : 0)) / 100,
+  );
 
   return {
     valorOriginal,
     valorDesconto,
     valorFinal,
     valorPorSessao,
+    valoresSessoes,
   };
 }
 

@@ -21,6 +21,7 @@ import { CepPipe } from '../../../../shared/pipes/cep.pipe';
 import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
 import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 import { BirthdatePipe } from '../../../../shared/pipes/birthdate.pipe';
+import { cpfValidator } from '../../../usuarios/models/usuario-validators';
 
 @Component({
   selector: 'app-cliente-list-page',
@@ -56,6 +57,7 @@ export class ClienteListPageComponent implements OnInit {
     nome: ['', [Validators.required, Validators.pattern(/\S/)]],
     email: ['', [Validators.required, Validators.email]],
     telefone: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
+    cpf: ['', [Validators.required, cpfValidator]],
   });
   ngOnInit(): void {
     this.load();
@@ -110,7 +112,12 @@ export class ClienteListPageComponent implements OnInit {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     void this.state.run(async () => {
-      const saved = await this.api.create({ ...this.form.getRawValue(), perfil: 'CLIENTE' });
+      const payload = this.form.getRawValue();
+      const saved = await this.api.create({
+        ...payload,
+        cpf: payload.cpf.replace(/\D/g, ''),
+        perfil: 'CLIENTE',
+      });
       this.clientes.update((items) => [saved, ...items]);
       this.reset();
     }, 'Usuário cadastrado com perfil de cliente.');

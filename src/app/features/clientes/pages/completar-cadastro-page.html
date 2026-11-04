@@ -13,7 +13,7 @@
         Complete seu cadastro
       </h1>
       <p class="mt-3 max-w-xl text-sm leading-relaxed text-estetica-text/80">
-        Só faltam algumas informações para deixar seu perfil completo e acessar o sistema.
+        Complete suas informações para manter seu perfil atualizado.
       </p>
     </header>
 
@@ -29,6 +29,14 @@
             </p>
           </div>
           <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="cpf-perfil" class="mb-2 block text-sm font-semibold">CPF</label>
+              <input pInputText id="cpf-perfil" formControlName="cpf" mask="000.000.000-00"
+                inputmode="numeric" class="min-h-12 w-full"
+                [attr.aria-invalid]="form.controls.cpf.invalid && form.controls.cpf.touched"
+                aria-describedby="cpf-perfil-error" />
+              <app-field-error id="cpf-perfil-error" [control]="form.controls.cpf" />
+            </div>
             <div>
               <div class="mb-2 flex items-center gap-2">
                 <label

@@ -61,10 +61,9 @@ export const clientGuard: CanActivateFn = () => {
   );
 };
 
-export const clientAnamneseGuard: CanActivateFn = (route, state) => {
+export const clientAnamneseGuard: CanActivateFn = (_route, state) => {
   const session = inject(AuthService).session();
   const router = inject(Router);
-  if (route.queryParamMap.get('agendamento')) return true;
   if (session?.perfil === 'CLIENTE') return true;
   if (session) return router.createUrlTree(['/dashboard']);
   return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });

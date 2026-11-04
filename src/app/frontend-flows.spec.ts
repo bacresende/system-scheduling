@@ -19,11 +19,21 @@ describe('Frontend forms and clinical flows', () => {
   const request = vi.fn<(method: string, path: string, body?: unknown) => Promise<unknown>>();
   const requestPasswordReset = vi.fn<(email: string) => Promise<void>>();
   const booking: Agendamento = {
-    id: 'a', idCliente: 'c', idServico: 's', idFuncionario: 'f',
-    dataHora: '2026-10-20T10:00:00-03:00', status: 'Pendente', valor: 100, duracaoMinutos: 60
+    id: 'a',
+    idCliente: 'c',
+    idServico: 's',
+    idFuncionario: 'f',
+    dataHora: '2026-10-20T10:00:00-03:00',
+    status: 'Pendente',
+    valor: 100,
+    duracaoMinutos: 60,
   };
   const service = {
-    id: 's', nome: 'Facial', ativo: true, preco: 100, duracaoMinutos: 60
+    id: 's',
+    nome: 'Facial',
+    ativo: true,
+    preco: 100,
+    duracaoMinutos: 60,
   };
   async function setup<T>(component: Type<T>) {
     TestBed.configureTestingModule({
@@ -31,10 +41,16 @@ describe('Frontend forms and clinical flows', () => {
       providers: [
         provideRouter([{ path: 'login', component: EmptyPage }]),
         { provide: ApiClient, useValue: { configured: true, request, requestPasswordReset } },
-        { provide: ActivatedRoute, useValue: {
-          snapshot: { paramMap: convertToParamMap({ id: 'a' }), queryParamMap: convertToParamMap({ agendamento: 'a' }) }
-        } }
-      ]
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: 'a' }),
+              queryParamMap: convertToParamMap({ agendamento: 'a' }),
+            },
+          },
+        },
+      ],
     });
     vi.spyOn(TestBed.inject(AuthService), 'session').mockReturnValue({
       id: 'admin',
@@ -42,7 +58,7 @@ describe('Frontend forms and clinical flows', () => {
       telefone: '',
       email: '',
       cadastroCompleto: true,
-      perfil: 'ADMIN',
+      perfil: component === AnamnesePageComponent ? 'CLIENTE' : 'ADMIN',
     });
     const fixture = TestBed.createComponent(component);
     fixture.detectChanges();
@@ -55,6 +71,8 @@ describe('Frontend forms and clinical flows', () => {
     requestPasswordReset.mockResolvedValue(undefined);
     request.mockImplementation((_method, path) => {
       if (path === '/getAgendamento') return Promise.resolve(booking);
+      if (path === '/getConfiguracaoAgenda')
+        return Promise.resolve({ funcionarios: [{ id: 'f', nome: 'Profissional' }] });
       if (path === '/listUsuarios') return Promise.resolve([]);
       if (path === '/listServicos') return Promise.resolve([service]);
       if (path.startsWith('/anamnese?')) return Promise.resolve(null);
@@ -75,7 +93,7 @@ describe('Frontend forms and clinical flows', () => {
   it('sends reset instructions for a valid email without revealing account existence', async () => {
     const fixture = await setup(LoginPageComponent);
     const root: HTMLElement = fixture.nativeElement;
-    const resetButton = Array.from(root.querySelectorAll('button')).find(button =>
+    const resetButton = Array.from(root.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Esqueci minha senha'),
     );
     if (!resetButton) throw new Error('Password reset action not found');
@@ -90,7 +108,7 @@ describe('Frontend forms and clinical flows', () => {
   it('does not request a reset for an invalid email', async () => {
     const fixture = await setup(LoginPageComponent);
     const root: HTMLElement = fixture.nativeElement;
-    const resetButton = Array.from(root.querySelectorAll('button')).find(button =>
+    const resetButton = Array.from(root.querySelectorAll('button')).find((button) =>
       button.textContent?.includes('Esqueci minha senha'),
     );
     if (!resetButton) throw new Error('Password reset action not found');
@@ -132,14 +150,47 @@ describe('Frontend forms and clinical flows', () => {
     const fixture = await setup(ClienteListPageComponent);
     const root: HTMLElement = fixture.nativeElement;
     request.mockClear();
-    input(root, 'nome', 'Cliente'); input(root, 'email', 'invalid'); input(root, 'telefone', '123');
-    submit(root); await fixture.whenStable();
+    input(root, 'nome', 'Cliente');
+    input(root, 'email', 'invalid');
+    input(root, 'telefone', '123');
+    submit(root);
+    await fixture.whenStable();
     expect(request).not.toHaveBeenCalled();
     expect(root.textContent).toContain('Preencha este campo');
   });
+  it('normalizes and sends the CPF when an admin registers a client', async () => {
+    const fixture = await setup(ClienteListPageComponent);
+    const root: HTMLElement = fixture.nativeElement;
+    request.mockClear();
+    request.mockResolvedValue({
+      id: 'cliente-nova',
+      nome: 'Cliente',
+      email: 'cliente@example.test',
+      telefone: '11999999999',
+      cpf: '52998224725',
+      cadastroCompleto: false,
+      perfil: 'CLIENTE',
+    });
+    input(root, 'nome', 'Cliente');
+    input(root, 'email', 'cliente@example.test');
+    input(root, 'telefone', '11999999999');
+    input(root, 'cpf', '529.982.247-25');
+    submit(root);
+    await fixture.whenStable();
+    expect(request).toHaveBeenCalledWith('POST', '/createUsuario', {
+      nome: 'Cliente',
+      email: 'cliente@example.test',
+      telefone: '11999999999',
+      cpf: '52998224725',
+      perfil: 'CLIENTE',
+    });
+  });
   it('keeps completed appointments read-only', async () => {
     request.mockImplementation((_method, path) => {
-      if (path === '/getAgendamento') return Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
+      if (path === '/getAgendamento')
+        return Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' });
+      if (path === '/getConfiguracaoAgenda')
+        return Promise.resolve({ funcionarios: [{ id: 'f', nome: 'Profissional' }] });
       if (path === '/listUsuarios') return Promise.resolve([]);
       if (path === '/listServicos') return Promise.resolve([service]);
       return Promise.reject(new Error(`Unexpected request: ${path}`));
@@ -147,15 +198,21 @@ describe('Frontend forms and clinical flows', () => {
     const fixture = await setup(AgendamentoDetailPageComponent);
     const root: HTMLElement = fixture.nativeElement;
     expect(root.querySelector('form')).toBeNull();
-    expect(root.textContent).toContain('não podem ser alterados');
+    expect(root.textContent).toContain('disponíveis para consulta');
   });
   it('sends a payment method when completing an appointment', async () => {
     const fixture = await setup(AgendamentoDetailPageComponent);
-    request.mockReturnValue(Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' }));
+    request.mockReturnValue(
+      Promise.resolve({ ...booking, status: 'Concluido', metodoPagamento: 'PIX' }),
+    );
     submit(fixture.nativeElement);
     await fixture.whenStable();
     expect(request).toHaveBeenCalledWith('POST', '/concluirAgendamento', {
-      id: 'a', metodoPagamento: 'PIX', anotacoesFinais: '', fotoResultadoUrl: undefined
+      id: 'a',
+      metodoPagamento: 'PIX',
+      anotacoesFinais: '',
+      fotoResultadoUrl: undefined,
+      fotosResultadoUrls: undefined,
     });
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
@@ -168,46 +225,58 @@ describe('Frontend forms and clinical flows', () => {
     expect(root.querySelector('#alergia')).not.toBeNull();
     const checkbox = root.querySelector<HTMLInputElement>('#acidos');
     if (!checkbox) throw new Error('Checkbox not found');
-    checkbox.click(); await fixture.whenStable();
+    checkbox.click();
+    await fixture.whenStable();
     request.mockClear();
-    submit(root); await fixture.whenStable();
+    submit(root);
+    await fixture.whenStable();
     expect(root.textContent).toContain('Informe quais ácidos');
     expect(request).not.toHaveBeenCalled();
   });
-  it('does not allow overwriting the record after failing to load it', async () => {
-    request.mockImplementation((_method, path) => {
-      if (path === '/getAgendamento') return Promise.resolve(booking);
-      return Promise.reject(new Error('Ficha indisponível'));
-    });
+  it('saves client anamnesis without reading a booking or a legacy endpoint', async () => {
     const fixture = await setup(AnamnesePageComponent);
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('Ficha indisponível');
-    expect(root.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);
-    request.mockClear();
-    submit(root); await fixture.whenStable();
     expect(request).not.toHaveBeenCalled();
+    request.mockClear();
+    request.mockResolvedValue({ id: 'ficha' });
+    submit(root);
+    await fixture.whenStable();
+    expect(request).toHaveBeenCalledWith(
+      'POST',
+      '/createAnamnese',
+      expect.objectContaining({ tipoPele: 'Normal' }),
+    );
   });
   it('rejects invalid files and excessive uploads without sending to the API', async () => {
     TestBed.configureTestingModule({ providers: [{ provide: ApiClient, useValue: { request } }] });
     const api = TestBed.inject(AgendamentosService);
-    await expect(api.upload('a', new File(['x'], 'file.txt', { type: 'text/plain' })))
-      .rejects.toThrow('5 MB');
-    await expect(api.upload('a', new File([
-      new Uint8Array(5 * 1024 * 1024 + 1)
-    ], 'foto.png', { type: 'image/png' }))).rejects.toThrow('5 MB');
+    await expect(
+      api.upload('a', new File(['x'], 'file.txt', { type: 'text/plain' })),
+    ).rejects.toThrow('5 MB');
+    await expect(
+      api.upload(
+        'a',
+        new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'foto.png', { type: 'image/png' }),
+      ),
+    ).rejects.toThrow('5 MB');
     expect(request).not.toHaveBeenCalled();
   });
   it('uploads as a base64 list and stores only the returned HTTPS URL', async () => {
     TestBed.configureTestingModule({ providers: [{ provide: ApiClient, useValue: { request } }] });
     const file = new File(['image'], 'foto.png', { type: 'image/png' });
-    request.mockReturnValue(Promise.resolve({
-      url: 'https://storage.example.test/foto.png',
-      urls: ['https://storage.example.test/foto.png'],
-    }));
-    await expect(TestBed.inject(AgendamentosService).upload('a', file))
-      .resolves.toBe('https://storage.example.test/foto.png');
+    request.mockReturnValue(
+      Promise.resolve({
+        url: 'https://storage.example.test/foto.png',
+        urls: ['https://storage.example.test/foto.png'],
+      }),
+    );
+    await expect(TestBed.inject(AgendamentosService).upload('a', file)).resolves.toBe(
+      'https://storage.example.test/foto.png',
+    );
     const [method, path, body] = request.mock.calls[0] as [
-      string, string, { id: string; arquivos: { nomeArquivo: string; mimeType: string; base64: string }[] }
+      string,
+      string,
+      { id: string; arquivos: { nomeArquivo: string; mimeType: string; base64: string }[] },
     ];
     expect(method).toBe('POST');
     expect(path).toBe('/uploadFotoAgendamento');

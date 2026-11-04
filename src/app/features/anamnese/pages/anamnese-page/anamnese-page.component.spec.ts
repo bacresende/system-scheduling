@@ -46,7 +46,6 @@ describe('AnamnesePageComponent avulsa', () => {
       save(): void;
       context: AnamnesePageComponent['context'];
     };
-    expect(component.context.standalone()).toBe(true);
     expect(component.context.editable()).toBe(true);
 
     component.form.patchValue({
@@ -62,7 +61,7 @@ describe('AnamnesePageComponent avulsa', () => {
     component.save();
     await fixture.whenStable();
 
-    expect(request).toHaveBeenCalledWith('POST', '/createAnamneseAvulsa', {
+    expect(request).toHaveBeenCalledWith('POST', '/createAnamnese', {
       tipoPele: 'Mista',
       usaAcidos: true,
       quaisAcidos: 'Ácido glicólico',

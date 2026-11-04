@@ -180,7 +180,7 @@ export class AgendamentoDetailPageComponent implements OnInit {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     const booking = this.booking();
-    if (!booking || !this.isActive(booking.status)) {
+    if (!booking || !this.isActive(booking.status) || booking.dataDefinida === false) {
       this.state.error.set('Somente agendamentos ativos podem ser concluídos.');
       return;
     }
@@ -190,6 +190,10 @@ export class AgendamentoDetailPageComponent implements OnInit {
         ? await this.api.uploadMany(booking.id, this.photos())
         : [];
       const resultPhotos = [...existingPhotos, ...uploadedPhotos];
+      if (uploadedPhotos.length) {
+        this.booking.set({ ...booking, fotoResultadoUrl: resultPhotos[0], fotosResultadoUrls: resultPhotos });
+        this.photos.set([]);
+      }
       this.booking.set(
         await this.api.complete(booking.id, {
           ...this.form.getRawValue(),

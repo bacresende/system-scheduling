@@ -11,7 +11,7 @@
 
   @if (booking(); as item) {
     <header
-      class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.12)] sm:p-7"
+      class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.12)] sm:p-7"
     >
       <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div>
@@ -25,7 +25,7 @@
             </span>
             @if (item.totalSessoes && item.totalSessoes > 1) {
               <span
-                class="rounded-full bg-[#F6E4E7] px-3 py-1 text-sm font-medium text-estetica-primary"
+                class="rounded-full bg-estetica-secondary px-3 py-1 text-sm font-medium text-estetica-primary"
               >
                 Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
               </span>
@@ -38,12 +38,12 @@
               </span>
             }
           </div>
-          <h1 class="font-serif text-2xl font-semibold text-[#2D2224] sm:text-3xl">
+          <h1 class="font-serif text-2xl font-semibold text-estetica-text sm:text-3xl">
             {{ clientName() }}
           </h1>
           <p class="mt-1 text-base text-estetica-text/80">{{ serviceName() }}</p>
         </div>
-        <div class="rounded-xl bg-[#FAF4F5] px-4 py-3 sm:min-w-44 sm:text-right">
+        <div class="rounded-xl bg-estetica-bg px-4 py-3 sm:min-w-44 sm:text-right">
           <p class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
             Valor reservado
           </p>
@@ -52,16 +52,16 @@
           </p>
         </div>
       </div>
-      <p class="mt-5 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4 text-sm leading-relaxed text-[#2D2224]">
+      <p class="mt-5 rounded-xl border border-estetica-secondary bg-estetica-bg p-4 text-sm leading-relaxed text-estetica-text">
         {{ statusMessage(item.status) }}
       </p>
     </header>
 
     <section
       aria-labelledby="schedule-heading"
-      class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-7"
+      class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-7"
     >
-      <h2 id="schedule-heading" class="mb-5 text-lg font-semibold text-[#2D2224]">
+      <h2 id="schedule-heading" class="mb-5 text-lg font-semibold text-estetica-text">
         Informações do agendamento
       </h2>
       <dl class="grid gap-x-8 gap-y-5 sm:grid-cols-2">
@@ -69,7 +69,7 @@
           <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
             Data e horário
           </dt>
-          <dd class="mt-1 font-medium text-[#2D2224]">
+          <dd class="mt-1 font-medium text-estetica-text">
             @if (item.dataDefinida === false) {
               <span class="text-amber-800">Horário ainda não definido</span>
             } @else {
@@ -82,20 +82,20 @@
           <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
             Duração
           </dt>
-          <dd class="mt-1 font-medium text-[#2D2224]">{{ item.duracaoMinutos }} minutos</dd>
+          <dd class="mt-1 font-medium text-estetica-text">{{ item.duracaoMinutos }} minutos</dd>
         </div>
         <div>
           <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
             Profissional responsável
           </dt>
-          <dd class="mt-1 font-medium text-[#2D2224]">{{ professionalName() }}</dd>
+          <dd class="mt-1 font-medium text-estetica-text">{{ professionalName() }}</dd>
         </div>
         @if (item.codigoCupom || (item.valorDesconto && item.valorDesconto > 0)) {
           <div>
             <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
               Desconto aplicado
             </dt>
-            <dd class="mt-1 font-medium text-[#2D2224]">
+            <dd class="mt-1 font-medium text-estetica-text">
               @if (item.valorOriginal !== undefined) {
                 <span class="mr-2 text-estetica-text/70 line-through">
                   {{ item.valorOriginal | currency: 'BRL' }}
@@ -115,17 +115,17 @@
             <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
               Forma de pagamento
             </dt>
-            <dd class="mt-1 font-medium text-[#2D2224]">
+            <dd class="mt-1 font-medium text-estetica-text">
               {{ paymentLabel(item.metodoPagamento) }}
             </dd>
           </div>
         }
         @if (item.reagendado && item.dataHoraAnterior) {
-          <div class="border-t border-[#E8D5D8] pt-4 sm:col-span-2">
+          <div class="border-t border-estetica-secondary pt-4 sm:col-span-2">
             <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
               Histórico de reagendamento
             </dt>
-            <dd class="mt-1 text-sm text-[#2D2224]">
+            <dd class="mt-1 text-sm text-estetica-text">
               Horário anterior: {{ item.dataHoraAnterior | date: 'dd/MM/yyyy HH:mm' }}
               @if (item.reagendadoPor === 'CLIENTE') {
                 <span>(alterado pela cliente)</span>
@@ -136,11 +136,11 @@
           </div>
         }
         @if (item.anotacoesFinais) {
-          <div class="border-t border-[#E8D5D8] pt-4 sm:col-span-2">
+          <div class="border-t border-estetica-secondary pt-4 sm:col-span-2">
             <dt class="text-xs font-medium tracking-wide text-estetica-text/70 uppercase">
               Anotações do atendimento
             </dt>
-            <dd class="mt-2 whitespace-pre-line text-sm leading-relaxed text-[#2D2224]">
+            <dd class="mt-2 whitespace-pre-line text-sm leading-relaxed text-estetica-text">
               {{ item.anotacoesFinais }}
             </dd>
           </div>
@@ -153,7 +153,7 @@
         [href]="reminder()"
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-[#25D366] bg-[#25D366] px-4 py-2 font-semibold text-white transition hover:bg-[#1EBE5D] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#128C4A]"
+        class="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-green-700 bg-green-700 px-4 py-2 font-semibold text-white transition hover:bg-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-900"
       >
         <i class="pi pi-whatsapp" aria-hidden="true"></i>
         Enviar lembrete pelo WhatsApp
@@ -164,9 +164,9 @@
     @if (item.fotoResultadoUrl || (item.fotosResultadoUrls && item.fotosResultadoUrls.length > 0)) {
       <section
         aria-labelledby="photos-heading"
-        class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-7"
+        class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-7"
       >
-        <h2 id="photos-heading" class="mb-4 text-lg font-semibold text-[#2D2224]">
+        <h2 id="photos-heading" class="mb-4 text-lg font-semibold text-estetica-text">
           Fotos do resultado
         </h2>
         <div class="flex flex-wrap gap-3">
@@ -175,7 +175,7 @@
               [href]="photoUrl"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#E8D5D8] px-4 py-2 font-medium text-estetica-primary underline-offset-4 hover:bg-[#FAF4F5] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+              class="inline-flex min-h-11 items-center gap-2 rounded-lg border border-estetica-secondary px-4 py-2 font-medium text-estetica-primary underline-offset-4 hover:bg-estetica-bg hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
             >
               <i class="pi pi-image" aria-hidden="true"></i>
               Abrir foto {{ index + 1 }}
@@ -186,10 +186,10 @@
       </section>
     }
 
-    @if (isActive(item.status)) {
+    @if (isActive(item.status) && item.dataDefinida !== false) {
       <section
         aria-labelledby="complete-heading"
-        class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-7"
+        class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-7"
       >
         @if (item.status === 'AguardandoConfirmacao') {
           <div class="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-4">
@@ -207,7 +207,7 @@
             />
           </div>
         }
-        <h2 id="complete-heading" class="text-lg font-semibold text-[#2D2224]">
+        <h2 id="complete-heading" class="text-lg font-semibold text-estetica-text">
           Registrar atendimento
         </h2>
         <p class="mt-1 text-sm leading-relaxed text-estetica-text/80">
@@ -221,7 +221,7 @@
           novalidate
         >
           <div>
-            <label for="pagamento" class="font-medium text-[#2D2224]">Forma de pagamento</label>
+            <label for="pagamento" class="font-medium text-estetica-text">Forma de pagamento</label>
             <p-select
               inputId="pagamento"
               formControlName="metodoPagamento"
@@ -232,7 +232,7 @@
             <app-field-error [control]="form.controls.metodoPagamento" />
           </div>
           <div>
-            <label for="anotacoes" class="font-medium text-[#2D2224]">
+            <label for="anotacoes" class="font-medium text-estetica-text">
               Anotações do atendimento
               <span class="font-normal text-estetica-text/70">(opcional)</span>
             </label>
@@ -246,7 +246,7 @@
             ></textarea>
           </div>
           <div>
-            <p class="mb-2 font-medium text-[#2D2224]">
+            <p class="mb-2 font-medium text-estetica-text">
               Fotos do resultado
               <span class="font-normal text-estetica-text/70">(opcionais)</span>
             </p>
@@ -289,7 +289,7 @@
           />
         </form>
 
-        <div class="mt-6 border-t border-[#E8D5D8] pt-5">
+        <div class="mt-6 border-t border-estetica-secondary pt-5">
           @if (cancelConfirmation()) {
             <div class="rounded-xl border border-rose-200 bg-rose-50 p-4">
               <p class="font-semibold text-rose-900">Cancelar este agendamento?</p>
@@ -328,9 +328,9 @@
   } @else if (state.error() && canRetryLoad) {
     <section
       aria-labelledby="load-error-heading"
-      class="rounded-2xl border border-[#E8D5D8] bg-white p-6 text-center shadow-sm"
+      class="rounded-2xl border border-estetica-secondary bg-white p-6 text-center shadow-sm"
     >
-      <h1 id="load-error-heading" class="text-xl font-semibold text-[#2D2224]">
+      <h1 id="load-error-heading" class="text-xl font-semibold text-estetica-text">
         Não foi possível carregar o agendamento
       </h1>
       <p class="mt-2 text-sm text-estetica-text/80">

@@ -104,10 +104,8 @@ export const routes: Routes = [
           },
           {
             path: 'oportunidades',
-            loadComponent: () =>
-              import(
-                './features/oportunidades/pages/oportunidade-page/oportunidade-page.component'
-              ).then((module) => module.OportunidadePageComponent),
+            pathMatch: 'full',
+            redirectTo: 'dashboard',
           },
           {
             path: 'cupons',

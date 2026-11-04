@@ -20,6 +20,18 @@ describe('AgendamentosService', () => {
   });
 
   describe('chamadas às Cloud Functions', () => {
+    it('envia todas as sessões e a chave de repetição em uma única chamada', async () => {
+      const payload = {
+        idCliente: 'c', idServico: 's', idFuncionario: 'f',
+        dataHora: '2026-11-09T12:00:00Z', totalSessoes: 2, idPacote: 'pkg-regressao',
+        sessoes: [
+          { dataHora: '2026-11-09T12:00:00Z', dataDefinida: true },
+          { dataHora: '2026-11-09T12:00:00Z', dataDefinida: false },
+        ],
+      };
+      await service.createPackage(payload);
+      expect(request).toHaveBeenCalledExactlyOnceWith('POST', '/createPacoteAgendamentos', payload);
+    });
     it('lista agendamentos do período via POST /listAgendamentos', async () => {
       const inicio = new Date('2026-10-19T00:00:00.000Z');
       const fim = new Date('2026-10-20T00:00:00.000Z');
@@ -35,18 +47,6 @@ describe('AgendamentosService', () => {
       await service.config();
       expect(request).toHaveBeenNthCalledWith(1, 'POST', '/getAgendamento', { id: 'ag-1' });
       expect(request).toHaveBeenNthCalledWith(2, 'POST', '/getConfiguracaoAgenda', {});
-    });
-
-    it('envia o payload completo ao criar um agendamento', async () => {
-      const payload = {
-        idCliente: 'c1',
-        idServico: 's1',
-        idFuncionario: 'prof-1',
-        dataHora: '2026-10-19T13:00:00.000Z',
-        totalSessoes: 1,
-      };
-      await service.create(payload as never);
-      expect(request).toHaveBeenCalledWith('POST', '/createAgendamento', payload);
     });
 
     it('mapeia confirmar, ciente, cancelar e reagendar para suas funções', async () => {

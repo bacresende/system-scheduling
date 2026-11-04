@@ -103,6 +103,13 @@ describe('Agenda business rules', () => {
     expect(pricing.valorPorSessao).toBe(135);
   });
 
+  it('distributes remaining cents without changing the contracted total', () => {
+    const pricing = calculateBookingPricing(100, 3, true, null, false, 'VALOR_FIXO', 200);
+    expect(pricing.valoresSessoes).toEqual([33.34, 33.33, 33.33]);
+    expect(Math.round(pricing.valoresSessoes.reduce((sum, value) => sum + value, 0) * 100))
+      .toBe(Math.round(pricing.valorFinal * 100));
+  });
+
   it('suggests weekly and twice-weekly session dates', () => {
     const first = new Date('2026-10-19T14:00:00');
     const weekly = suggestPackageDates(first, 4, '1x_semana');

@@ -9,22 +9,6 @@ import {
 } from '../models/agendamento.model';
 import { HorarioDisponivelSlot, ResumoFinanceiroAgendamento } from './agenda-rules';
 
-export const DEFAULT_AGENDA_CONFIG: ConfiguracaoAgenda = {
-  fusoHorario: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  expediente: [
-    { diaSemana: 1, inicio: '08:00', fim: '19:00' },
-    { diaSemana: 2, inicio: '08:00', fim: '19:00' },
-    { diaSemana: 3, inicio: '08:00', fim: '19:00' },
-    { diaSemana: 4, inicio: '08:00', fim: '19:00' },
-    { diaSemana: 5, inicio: '08:00', fim: '19:00' },
-    { diaSemana: 6, inicio: '08:00', fim: '16:00' },
-  ],
-  funcionarios: [
-    { id: 'prof-1', nome: 'Dra. Especialista (Principal)' },
-    { id: 'prof-2', nome: 'Esteticista Responsável' },
-  ],
-};
-
 @Injectable({ providedIn: 'root' })
 export class AgendamentosService {
   private readonly api = inject(ApiClient);
@@ -44,8 +28,11 @@ export class AgendamentosService {
     return this.api.request('POST', '/getConfiguracaoAgenda', {});
   }
 
-  create(payload: NovoAgendamento): Promise<Agendamento> {
-    return this.api.request('POST', '/createAgendamento', payload);
+  createPackage(payload: NovoAgendamento & {
+    idPacote: string;
+    sessoes: { dataHora: string; dataDefinida: boolean }[];
+  }): Promise<Agendamento[]> {
+    return this.api.request('POST', '/createPacoteAgendamentos', payload);
   }
 
   confirm(id: string): Promise<Agendamento> {

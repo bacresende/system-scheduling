@@ -44,7 +44,7 @@ Os valores abaixo correspondem aos tokens atualmente definidos em
 
 | Token | Valor atual | Uso recomendado |
 |---|---|---|
-| `estetica-primary` | `#E5989B` | Destaques, estados ativos e pequenos acentos visuais. Usar com parcimônia em superfícies grandes. |
+| `estetica-primary` | `#9E4758` | Destaques, estados ativos e pequenos acentos visuais. Usar com parcimônia em superfícies grandes. |
 | `estetica-secondary` | `#F6EBEC` | Superfícies suaves, painéis, fundos de ícones, seleções e bordas discretas. |
 | `estetica-tertiary` | `#9EB3A6` | Acentos secundários e indicadores positivos, sempre acompanhados de texto ou ícone. |
 | `estetica-bg` | `#FCFAFA` | Fundo geral da aplicação e das páginas públicas. |

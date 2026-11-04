@@ -15,10 +15,10 @@
         <p class="mb-2 text-xs font-semibold tracking-[0.18em] text-estetica-primary uppercase">
           Prontuário do cliente
         </p>
-        <h1 class="font-serif text-4xl leading-tight tracking-tight text-[#2D2224] sm:text-5xl">
+        <h1 class="font-serif text-4xl leading-tight tracking-tight text-estetica-text sm:text-5xl">
           {{ ficha.cliente.nome }}
         </h1>
-        <p class="mt-3 text-sm text-[#2D2224]/75">
+        <p class="mt-3 text-sm text-estetica-text/75">
           Dados cadastrais, histórico de atendimentos e fotos de resultado.
         </p>
       </div>
@@ -26,8 +26,8 @@
         class="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold"
         [class]="
           ficha.cliente.cadastroCompleto
-            ? 'bg-estetica-tertiary/25 text-[#2D2224]'
-            : 'bg-[#F6E4E7] text-[#7A3B48]'
+            ? 'bg-estetica-tertiary/25 text-estetica-text'
+            : 'bg-estetica-secondary text-estetica-primary-dark'
         "
       >
         {{ ficha.cliente.cadastroCompleto ? 'Cadastro completo' : 'Cadastro pendente' }}
@@ -39,15 +39,15 @@
         <p-tab value="dados">Dados cadastrais</p-tab>
         <p-tab value="fotos">
           Fotos
-          <span class="ml-1 text-xs text-[#2D2224]/70">({{ totalFotos() }})</span>
+          <span class="ml-1 text-xs text-estetica-text/70">({{ totalFotos() }})</span>
         </p-tab>
         <p-tab value="anamneses">
           Anamneses
-          <span class="ml-1 text-xs text-[#2D2224]/70">({{ ficha.anamnesesAvulsas.length }})</span>
+          <span class="ml-1 text-xs text-estetica-text/70">({{ ficha.anamnesesAvulsas.length }})</span>
         </p-tab>
         <p-tab value="agendamentos">
           Agendamentos
-          <span class="ml-1 text-xs text-[#2D2224]/70">({{ agendamentos().length }})</span>
+          <span class="ml-1 text-xs text-estetica-text/70">({{ agendamentos().length }})</span>
         </p-tab>
       </p-tablist>
 
@@ -55,15 +55,15 @@
         <p-tabpanel value="dados">
       <section
         aria-labelledby="dados-cliente-title"
-        class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-6"
+        class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
       >
-        <h2 id="dados-cliente-title" class="mb-5 text-xl font-semibold text-[#2D2224]">
+        <h2 id="dados-cliente-title" class="mb-5 text-xl font-semibold text-estetica-text">
           Dados cadastrados
         </h2>
 
         <dl class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
           <div class="min-w-0">
-            <dt class="text-xs font-medium text-[#2D2224]/70">E-mail</dt>
+            <dt class="text-xs font-medium text-estetica-text/70">E-mail</dt>
             <dd class="mt-1 break-all text-sm font-medium">
               <a
                 [href]="'mailto:' + ficha.cliente.email"
@@ -74,64 +74,64 @@
             </dd>
           </div>
           <div>
-            <dt class="text-xs font-medium text-[#2D2224]/70">Telefone</dt>
+            <dt class="text-xs font-medium text-estetica-text/70">Telefone</dt>
             <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.telefone | telefone }}</dd>
           </div>
           <div>
-            <dt class="text-xs font-medium text-[#2D2224]/70">CPF</dt>
+            <dt class="text-xs font-medium text-estetica-text/70">CPF</dt>
             <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.cpf | cpf }}</dd>
           </div>
           <div>
-            <dt class="text-xs font-medium text-[#2D2224]/70">Data de nascimento</dt>
+            <dt class="text-xs font-medium text-estetica-text/70">Data de nascimento</dt>
             <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.nasc | birthdate }}</dd>
           </div>
           <div class="sm:col-span-2">
-            <dt class="text-xs font-medium text-[#2D2224]/70">Ocupação profissional</dt>
+            <dt class="text-xs font-medium text-estetica-text/70">Ocupação profissional</dt>
             <dd class="mt-1 text-sm font-medium">
               {{ ficha.cliente.ocupacaoProfissional || 'Não informado' }}
             </dd>
           </div>
         </dl>
 
-        <section aria-labelledby="endereco-cliente-title" class="mt-6 border-t border-[#E8D5D8] pt-5">
+        <section aria-labelledby="endereco-cliente-title" class="mt-6 border-t border-estetica-secondary pt-5">
           <h3 id="endereco-cliente-title" class="mb-4 text-base font-semibold">Endereço</h3>
           @if (ficha.cliente.endereco; as endereco) {
             <dl class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">CEP</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">CEP</dt>
                 <dd class="mt-1 text-sm font-medium">{{ endereco.cep | cep }}</dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">Logradouro</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">Logradouro</dt>
                 <dd class="mt-1 text-sm font-medium">
                   {{ endereco.logradouro }}, {{ endereco.numeroResidencia }}
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">Bairro</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">Bairro</dt>
                 <dd class="mt-1 text-sm font-medium">{{ endereco.bairro }}</dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">Complemento</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">Complemento</dt>
                 <dd class="mt-1 text-sm font-medium">
                   {{ endereco.complemento || 'Não informado' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">Cidade</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">Cidade</dt>
                 <dd class="mt-1 text-sm font-medium">{{ endereco.cidade }}</dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">Estado</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">Estado</dt>
                 <dd class="mt-1 text-sm font-medium">{{ endereco.estado }}</dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-[#2D2224]/70">País</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">País</dt>
                 <dd class="mt-1 text-sm font-medium">{{ endereco.pais }}</dd>
               </div>
             </dl>
           } @else {
-            <p class="text-sm text-[#2D2224]/75">Endereço não informado.</p>
+            <p class="text-sm text-estetica-text/75">Endereço não informado.</p>
           }
         </section>
       </section>
@@ -141,14 +141,14 @@
       <section aria-labelledby="fotos-cliente-title">
         <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="fotos-cliente-title" class="text-xl font-semibold text-[#2D2224]">
+            <h2 id="fotos-cliente-title" class="text-xl font-semibold text-estetica-text">
               Fotos dos atendimentos
             </h2>
-            <p class="mt-1 text-sm text-[#2D2224]/70">
+            <p class="mt-1 text-sm text-estetica-text/70">
               Resultados organizados por atendimento, do mais recente ao mais antigo.
             </p>
           </div>
-          <span class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-semibold text-[#7A3B48]">
+          <span class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
             {{ totalFotos() }} {{ totalFotos() === 1 ? 'foto' : 'fotos' }}
           </span>
         </div>
@@ -157,8 +157,8 @@
           <ol aria-label="Fotos dos atendimentos em ordem cronológica" class="grid gap-5">
             @for (atendimento of fotos(); track atendimento.id) {
               <li>
-                <article class="overflow-hidden rounded-2xl border border-[#E8D5D8] bg-white shadow-sm">
-                  <header class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E8D5D8] bg-[#FAF4F5] px-4 py-4 sm:px-5">
+                <article class="overflow-hidden rounded-2xl border border-estetica-secondary bg-white shadow-sm">
+                  <header class="flex flex-wrap items-center justify-between gap-3 border-b border-estetica-secondary bg-estetica-bg px-4 py-4 sm:px-5">
                     <div class="flex min-w-0 items-start gap-3">
                       <span
                         aria-hidden="true"
@@ -167,13 +167,13 @@
                         <i class="pi pi-camera" aria-hidden="true"></i>
                       </span>
                       <div class="min-w-0">
-                        <h3 class="font-semibold text-[#2D2224]">{{ atendimento.nomeServico }}</h3>
-                        <p class="mt-1 text-sm text-[#2D2224]/75">
+                        <h3 class="font-semibold text-estetica-text">{{ atendimento.nomeServico }}</h3>
+                        <p class="mt-1 text-sm text-estetica-text/75">
                           {{ atendimento.dataHora | date: "dd/MM/yyyy 'às' HH:mm" }}
                         </p>
                       </div>
                     </div>
-                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#7A3B48]">
+                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
                       {{ atendimento.fotos.length }}
                       {{ atendimento.fotos.length === 1 ? 'foto' : 'fotos' }}
                     </span>
@@ -191,7 +191,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         [attr.aria-label]="'Abrir foto ' + ($index + 1) + ' de ' + atendimento.fotos.length + ' do serviço ' + atendimento.nomeServico + ' em nova aba'"
-                        class="group overflow-hidden rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                        class="group overflow-hidden rounded-xl border border-estetica-secondary bg-estetica-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
                       >
                         <img
                           [src]="foto.url"
@@ -203,7 +203,7 @@
                     }
                   </div>
 
-                  <footer class="border-t border-[#E8D5D8] px-4 py-2 sm:px-5">
+                  <footer class="border-t border-estetica-secondary px-4 py-2 sm:px-5">
                     <a
                       routerLink="/agendamentos"
                       [queryParams]="{ data: agendaDate(atendimento.dataHora) }"
@@ -218,7 +218,7 @@
             }
           </ol>
         } @else {
-          <p class="rounded-2xl border border-dashed border-[#E8D5D8] bg-white p-6 text-sm text-[#2D2224]/75">
+          <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
             Nenhuma foto de resultado foi registrada nos atendimentos deste cliente.
           </p>
         }
@@ -228,10 +228,10 @@
         <p-tabpanel value="anamneses">
     <section aria-labelledby="anamneses-avulsas-title" class="mt-6">
       <header class="mb-4">
-        <h2 id="anamneses-avulsas-title" class="text-2xl font-semibold text-[#2D2224]">
-          Anamneses avulsas
+        <h2 id="anamneses-avulsas-title" class="text-2xl font-semibold text-estetica-text">
+          Anamneses
         </h2>
-        <p class="mt-1 text-sm text-[#2D2224]/70">
+        <p class="mt-1 text-sm text-estetica-text/70">
           Fichas vinculadas ao perfil da cliente, sem serviço ou agendamento associado.
         </p>
       </header>
@@ -239,29 +239,29 @@
       @if (ficha.anamnesesAvulsas.length) {
         <div class="grid gap-4">
           @for (anamnese of ficha.anamnesesAvulsas; track anamnese.id) {
-            <details class="rounded-2xl border border-[#E8D5D8] bg-white shadow-sm">
+            <details class="rounded-2xl border border-estetica-secondary bg-white shadow-sm">
               <summary class="cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary">
                 Ficha preenchida em
                 {{ anamnese.dataPreenchimento | date: "dd/MM/yyyy 'às' HH:mm" }}
               </summary>
-              <dl class="grid gap-3 border-t border-[#E8D5D8] p-5 sm:grid-cols-2 lg:grid-cols-4">
-                <div><dt class="text-xs text-[#2D2224]/70">Tipo de pele</dt><dd class="text-sm">{{ anamnese.tipoPele }}</dd></div>
-                <div><dt class="text-xs text-[#2D2224]/70">Usa ácidos</dt><dd class="text-sm">{{ simNao(anamnese.usaAcidos) }}</dd></div>
+              <dl class="grid gap-3 border-t border-estetica-secondary p-5 sm:grid-cols-2 lg:grid-cols-4">
+                <div><dt class="text-xs text-estetica-text/70">Tipo de pele</dt><dd class="text-sm">{{ anamnese.tipoPele }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Usa ácidos</dt><dd class="text-sm">{{ simNao(anamnese.usaAcidos) }}</dd></div>
                 @if (anamnese.usaAcidos) {
-                  <div><dt class="text-xs text-[#2D2224]/70">Quais ácidos</dt><dd class="text-sm">{{ anamnese.quaisAcidos || 'Não informado' }}</dd></div>
+                  <div><dt class="text-xs text-estetica-text/70">Quais ácidos</dt><dd class="text-sm">{{ anamnese.quaisAcidos || 'Não informado' }}</dd></div>
                 }
-                <div><dt class="text-xs text-[#2D2224]/70">Sensibilidade ao sol</dt><dd class="text-sm">{{ simNao(anamnese.sensibilidadeSol) }}</dd></div>
-                <div><dt class="text-xs text-[#2D2224]/70">Varizes</dt><dd class="text-sm">{{ simNao(anamnese.temVarizes) }}</dd></div>
-                <div><dt class="text-xs text-[#2D2224]/70">Cirurgia recente</dt><dd class="text-sm">{{ simNao(anamnese.fezCirurgiaRecente) }}</dd></div>
-                <div><dt class="text-xs text-[#2D2224]/70">Pratica atividade física</dt><dd class="text-sm">{{ simNao(anamnese.praticaAtividadeFisica) }}</dd></div>
-                <div><dt class="text-xs text-[#2D2224]/70">Alergia a cosméticos</dt><dd class="text-sm">{{ simNao(anamnese.alergiaCosmeticos) }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Sensibilidade ao sol</dt><dd class="text-sm">{{ simNao(anamnese.sensibilidadeSol) }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Varizes</dt><dd class="text-sm">{{ simNao(anamnese.temVarizes) }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Cirurgia recente</dt><dd class="text-sm">{{ simNao(anamnese.fezCirurgiaRecente) }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Pratica atividade física</dt><dd class="text-sm">{{ simNao(anamnese.praticaAtividadeFisica) }}</dd></div>
+                <div><dt class="text-xs text-estetica-text/70">Alergia a cosméticos</dt><dd class="text-sm">{{ simNao(anamnese.alergiaCosmeticos) }}</dd></div>
               </dl>
             </details>
           }
         </div>
       } @else {
-        <p class="rounded-2xl border border-dashed border-[#E8D5D8] bg-white p-6 text-sm text-[#2D2224]/75">
-          Nenhuma anamnese avulsa foi preenchida.
+        <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
+          Nenhuma anamnese foi preenchida.
         </p>
       }
     </section>
@@ -271,10 +271,10 @@
     <section aria-labelledby="historico-cliente-title" class="mt-6">
       <header class="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 id="historico-cliente-title" class="text-2xl font-semibold text-[#2D2224]">
+          <h2 id="historico-cliente-title" class="text-2xl font-semibold text-estetica-text">
             Histórico de agendamentos
           </h2>
-          <p class="mt-1 text-sm text-[#2D2224]/70">
+          <p class="mt-1 text-sm text-estetica-text/70">
             {{ agendamentos().length }}
             {{ agendamentos().length === 1 ? 'atendimento registrado' : 'atendimentos registrados' }}
           </p>
@@ -284,67 +284,47 @@
       @if (agendamentos().length) {
         <div class="grid gap-4">
           @for (item of agendamentos(); track item.id) {
-            <article class="rounded-2xl border border-[#E8D5D8] bg-white p-5 shadow-sm sm:p-6">
-              <div class="flex flex-col gap-3 border-b border-[#E8D5D8] pb-4 sm:flex-row sm:items-start sm:justify-between">
+            <article class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6">
+              <div class="flex flex-col gap-3 border-b border-estetica-secondary pb-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p class="font-semibold text-[#2D2224]">{{ item.nomeServico }}</p>
-                  <p class="mt-1 text-sm text-[#2D2224]/75">
+                  <p class="font-semibold text-estetica-text">{{ item.nomeServico }}</p>
+                  <p class="mt-1 text-sm text-estetica-text/75">
                     {{ item.dataHora | date: "EEEE, dd 'de' MMMM 'de' yyyy 'às' HH:mm" }}
                   </p>
                   @if (item.totalSessoes && item.totalSessoes > 1) {
-                    <p class="mt-1 text-xs text-[#2D2224]/70">
+                    <p class="mt-1 text-xs text-estetica-text/70">
                       Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
                     </p>
                   }
                 </div>
-                <span class="w-fit rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-semibold text-[#7A3B48]">
+                <span class="w-fit rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
                   {{ statusAgendamento(item) }}
                 </span>
               </div>
 
               <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
-                  <dt class="text-xs text-[#2D2224]/70">Valor registrado</dt>
+                  <dt class="text-xs text-estetica-text/70">Valor registrado</dt>
                   <dd class="mt-1 text-sm font-semibold">{{ item.valor | currency: 'BRL' }}</dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#2D2224]/70">Duração</dt>
+                  <dt class="text-xs text-estetica-text/70">Duração</dt>
                   <dd class="mt-1 text-sm font-medium">{{ item.duracaoMinutos }} minutos</dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#2D2224]/70">Pagamento</dt>
+                  <dt class="text-xs text-estetica-text/70">Pagamento</dt>
                   <dd class="mt-1 text-sm font-medium">{{ item.metodoPagamento || 'Não registrado' }}</dd>
                 </div>
                 <div>
-                  <dt class="text-xs text-[#2D2224]/70">Cupom</dt>
+                  <dt class="text-xs text-estetica-text/70">Cupom</dt>
                   <dd class="mt-1 text-sm font-medium">{{ item.codigoCupom || 'Não utilizado' }}</dd>
                 </div>
               </dl>
 
               @if (item.anotacoesFinais) {
-                <p class="mt-4 rounded-lg bg-[#FAF4F5] p-3 text-sm">
+                <p class="mt-4 rounded-lg bg-estetica-bg p-3 text-sm">
                   <span class="font-semibold">Anotações:</span> {{ item.anotacoesFinais }}
                 </p>
-              }
-
-              @if (item.anamnese; as anamnese) {
-                <details class="mt-4 rounded-xl border border-[#E8D5D8]">
-                  <summary class="cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary">
-                    Ver ficha de anamnese
-                  </summary>
-                  <dl class="grid gap-3 border-t border-[#E8D5D8] p-4 sm:grid-cols-2">
-                    <div><dt class="text-xs text-[#2D2224]/70">Tipo de pele</dt><dd class="text-sm">{{ anamnese.tipoPele }}</dd></div>
-                    <div><dt class="text-xs text-[#2D2224]/70">Usa ácidos</dt><dd class="text-sm">{{ simNao(anamnese.usaAcidos) }}</dd></div>
-                    @if (anamnese.usaAcidos) {
-                      <div><dt class="text-xs text-[#2D2224]/70">Quais ácidos</dt><dd class="text-sm">{{ anamnese.quaisAcidos || 'Não informado' }}</dd></div>
-                    }
-                    <div><dt class="text-xs text-[#2D2224]/70">Sensibilidade ao sol</dt><dd class="text-sm">{{ simNao(anamnese.sensibilidadeSol) }}</dd></div>
-                    <div><dt class="text-xs text-[#2D2224]/70">Varizes</dt><dd class="text-sm">{{ simNao(anamnese.temVarizes) }}</dd></div>
-                    <div><dt class="text-xs text-[#2D2224]/70">Cirurgia recente</dt><dd class="text-sm">{{ simNao(anamnese.fezCirurgiaRecente) }}</dd></div>
-                    <div><dt class="text-xs text-[#2D2224]/70">Pratica atividade física</dt><dd class="text-sm">{{ simNao(anamnese.praticaAtividadeFisica) }}</dd></div>
-                    <div><dt class="text-xs text-[#2D2224]/70">Alergia a cosméticos</dt><dd class="text-sm">{{ simNao(anamnese.alergiaCosmeticos) }}</dd></div>
-                  </dl>
-                </details>
               }
 
               <a
@@ -359,7 +339,7 @@
           }
         </div>
       } @else {
-        <p class="rounded-2xl border border-dashed border-[#E8D5D8] bg-white p-6 text-sm text-[#2D2224]/75">
+        <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
           Nenhum agendamento foi registrado para este cliente.
         </p>
       }

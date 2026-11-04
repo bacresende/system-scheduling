@@ -69,7 +69,7 @@ describe('DashboardPageComponent', () => {
     fixture.detectChanges();
 
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.textContent).toContain('sem associação inicial a serviço ou agendamento');
+    expect(root.textContent).toContain('a ficha ficará vinculada ao perfil');
     const link = root.querySelector('.font-mono');
     expect(link?.textContent).toContain('/anamnese');
     expect(link?.textContent).not.toContain('/avulsa');

@@ -11,7 +11,7 @@
       </p>
       <h1
         id="agenda-title"
-        class="font-serif text-4xl leading-tight tracking-tight text-[#2D2224] sm:text-5xl"
+        class="font-serif text-4xl leading-tight tracking-tight text-estetica-text sm:text-5xl"
       >
         Agenda
       </h1>
@@ -27,14 +27,14 @@
         [outlined]="true"
         (onClick)="loadAll()"
         [disabled]="state.busy()"
-        styleClass="border-[#D8B8BE] bg-white text-[#7A3B48] shadow-xs hover:bg-[#F6E4E7]"
+        styleClass="border-estetica-secondary bg-white text-estetica-primary-dark shadow-xs hover:bg-estetica-secondary"
       />
       <p-button
         label="Novo agendamento"
         icon="pi pi-plus"
         (onClick)="abrirNovoAgendamento(selectedDay())"
         [disabled]="state.busy()"
-        styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:!bg-[#873B4A]"
+        styleClass="bg-estetica-primary border-estetica-primary text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:bg-estetica-primary-dark"
       />
     </div>
   </header>
@@ -54,7 +54,7 @@
             <i class="pi pi-bell text-sm"></i>
           </span>
           <div>
-            <h2 id="alertas-agenda-title" class="text-sm font-medium text-[#2D2224]">
+            <h2 id="alertas-agenda-title" class="text-sm font-medium text-estetica-text">
               Solicitações e alterações aguardando sua atenção ({{
                 pendingAttentionBookings().length
               }})
@@ -86,13 +86,13 @@
                 </span>
                 @if (alerta.totalSessoes && alerta.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
+                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
                   >
                     Sessão {{ alerta.sessaoNumero ?? 1 }}/{{ alerta.totalSessoes }}
                   </span>
                 }
               </div>
-              <p class="truncate text-sm font-medium text-[#2D2224]">
+              <p class="truncate text-sm font-medium text-estetica-text">
                 {{ clientName(alerta.idCliente) }} • {{ serviceName(alerta.idServico) }}
               </p>
               <p class="mt-0.5 text-xs text-estetica-text/80">
@@ -102,12 +102,12 @@
                     alerta.dataHoraAnterior | date: 'dd/MM HH:mm'
                   }}</span>
                   para
-                  <strong class="font-semibold text-[#2D2224]">{{
+                  <strong class="font-semibold text-estetica-text">{{
                     alerta.dataHora | date: 'dd/MM/yyyy HH:mm'
                   }}</strong>
                 } @else {
                   Horário solicitado:
-                  <strong class="font-semibold text-[#2D2224]">{{
+                  <strong class="font-semibold text-estetica-text">{{
                     alerta.dataHora | date: 'dd/MM/yyyy HH:mm'
                   }}</strong>
                 }
@@ -122,7 +122,7 @@
                   size="small"
                   (onClick)="confirmarAgendamento(alerta)"
                   [disabled]="state.busy()"
-                  styleClass="!bg-estetica-primary !border-estetica-primary !text-white text-xs"
+                  styleClass="bg-estetica-primary border-estetica-primary text-white text-xs"
                 />
               } @else {
                 <p-button
@@ -142,7 +142,7 @@
                 [outlined]="true"
                 (onClick)="abrirDetalhes(alerta, 'reagendar')"
                 [disabled]="state.busy()"
-                styleClass="border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#F6E4E7] text-xs"
+                styleClass="border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-secondary text-xs"
               />
               <p-button
                 icon="pi pi-arrow-right"
@@ -174,7 +174,7 @@
             <i class="pi pi-exclamation-circle text-sm"></i>
           </span>
           <div>
-            <h2 id="horarios-vencidos-title" class="text-sm font-medium text-[#2D2224]">
+            <h2 id="horarios-vencidos-title" class="text-sm font-medium text-estetica-text">
               Atendimentos com horário vencido sem baixa ({{ overdueBookings().length }})
             </h2>
             <p class="text-xs text-estetica-text/75">
@@ -188,7 +188,7 @@
       <div class="grid gap-3 lg:grid-cols-2">
         @for (vencido of overdueBookings(); track vencido.id) {
           <article
-            class="flex flex-col justify-between gap-3 rounded-xl border border-rose-200 bg-[#FAF4F5] p-4 shadow-xs sm:flex-row sm:items-center"
+            class="flex flex-col justify-between gap-3 rounded-xl border border-rose-200 bg-estetica-bg p-4 shadow-xs sm:flex-row sm:items-center"
           >
             <div class="min-w-0">
               <div class="mb-1 flex flex-wrap items-center gap-2">
@@ -200,18 +200,18 @@
                 </span>
                 @if (vencido.totalSessoes && vencido.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
+                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
                   >
                     Sessão {{ vencido.sessaoNumero ?? 1 }}/{{ vencido.totalSessoes }}
                   </span>
                 }
               </div>
-              <p class="truncate text-sm font-medium text-[#2D2224]">
+              <p class="truncate text-sm font-medium text-estetica-text">
                 {{ clientName(vencido.idCliente) }} • {{ serviceName(vencido.idServico) }}
               </p>
               <p class="mt-0.5 text-xs text-estetica-text/80">
                 Previsto para:
-                <span class="font-medium text-[#2D2224]">{{
+                <span class="font-medium text-estetica-text">{{
                   vencido.dataHora | date: 'dd/MM/yyyy HH:mm'
                 }}</span>
               </p>
@@ -224,7 +224,7 @@
                 size="small"
                 (onClick)="abrirDetalhes(vencido, 'concluir')"
                 [disabled]="state.busy()"
-                styleClass="!bg-estetica-primary !border-estetica-primary !text-white text-xs"
+                styleClass="bg-estetica-primary border-estetica-primary text-white text-xs"
               />
               <p-button
                 label="Reagendar"
@@ -233,7 +233,7 @@
                 [outlined]="true"
                 (onClick)="abrirDetalhes(vencido, 'reagendar')"
                 [disabled]="state.busy()"
-                styleClass="border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#F6E4E7] text-xs"
+                styleClass="border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-secondary text-xs"
               />
               @if (whatsappReminderUrl(vencido); as waVencido) {
                 <a
@@ -241,7 +241,7 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Falar com a cliente no WhatsApp"
-                  class="inline-flex size-8 items-center justify-center rounded-lg border border-[#25D366] bg-[#25D366] text-white shadow-2xs transition hover:bg-[#1EBE5D]"
+                  class="inline-flex size-8 items-center justify-center rounded-lg border border-green-700 bg-green-700 text-white shadow-2xs transition hover:bg-green-800"
                 >
                   <i class="pi pi-whatsapp text-xs" aria-hidden="true"></i>
                 </a>
@@ -265,18 +265,18 @@
   @if (openSessionBookings().length) {
     <section
       aria-labelledby="sessoes-aberto-title"
-      class="mb-6 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+      class="mb-6 rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
     >
       <div class="mb-3.5 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <span
             aria-hidden="true"
-            class="flex size-8 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary"
+            class="flex size-8 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary"
           >
             <i class="pi pi-calendar-plus text-xs"></i>
           </span>
           <div>
-            <h2 id="sessoes-aberto-title" class="text-sm font-medium text-[#2D2224]">
+            <h2 id="sessoes-aberto-title" class="text-sm font-medium text-estetica-text">
               Sessões de pacotes em aberto ({{ openSessionBookings().length }})
             </h2>
             <p class="text-xs text-estetica-text/75">
@@ -289,16 +289,16 @@
       <div class="flex flex-wrap gap-2.5">
         @for (aberta of openSessionBookings(); track aberta.id) {
           <div
-            class="inline-flex items-center gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] px-3.5 py-2 text-xs shadow-2xs"
+            class="inline-flex items-center gap-3 rounded-xl border border-estetica-secondary bg-estetica-bg px-3.5 py-2 text-xs shadow-2xs"
           >
             <div>
-              <span class="font-medium text-[#2D2224]">{{ clientName(aberta.idCliente) }}</span>
+              <span class="font-medium text-estetica-text">{{ clientName(aberta.idCliente) }}</span>
               <span class="mx-1 text-estetica-text/50">·</span>
               <span class="font-medium text-estetica-text">{{
                 serviceName(aberta.idServico)
               }}</span>
               <span
-                class="ml-2 rounded-full bg-[#F6E4E7] px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
+                class="ml-2 rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
               >
                 {{ aberta.sessaoNumero ?? 1 }}ª de {{ aberta.totalSessoes ?? 1 }}
               </span>
@@ -306,7 +306,7 @@
             <button
               type="button"
               (click)="abrirDetalhes(aberta, 'reagendar')"
-              class="cursor-pointer rounded-lg bg-estetica-primary px-3 py-1.5 font-semibold text-white shadow-2xs transition hover:bg-[#873B4A]"
+              class="cursor-pointer rounded-lg bg-estetica-primary px-3 py-1.5 font-semibold text-white shadow-2xs transition hover:bg-estetica-primary-dark"
             >
               Definir horário
             </button>
@@ -319,7 +319,7 @@
   <!-- Barra de Controle: Navegação de Data, Alternador Diária/Semanal e Filtro de Status -->
   <section
     aria-label="Controles da agenda"
-    class="mb-6 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+    class="mb-6 rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
   >
     <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <!-- Navegador de Data -->
@@ -335,7 +335,7 @@
             [disabled]="state.busy()"
             aria-label="Período anterior"
             title="Período anterior"
-            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs transition hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-estetica-secondary bg-white text-estetica-text shadow-2xs transition hover:border-estetica-primary/60 hover:bg-estetica-secondary hover:text-estetica-primary disabled:opacity-50"
           >
             <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
           </button>
@@ -347,7 +347,7 @@
             [class]="
               isSelectedDayToday()
                 ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.45)]'
-                : 'border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary'
+                : 'border-estetica-secondary bg-white text-estetica-text shadow-2xs hover:border-estetica-primary/60 hover:bg-estetica-secondary hover:text-estetica-primary'
             "
             class="inline-flex min-h-10 cursor-pointer items-center justify-center rounded-xl border px-4 text-xs font-medium transition disabled:opacity-50"
           >
@@ -359,7 +359,7 @@
             [disabled]="state.busy()"
             aria-label="Próximo período"
             title="Próximo período"
-            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-[#E8D5D8] bg-white text-[#2D2224] shadow-2xs transition hover:border-estetica-primary/60 hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-xl border border-estetica-secondary bg-white text-estetica-text shadow-2xs transition hover:border-estetica-primary/60 hover:bg-estetica-secondary hover:text-estetica-primary disabled:opacity-50"
           >
             <i class="pi pi-chevron-right text-xs" aria-hidden="true"></i>
           </button>
@@ -375,20 +375,20 @@
             [showIcon]="true"
             iconDisplay="input"
             styleClass="w-full"
-            inputStyleClass="min-h-10 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224] shadow-2xs"
+            inputStyleClass="min-h-10 w-full rounded-xl border-estetica-secondary bg-white px-3.5 text-sm font-semibold text-estetica-text shadow-2xs"
           />
         </div>
 
         <div class="hidden sm:block">
           @if (mode() === 'dia' && days()[0]; as currentDay) {
-            <p class="text-sm font-medium text-[#2D2224]">
+            <p class="text-sm font-medium text-estetica-text">
               {{ currentDay.longLabel }}, {{ currentDay.date | date: 'dd/MM/yyyy' }}
             </p>
             <p class="text-xs text-estetica-text/70">
               Expediente: {{ currentDay.expedienteLabel }}
             </p>
           } @else if (days().length === 7) {
-            <p class="text-sm font-medium text-[#2D2224]">
+            <p class="text-sm font-medium text-estetica-text">
               Semana de {{ days()[0].date | date: 'dd/MM' }} a
               {{ days()[6].date | date: 'dd/MM/yyyy' }}
             </p>
@@ -410,14 +410,14 @@
             (ngModelChange)="searchTerm.set($event)"
             aria-label="Buscar agendamento por cliente ou serviço"
             placeholder="Buscar cliente ou serviço..."
-            class="min-h-10 w-full rounded-xl border border-[#E8D5D8] bg-white pr-8 pl-9 text-xs font-medium text-[#2D2224] placeholder:text-estetica-text/55 focus:border-estetica-primary focus:outline-none"
+            class="min-h-10 w-full rounded-xl border border-estetica-secondary bg-white pr-8 pl-9 text-xs font-medium text-estetica-text placeholder:text-estetica-text/55 focus:border-estetica-primary focus:outline-none"
           />
           @if (searchTerm()) {
             <button
               type="button"
               (click)="searchTerm.set('')"
               aria-label="Limpar busca"
-              class="absolute top-1/2 right-2.5 inline-flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-estetica-text/60 hover:bg-[#FAF4F5] hover:text-[#2D2224]"
+              class="absolute top-1/2 right-2.5 inline-flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-estetica-text/60 hover:bg-estetica-bg hover:text-estetica-text"
             >
               <i class="pi pi-times text-[10px]" aria-hidden="true"></i>
             </button>
@@ -427,7 +427,7 @@
         <div
           role="group"
           aria-label="Modo de visualização da agenda"
-          class="inline-flex rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-1"
+          class="inline-flex rounded-xl border border-estetica-secondary bg-estetica-bg p-1"
         >
           @for (item of modos; track item.value) {
             <button
@@ -437,7 +437,7 @@
               [class]="
                 mode() === item.value
                   ? 'bg-estetica-primary text-white shadow-sm'
-                  : 'text-[#2D2224]/75 hover:text-[#2D2224]'
+                  : 'text-estetica-text/75 hover:text-estetica-text'
               "
               class="cursor-pointer rounded-lg px-4 py-1.5 text-xs font-medium transition"
             >
@@ -450,7 +450,7 @@
 
     <!-- Filtros rápidos por Status e Contadores -->
     <div
-      class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#F0E2E4] pt-3.5"
+      class="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-estetica-secondary pt-3.5"
     >
       <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar por status">
         <button
@@ -459,7 +459,7 @@
           [class]="
             statusFilter() === 'TODOS'
               ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
-              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+              : 'border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-bg'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
         >
@@ -471,7 +471,7 @@
           [class]="
             statusFilter() === 'AGUARDANDO'
               ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
-              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+              : 'border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-bg'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
         >
@@ -483,7 +483,7 @@
           [class]="
             statusFilter() === 'CONFIRMADO'
               ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
-              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+              : 'border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-bg'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
         >
@@ -495,7 +495,7 @@
           [class]="
             statusFilter() === 'CONCLUIDO'
               ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
-              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+              : 'border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-bg'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
         >
@@ -507,7 +507,7 @@
           [class]="
             statusFilter() === 'CANCELADO'
               ? 'border-estetica-primary bg-estetica-primary text-white shadow-xs'
-              : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:bg-[#FAF4F5]'
+              : 'border-estetica-secondary bg-white text-estetica-text hover:bg-estetica-bg'
           "
           class="cursor-pointer rounded-full border px-3.5 py-1 text-xs font-semibold transition"
         >
@@ -518,9 +518,9 @@
 
     <!-- Resultados Globais da Busca (Localiza agendamentos em qualquer data ou em aberto) -->
     @if (searchTerm().trim()) {
-      <div class="mt-4 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-4">
+      <div class="mt-4 rounded-xl border border-estetica-secondary bg-estetica-bg p-4">
         <div class="mb-2.5 flex items-center justify-between gap-2">
-          <p class="text-xs font-medium text-[#2D2224]">
+          <p class="text-xs font-medium text-estetica-text">
             Resultados encontrados em toda a agenda para "{{ searchTerm().trim() }}" ({{
               searchResultsAllDates().length
             }})
@@ -538,10 +538,10 @@
           <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             @for (encontrado of searchResultsAllDates(); track encontrado.id) {
               <div
-                class="flex items-center justify-between gap-2 rounded-xl border border-[#E8D5D8] bg-white p-3 text-xs shadow-2xs"
+                class="flex items-center justify-between gap-2 rounded-xl border border-estetica-secondary bg-white p-3 text-xs shadow-2xs"
               >
                 <div class="min-w-0">
-                  <p class="truncate font-medium text-[#2D2224]">
+                  <p class="truncate font-medium text-estetica-text">
                     {{ clientName(encontrado.idCliente) }}
                   </p>
                   <p class="truncate text-estetica-text/75">
@@ -564,7 +564,7 @@
                   <button
                     type="button"
                     (click)="abrirDetalhes(encontrado, 'nenhum')"
-                    class="cursor-pointer rounded-lg bg-[#F6E4E7] px-2.5 py-1.5 font-medium text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
+                    class="cursor-pointer rounded-lg bg-estetica-secondary px-2.5 py-1.5 font-medium text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
                   >
                     Abrir
                   </button>
@@ -574,7 +574,7 @@
                       (click)="jumpToBookingDate(encontrado)"
                       title="Ir para esta data no calendário"
                       aria-label="Ir para esta data no calendário"
-                      class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-estetica-bg text-estetica-primary hover:bg-[#F6E4E7]"
+                      class="inline-flex size-7 cursor-pointer items-center justify-center rounded-lg border border-estetica-secondary bg-estetica-bg text-estetica-primary hover:bg-estetica-secondary"
                     >
                       <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
                     </button>
@@ -603,7 +603,8 @@
               <div class="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                 @for (item of day.items; track item.id) {
                   <article
-                    class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] sm:p-6"
+                    (click)="abrirDetalhesPeloCard($event, item)"
+                    class="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-2xl border border-estetica-secondary/80 bg-white p-5 shadow-[0_8px_24px_-12px_rgba(110,55,65,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_14px_32px_-12px_rgba(110,55,65,0.32)] sm:p-6"
                   >
                     <div
                       aria-hidden="true"
@@ -628,9 +629,9 @@
 
                         @if (item.totalSessoes && item.totalSessoes > 1) {
                           <span
-                            class="inline-flex items-center rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary"
+                            class="inline-flex items-center rounded-full bg-estetica-secondary px-3 py-1 text-xs font-medium text-estetica-primary"
                           >
-                            {{ item.sessaoNumero ?? 1 }}ª de {{ item.totalSessoes }} sessões
+                            Sessão {{ item.sessaoNumero ?? 1 }}/{{ item.totalSessoes }}
                           </span>
                         }
 
@@ -654,12 +655,12 @@
                       </div>
 
                       <div class="shrink-0 text-right">
-                        <p class="text-lg font-medium text-[#2D2224]">
+                        <p class="text-lg font-semibold text-estetica-text">
                           {{ item.valor | currency: 'BRL' }}
                         </p>
                         @if (item.codigoCupom) {
                           <span
-                            class="inline-block rounded-full bg-[#F6E4E7] px-2 py-0.5 text-[10px] font-semibold text-estetica-primary"
+                            class="inline-block rounded-full bg-estetica-secondary px-2 py-0.5 text-[10px] font-semibold text-estetica-primary"
                           >
                             {{ item.codigoCupom }}
                           </span>
@@ -672,7 +673,7 @@
                     <!-- Horário em Pílula Rosa e Cliente -->
                     <div class="mt-4">
                       <div
-                        class="inline-flex items-center gap-2 rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-[#7A3B48]"
+                        class="inline-flex items-center gap-2 rounded-full bg-estetica-secondary px-3 py-1 text-xs font-medium text-estetica-primary-dark"
                       >
                         <i class="pi pi-clock text-[11px]" aria-hidden="true"></i>
                         <span>
@@ -684,7 +685,7 @@
                       </div>
 
                       <h3
-                        class="mt-3 break-words text-xl font-medium tracking-tight text-[#2D2224]"
+                        class="mt-3 break-words text-xl font-medium tracking-tight text-estetica-text"
                       >
                         {{ clientName(item.idCliente) }}
                       </h3>
@@ -695,24 +696,30 @@
 
                     <!-- Metadados do Agendamento -->
                     <dl
-                      class="mt-4 mb-5 grid grid-cols-2 gap-3 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3.5 text-xs"
+                      class="mt-4 mb-5 grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-estetica-secondary bg-estetica-bg p-3.5 text-xs shadow-[0_5px_14px_-8px_rgba(110,55,65,0.28)]"
                     >
-                      <div>
-                        <dt class="text-estetica-text/70">Profissional</dt>
-                        <dd class="mt-0.5 font-semibold text-[#2D2224]">
+                      <div class="min-w-0">
+                        <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
+                          <i class="pi pi-user text-[11px]" aria-hidden="true"></i>
+                          Profissional
+                        </dt>
+                        <dd class="mt-1 truncate font-semibold text-estetica-text">
                           {{ professionalName(item.idFuncionario) }}
                         </dd>
                       </div>
-                      <div>
-                        <dt class="text-estetica-text/70">Pagamento</dt>
-                        <dd class="mt-0.5 font-semibold text-[#2D2224]">
+                      <div class="min-w-0">
+                        <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
+                          <i class="pi pi-wallet text-[11px]" aria-hidden="true"></i>
+                          Pagamento
+                        </dt>
+                        <dd class="mt-1 truncate font-semibold text-estetica-text">
                           {{ item.metodoPagamento || 'No fechamento' }}
                         </dd>
                       </div>
                       @if (item.reagendado && item.dataHoraAnterior) {
-                        <div class="col-span-2 border-t border-[#E8D5D8] pt-2">
+                        <div class="col-span-2 border-t border-estetica-secondary pt-2">
                           <dt class="text-estetica-text/70">Horário anterior</dt>
-                          <dd class="mt-0.5 font-medium text-estetica-text/85">
+                          <dd class="mt-0.5 font-semibold text-estetica-text">
                             {{ item.dataHoraAnterior | date: 'dd/MM/yyyy HH:mm' }}
                           </dd>
                         </div>
@@ -721,7 +728,7 @@
 
                     <!-- Rodapé de Ações do Card -->
                     <div
-                      class="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-[#F0E2E4] pt-4"
+                      class="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-estetica-secondary/80 pt-4"
                     >
                       <div class="flex flex-wrap items-center gap-2">
                         @if (item.status === 'AguardandoConfirmacao') {
@@ -731,18 +738,18 @@
                             size="small"
                             (onClick)="confirmarAgendamento(item)"
                             [disabled]="state.busy()"
-                            styleClass="!bg-estetica-primary !border-estetica-primary !text-white"
+                            styleClass="bg-estetica-primary border-estetica-primary text-white"
                           />
                         }
                         @if (isAtendimentoAtivo(item.status)) {
                           <p-button
                             label="Concluir"
+                            [disabled]="state.busy() || item.dataDefinida === false"
                             icon="pi pi-check-circle"
                             size="small"
                             [outlined]="true"
                             (onClick)="abrirDetalhes(item, 'concluir')"
-                            [disabled]="state.busy()"
-                            styleClass="border-estetica-primary text-estetica-primary hover:bg-[#F6E4E7]"
+                            styleClass="border-estetica-primary text-estetica-primary hover:bg-estetica-secondary"
                           />
                           <p-button
                             label="Reagendar"
@@ -751,7 +758,7 @@
                             [text]="true"
                             (onClick)="abrirDetalhes(item, 'reagendar')"
                             [disabled]="state.busy()"
-                            styleClass="text-[#2D2224] hover:bg-[#FAF4F5]"
+                            styleClass="text-estetica-text hover:bg-estetica-bg"
                           />
                         }
                       </div>
@@ -765,18 +772,20 @@
                             [attr.aria-label]="
                               'Enviar mensagem no WhatsApp para ' + clientName(item.idCliente)
                             "
-                            class="inline-flex size-9 items-center justify-center rounded-full border border-[#25D366] bg-[#25D366] text-white shadow-2xs transition hover:bg-[#1EBE5D]"
+                            class="inline-flex min-h-9 items-center justify-center gap-2 rounded-xl border border-green-700 bg-green-700 px-3 text-xs font-semibold text-white shadow-2xs transition hover:bg-green-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
                           >
                             <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
+                            <span class="hidden sm:inline">WhatsApp</span>
                           </a>
                         }
                         <p-button
-                          label="Detalhes"
-                          icon="pi pi-eye"
+                          label="Ver detalhes"
+                          icon="pi pi-arrow-right"
+                          iconPos="right"
                           size="small"
-                          [text]="true"
+                          [outlined]="true"
                           (onClick)="abrirDetalhes(item, 'nenhum')"
-                          styleClass="text-estetica-primary hover:bg-[#F6E4E7]"
+                          styleClass="border-estetica-secondary text-estetica-primary hover:border-estetica-primary hover:bg-estetica-secondary"
                         />
                       </div>
                     </div>
@@ -786,15 +795,15 @@
             } @else {
               <!-- Empty State Diário com Sombra Elevada -->
               <div
-                class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+                class="rounded-2xl border border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
               >
                 <span
                   aria-hidden="true"
-                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary"
+                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-estetica-secondary text-estetica-primary"
                 >
                   <i class="pi pi-calendar text-xl"></i>
                 </span>
-                <h2 class="text-lg font-medium text-[#2D2224]">Nenhum atendimento neste dia</h2>
+                <h2 class="text-lg font-medium text-estetica-text">Nenhum atendimento neste dia</h2>
                 <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
                   A agenda de {{ day.date | date: 'dd/MM/yyyy' }} está livre para este filtro.
                   Reserve um novo horário para começar.
@@ -804,7 +813,7 @@
                   icon="pi pi-plus"
                   (onClick)="abrirNovoAgendamento(day.date)"
                   [disabled]="state.busy()"
-                  styleClass="mt-5 !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.45)]"
+                  styleClass="mt-5 bg-estetica-primary border-estetica-primary text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.45)]"
                 />
               </div>
             }
@@ -818,7 +827,7 @@
               [class]="
                 mobileWeekDayIndex() === null
                   ? 'bg-estetica-primary text-white shadow-xs'
-                  : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
+                  : 'bg-white text-estetica-text border border-estetica-secondary'
               "
               class="shrink-0 cursor-pointer rounded-xl px-3.5 py-2 text-xs font-semibold"
             >
@@ -831,14 +840,14 @@
                 [class]="
                   mobileWeekDayIndex() === idx
                     ? 'bg-estetica-primary text-white shadow-xs'
-                    : 'bg-white text-[#2D2224] border border-[#E8D5D8]'
+                    : 'bg-white text-estetica-text border border-estetica-secondary'
                 "
                 class="flex shrink-0 cursor-pointer flex-col items-center rounded-xl px-3 py-1.5 text-xs"
               >
                 <span class="font-semibold">{{ day.shortLabel }}</span>
                 <span class="text-[11px]">{{ day.date | date: 'dd/MM' }}</span>
                 <span
-                  class="mt-0.5 rounded-full bg-[#F6E4E7] px-1.5 text-[10px] font-medium text-estetica-primary"
+                  class="mt-0.5 rounded-full bg-estetica-secondary px-1.5 text-[10px] font-medium text-estetica-primary"
                 >
                   {{ day.items.length }}
                 </span>
@@ -853,16 +862,18 @@
                 [class]="
                   day.isToday
                     ? 'border-2 border-estetica-primary ring-2 ring-estetica-primary/15'
-                    : 'border-[#E8D5D8]'
+                    : 'border-estetica-secondary'
                 "
               >
                 <!-- Cabeçalho do Dia na Semana -->
                 <div
-                  class="mb-3 flex items-center justify-between gap-2 rounded-xl bg-[#FAF4F5] px-3 py-2"
+                  class="mb-3 flex items-center justify-between gap-2 rounded-xl bg-estetica-bg px-3 py-2"
                 >
                   <div>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-xs font-medium tracking-wide text-estetica-primary uppercase">
+                      <span
+                        class="text-xs font-medium tracking-wide text-estetica-primary uppercase"
+                      >
                         {{ day.shortLabel }}
                       </span>
                       @if (day.isToday) {
@@ -873,7 +884,7 @@
                         </span>
                       }
                     </div>
-                    <h2 class="text-base font-medium text-[#2D2224]">
+                    <h2 class="text-base font-medium text-estetica-text">
                       {{ day.date | date: 'dd/MM' }}
                     </h2>
                   </div>
@@ -882,7 +893,7 @@
                     type="button"
                     (click)="abrirNovoAgendamento(day.date)"
                     [attr.aria-label]="'Novo agendamento em ' + (day.date | date: 'dd/MM/yyyy')"
-                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
+                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full bg-estetica-secondary text-estetica-primary transition hover:bg-estetica-primary hover:text-white"
                   >
                     <i class="pi pi-plus text-xs" aria-hidden="true"></i>
                   </button>
@@ -894,7 +905,7 @@
                     <button
                       type="button"
                       (click)="abrirDetalhes(item, 'nenhum')"
-                      class="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-[#E8D5D8] bg-[#FAF4F5]/70 p-2.5 pl-3.5 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-estetica-primary hover:bg-white hover:shadow-md focus-visible:outline-2 focus-visible:outline-estetica-primary"
+                      class="group relative w-full cursor-pointer overflow-hidden rounded-xl border border-estetica-secondary bg-estetica-bg/70 p-2.5 pl-3.5 text-left shadow-xs transition hover:-translate-y-0.5 hover:border-estetica-primary hover:bg-white hover:shadow-md focus-visible:outline-2 focus-visible:outline-estetica-primary"
                     >
                       <span
                         aria-hidden="true"
@@ -910,14 +921,14 @@
                         </span>
                         @if (item.totalSessoes && item.totalSessoes > 1) {
                           <span
-                            class="rounded-full bg-[#F6E4E7] px-1.5 py-0.5 text-[10px] font-medium text-estetica-primary"
+                            class="rounded-full bg-estetica-secondary px-1.5 py-0.5 text-[10px] font-medium text-estetica-primary"
                           >
                             {{ item.sessaoNumero ?? 1 }}/{{ item.totalSessoes }}
                           </span>
                         }
                       </div>
 
-                      <p class="mt-1 truncate text-xs font-medium text-[#2D2224]">
+                      <p class="mt-1 truncate text-xs font-medium text-estetica-text">
                         {{ clientName(item.idCliente) }}
                       </p>
                       <p class="truncate text-[11px] text-estetica-text/75">
@@ -942,7 +953,7 @@
                     </button>
                   } @empty {
                     <div
-                      class="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5]/40 p-3 text-center"
+                      class="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-estetica-secondary bg-estetica-bg/40 p-3 text-center"
                     >
                       <p class="text-xs font-medium text-estetica-text/60">Sem horários</p>
                     </div>
@@ -962,7 +973,7 @@
           @for (card of [1, 2, 3]; track card) {
             <article
               aria-hidden="true"
-              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16)] sm:p-6"
+              class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16)] sm:p-6"
             >
               <div class="flex items-start justify-between gap-4">
                 <p-skeleton width="6rem" height="1.5rem" borderRadius="9999px" />
@@ -973,7 +984,7 @@
                 <p-skeleton width="11rem" height="1.5rem" borderRadius="0.5rem" />
                 <p-skeleton width="8rem" height="1rem" borderRadius="0.375rem" />
               </div>
-              <div class="mt-5 rounded-xl bg-[#FAF4F5] p-4">
+              <div class="mt-5 rounded-xl bg-estetica-bg p-4">
                 <p-skeleton width="100%" height="2.25rem" borderRadius="0.5rem" />
               </div>
             </article>
@@ -993,14 +1004,14 @@
     (click)="handleNovoDialogClick($event)"
     (close)="handleDialogClose()"
     [attr.aria-busy]="state.busy()"
-    class="m-auto min-w-0 max-h-[calc(100dvh-1rem)] w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto rounded-2xl border border-[#E8D5D8] bg-white p-3.5 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-[#2D2224]/45 sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:max-w-3xl sm:rounded-3xl sm:p-7 lg:max-w-4xl"
+    class="m-auto min-w-0 max-h-[calc(100dvh-1rem)] w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] overflow-x-hidden overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-3.5 text-estetica-text shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-estetica-text/45 sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:max-w-3xl sm:rounded-3xl sm:p-7 lg:max-w-4xl"
   >
     <!-- Cabeçalho Limpo igual à Referência -->
     <div class="mb-5 flex items-start justify-between gap-3 sm:mb-6 sm:gap-4">
       <div class="min-w-0 pr-1">
         <h2
           id="novo-agendamento-title"
-          class="font-serif text-2xl font-semibold leading-tight tracking-tight text-[#2D2224] sm:text-3xl"
+          class="font-serif text-2xl font-semibold leading-tight tracking-tight text-estetica-text sm:text-3xl"
         >
           Novo agendamento
         </h2>
@@ -1013,7 +1024,7 @@
         aria-label="Fechar modal de novo agendamento"
         (click)="fecharNovoAgendamento()"
         [disabled]="state.busy()"
-        class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50 sm:size-10"
+        class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-estetica-secondary bg-white text-estetica-text shadow-sm transition hover:bg-estetica-secondary hover:text-estetica-primary disabled:opacity-50 sm:size-10"
       >
         <i class="pi pi-times text-sm" aria-hidden="true"></i>
       </button>
@@ -1025,15 +1036,17 @@
       <fieldset [disabled]="state.busy()" class="grid min-w-0 gap-3.5 border-0 p-0 sm:gap-4">
         <!-- PASSO 1: SERVIÇO, CLIENTE E PROFISSIONAL -->
         <div
-          class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+          class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
         >
           <div class="mb-3.5 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
             <span
-              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary sm:size-7"
+              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary sm:size-7"
             >
               1
             </span>
-            <h3 class="text-sm font-bold text-[#2D2224] sm:text-base">Serviço e identificação</h3>
+            <h3 class="text-sm font-bold text-estetica-text sm:text-base">
+              Serviço e identificação
+            </h3>
           </div>
 
           <div class="grid min-w-0 gap-3.5 sm:grid-cols-2 sm:gap-4">
@@ -1054,7 +1067,7 @@
                 filterBy="nome,email,telefone"
                 placeholder="Selecione a cliente"
                 panelStyleClass="agendamento-select-panel"
-                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
               />
               <app-field-error [control]="form.controls.idCliente" />
             </div>
@@ -1073,7 +1086,7 @@
                 optionLabel="nome"
                 optionValue="id"
                 placeholder="Selecione a profissional"
-                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
               />
               <app-field-error [control]="form.controls.idFuncionario" />
             </div>
@@ -1088,32 +1101,32 @@
               <p-select
                 inputId="servico"
                 formControlName="idServico"
-                [options]="servicos()"
+                [options]="servicosAtivos()"
                 optionLabel="nome"
                 optionValue="id"
                 [filter]="true"
                 filterBy="nome,descricao"
                 placeholder="Escolha o procedimento estético"
                 panelStyleClass="agendamento-select-panel"
-                styleClass="min-h-12 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                styleClass="min-h-12 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
               />
               <app-field-error [control]="form.controls.idServico" />
 
               @if (servicoSelecionado(); as srv) {
                 <div class="mt-2.5 flex flex-wrap items-center gap-1.5 sm:mt-3 sm:gap-2">
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-semibold text-[#7A3B48]"
+                    class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
                   >
                     {{ srv.preco | currency: 'BRL' }} por sessão
                   </span>
                   <span
-                    class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-semibold text-[#7A3B48]"
+                    class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
                   >
                     {{ srv.duracaoMinutos }} min
                   </span>
                   @if (srv.diasParaRetorno) {
                     <span
-                      class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-semibold text-[#7A3B48]"
+                      class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
                     >
                       Retorno sugerido em {{ srv.diasParaRetorno }} dias
                     </span>
@@ -1126,15 +1139,15 @@
 
         <!-- PASSO 2: QUANTIDADE DE SESSÕES -->
         <div
-          class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+          class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
         >
           <div class="mb-3.5 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
             <span
-              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary sm:size-7"
+              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary sm:size-7"
             >
               2
             </span>
-            <h3 class="text-sm font-bold text-[#2D2224] sm:text-base">Quantidade de sessões</h3>
+            <h3 class="text-sm font-bold text-estetica-text sm:text-base">Quantidade de sessões</h3>
           </div>
 
           <div
@@ -1150,7 +1163,7 @@
                 [class]="
                   formTotalSessoes() === qtd
                     ? 'border-estetica-primary bg-estetica-primary text-white font-semibold shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]'
-                    : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                    : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50 hover:bg-estetica-bg'
                 "
                 class="min-h-10 cursor-pointer rounded-xl border px-2.5 py-2 text-xs transition sm:min-h-11 sm:px-3 sm:text-sm"
               >
@@ -1162,15 +1175,15 @@
 
         <!-- PASSO 3: DATA E HORÁRIO DA 1ª SESSÃO (AGRUPADO EM MANHÃ E TARDE) -->
         <div
-          class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+          class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
         >
           <div class="mb-3.5 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
             <span
-              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary sm:size-7"
+              class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary sm:size-7"
             >
               3
             </span>
-            <h3 class="text-sm font-bold text-[#2D2224] sm:text-base">
+            <h3 class="text-sm font-bold text-estetica-text sm:text-base">
               {{
                 formTotalSessoes() > 1
                   ? 'Data e horário da 1ª sessão'
@@ -1198,13 +1211,15 @@
                 [showIcon]="true"
                 iconDisplay="input"
                 styleClass="w-full min-w-0"
-                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224]"
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-3.5 text-sm font-semibold text-estetica-text"
               />
               <app-field-error [control]="form.controls.dataHora" />
             </div>
 
-            <div class="flex min-h-12 min-w-0 flex-col justify-center rounded-xl bg-[#F4E6E8] px-3.5 py-2.5 sm:px-4">
-              <span class="text-[10px] font-medium tracking-wider text-[#8C5E66] uppercase">
+            <div
+              class="flex min-h-12 min-w-0 flex-col justify-center rounded-xl bg-estetica-secondary px-3.5 py-2.5 sm:px-4"
+            >
+              <span class="text-[10px] font-medium tracking-wider text-estetica-text uppercase">
                 Selecionado
               </span>
               @if (formDataHora() && servicoSelecionado(); as srv) {
@@ -1213,12 +1228,14 @@
                     {{ erroSlot }}
                   </span>
                 } @else {
-                  <span class="mt-0.5 break-words text-xs font-medium text-[#2D2224] sm:text-sm">
+                  <span
+                    class="mt-0.5 break-words text-xs font-medium text-estetica-text sm:text-sm"
+                  >
                     {{ formatarResumoHorario(formDataHora(), srv.duracaoMinutos) }}
                   </span>
                 }
               } @else {
-                <span class="mt-0.5 break-words text-xs font-medium text-[#8C5E66]">
+                <span class="mt-0.5 break-words text-xs font-medium text-estetica-text">
                   Escolha o serviço e a data
                 </span>
               }
@@ -1229,14 +1246,14 @@
           <div class="mt-4 sm:mt-5">
             @if (!servicoSelecionado()) {
               <p
-                class="rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5] px-4 py-3 text-xs text-estetica-text/75"
+                class="rounded-xl border border-dashed border-estetica-secondary bg-estetica-bg px-4 py-3 text-xs text-estetica-text/75"
               >
                 Selecione um <strong>Serviço</strong> no passo 1 para visualizar os horários
                 disponíveis.
               </p>
             } @else if (!formDataHora()) {
               <p
-                class="rounded-xl border border-dashed border-[#E8D5D8] bg-[#FAF4F5] px-4 py-3 text-xs text-estetica-text/75"
+                class="rounded-xl border border-dashed border-estetica-secondary bg-estetica-bg px-4 py-3 text-xs text-estetica-text/75"
               >
                 Selecione uma <strong>Data</strong> acima para listar os horários disponíveis.
               </p>
@@ -1248,7 +1265,9 @@
                   >
                     Manhã
                   </span>
-                  <div class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6 sm:gap-2">
+                  <div
+                    class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6 sm:gap-2"
+                  >
                     @for (slot of horariosManhaPrimeiraSessao(); track slot.label) {
                       <button
                         type="button"
@@ -1257,7 +1276,7 @@
                         [class]="
                           isMesmoHorario(formDataHora(), slot.date)
                             ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                            : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50 hover:bg-estetica-bg'
                         "
                         class="h-9 cursor-pointer rounded-xl border text-xs transition sm:h-10"
                       >
@@ -1275,7 +1294,9 @@
                   >
                     Tarde
                   </span>
-                  <div class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6 sm:gap-2">
+                  <div
+                    class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6 sm:gap-2"
+                  >
                     @for (slot of horariosTardePrimeiraSessao(); track slot.label) {
                       <button
                         type="button"
@@ -1284,7 +1305,7 @@
                         [class]="
                           isMesmoHorario(formDataHora(), slot.date)
                             ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                            : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                            : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50 hover:bg-estetica-bg'
                         "
                         class="h-9 cursor-pointer rounded-xl border text-xs transition sm:h-10"
                       >
@@ -1310,15 +1331,15 @@
         <!-- PASSO 4: PRÓXIMAS SESSÕES COM LINHA DO TEMPO IGUAL À REFERÊNCIA -->
         @if (formTotalSessoes() > 1) {
           <div
-            class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+            class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
           >
             <div class="mb-3.5 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
               <span
-                class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary sm:size-7"
+                class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary sm:size-7"
               >
                 4
               </span>
-              <h3 class="text-sm font-bold text-[#2D2224] sm:text-base">Próximas sessões</h3>
+              <h3 class="text-sm font-bold text-estetica-text sm:text-base">Próximas sessões</h3>
             </div>
 
             <!-- Seletor de Modo das Próximas Sessões -->
@@ -1337,19 +1358,21 @@
                 [options]="opcoesRepeticaoPacote"
                 optionLabel="label"
                 optionValue="value"
-                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
               />
             </div>
 
             <!-- Linha do Tempo das Sessões (1ª sessão + demais sessões) -->
-            <div class="relative ml-1 space-y-4 border-l-2 border-[#E2C6CB] pl-3.5 sm:ml-2 sm:space-y-5 sm:pl-5">
+            <div
+              class="relative ml-1 space-y-4 border-l-2 border-estetica-secondary pl-3.5 sm:ml-2 sm:space-y-5 sm:pl-5"
+            >
               <!-- Item 1ª Sessão na Timeline -->
               <div class="relative">
                 <span
                   aria-hidden="true"
                   class="absolute -left-[1.25rem] top-1 size-3 rounded-full border-2 border-white bg-estetica-primary shadow-2xs sm:-left-[1.6rem] sm:size-3.5"
                 ></span>
-                <p class="text-sm font-medium text-[#2D2224]">1ª sessão</p>
+                <p class="text-sm font-medium text-estetica-text">1ª sessão</p>
                 <p class="text-xs text-estetica-text/75">
                   @if (formDataHora() && servicoSelecionado(); as srv) {
                     {{ formatarResumoHorario(formDataHora(), srv.duracaoMinutos) }}
@@ -1368,9 +1391,11 @@
                     [class]="sessao.definirDepois ? 'bg-white' : 'bg-estetica-primary'"
                   ></span>
 
-                  <div class="flex min-w-0 flex-col gap-2 min-[460px]:flex-row min-[460px]:items-center min-[460px]:justify-between sm:gap-3">
+                  <div
+                    class="flex min-w-0 flex-col gap-2 min-[460px]:flex-row min-[460px]:items-center min-[460px]:justify-between sm:gap-3"
+                  >
                     <div class="min-w-0">
-                      <p class="text-sm font-medium text-[#2D2224]">
+                      <p class="text-sm font-medium text-estetica-text">
                         {{ sessao.sessaoNumero }}ª sessão
                       </p>
                       <p class="text-xs text-estetica-text/75">
@@ -1387,7 +1412,7 @@
                     <div class="flex shrink-0 items-center gap-2 self-start min-[460px]:self-auto">
                       <label
                         [for]="'definir-depois-' + sessao.sessaoNumero"
-                        class="text-xs font-medium text-[#2D2224]"
+                        class="text-xs font-medium text-estetica-text"
                       >
                         Definir data depois
                       </label>
@@ -1403,7 +1428,7 @@
                   <!-- Se Definir Depois estiver DESATIVADO, expande Data + Chips de Horários -->
                   @if (!sessao.definirDepois) {
                     <div
-                      class="mt-3 min-w-0 rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3 shadow-2xs sm:p-3.5"
+                      class="mt-3 min-w-0 rounded-xl border border-estetica-secondary bg-estetica-bg p-3 shadow-2xs sm:p-3.5"
                     >
                       <div class="min-w-0 sm:max-w-xs">
                         <label
@@ -1420,7 +1445,7 @@
                           [showIcon]="true"
                           iconDisplay="input"
                           styleClass="w-full min-w-0"
-                          inputStyleClass="min-h-10 w-full rounded-xl border-[#E8D5D8] bg-white px-3 text-xs font-semibold text-[#2D2224]"
+                          inputStyleClass="min-h-10 w-full rounded-xl border-estetica-secondary bg-white px-3 text-xs font-semibold text-estetica-text"
                         />
                       </div>
 
@@ -1434,7 +1459,9 @@
                                 >
                                   Manhã
                                 </span>
-                                <div class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6">
+                                <div
+                                  class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6"
+                                >
                                   @for (
                                     slot of horariosManhaSessaoExtra(sessao);
                                     track slot.label
@@ -1450,7 +1477,7 @@
                                       [class]="
                                         isMesmoHorario(sessao.dataHora, slot.date)
                                           ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-xs'
-                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50'
+                                          : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50'
                                       "
                                       class="h-9 cursor-pointer rounded-lg border text-xs transition"
                                     >
@@ -1466,7 +1493,9 @@
                                 >
                                   Tarde
                                 </span>
-                                <div class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6">
+                                <div
+                                  class="grid min-w-0 grid-cols-3 gap-1.5 min-[440px]:grid-cols-4 sm:grid-cols-6"
+                                >
                                   @for (
                                     slot of horariosTardeSessaoExtra(sessao);
                                     track slot.label
@@ -1482,7 +1511,7 @@
                                       [class]="
                                         isMesmoHorario(sessao.dataHora, slot.date)
                                           ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-xs'
-                                          : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50'
+                                          : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50'
                                       "
                                       class="h-9 cursor-pointer rounded-lg border text-xs transition"
                                     >
@@ -1517,20 +1546,24 @@
 
         <!-- PASSO 5: BENEFÍCIO OU DESCONTO (OPCIONAL) -->
         <div
-          class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+          class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
         >
-          <div class="mb-3.5 flex flex-col gap-2 min-[460px]:flex-row min-[460px]:items-center min-[460px]:justify-between sm:mb-4 sm:gap-3">
+          <div
+            class="mb-3.5 flex flex-col gap-2 min-[460px]:flex-row min-[460px]:items-center min-[460px]:justify-between sm:mb-4 sm:gap-3"
+          >
             <div class="flex items-center gap-2.5 sm:gap-3">
               <span
-                class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-[#F6E4E7] text-xs font-medium text-estetica-primary sm:size-7"
+                class="flex size-6.5 shrink-0 items-center justify-center rounded-full bg-estetica-secondary text-xs font-medium text-estetica-primary sm:size-7"
               >
                 {{ formTotalSessoes() > 1 ? 5 : 4 }}
               </span>
-              <h3 class="text-sm font-bold text-[#2D2224] sm:text-base">Benefício ou desconto</h3>
+              <h3 class="text-sm font-bold text-estetica-text sm:text-base">
+                Benefício ou desconto
+              </h3>
             </div>
 
             <div class="flex items-center gap-2 self-start min-[460px]:self-auto">
-              <label for="usar-desconto-manual" class="text-xs font-medium text-[#2D2224]">
+              <label for="usar-desconto-manual" class="text-xs font-medium text-estetica-text">
                 Desconto manual
               </label>
               <p-toggleswitch inputId="usar-desconto-manual" formControlName="usarDescontoManual" />
@@ -1556,7 +1589,7 @@
                 [showClear]="true"
                 placeholder="Selecione ou pesquise um cupom ativo (ex.: BEMVINDA10)"
                 panelStyleClass="agendamento-select-panel"
-                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
               />
               @if (erroValidacaoCupom(); as msgCupom) {
                 <p class="mt-2 text-xs font-semibold text-red-700" role="alert">
@@ -1588,7 +1621,7 @@
                   [options]="tiposDescontoManual"
                   optionLabel="label"
                   optionValue="value"
-                  styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-[#E8D5D8] bg-white"
+                  styleClass="min-h-11 w-full min-w-0 items-center rounded-xl border-estetica-secondary bg-white"
                 />
               </div>
               <div class="min-w-0">
@@ -1608,7 +1641,7 @@
                   locale="pt-BR"
                   placeholder="0,00"
                   styleClass="w-full min-w-0"
-                  inputStyleClass="min-h-11 w-full rounded-xl border-[#E8D5D8] bg-white px-4 text-sm font-semibold text-[#2D2224]"
+                  inputStyleClass="min-h-11 w-full rounded-xl border-estetica-secondary bg-white px-4 text-sm font-semibold text-estetica-text"
                 />
               </div>
             </div>
@@ -1617,14 +1650,16 @@
 
         <!-- RESUMO FINAL DO AGENDAMENTO -->
         <div
-          class="min-w-0 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
+          class="min-w-0 rounded-2xl border border-estetica-secondary bg-estetica-bg p-3.5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)] sm:p-5"
         >
-          <div class="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between sm:gap-4">
+          <div
+            class="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between sm:gap-4"
+          >
             <div class="min-w-0">
               <span class="text-[10px] font-bold tracking-wider text-estetica-primary uppercase">
                 Resumo do pacote
               </span>
-              <p class="mt-0.5 text-sm font-medium text-[#2D2224]">
+              <p class="mt-0.5 text-sm font-medium text-estetica-text">
                 {{ resumoSessoesPacote().total }}
                 {{ resumoSessoesPacote().total === 1 ? 'sessão' : 'sessões' }}
                 @if (resumoSessoesPacote().total > 1) {
@@ -1657,14 +1692,18 @@
               </p>
               @if (resumoSessoesPacote().total > 1) {
                 <span class="block text-[11px] text-estetica-text/70">
-                  {{ resumoFinanceiro().valorPorSessao | currency: 'BRL' }} por sessão
+                  {{
+                    resumoFinanceiro().valoresSessoes[resumoFinanceiro().valoresSessoes.length - 1]
+                      | currency: 'BRL'
+                  }}
+                  a {{ resumoFinanceiro().valoresSessoes[0] | currency: 'BRL' }} por sessão
                 </span>
               }
             </div>
           </div>
 
           <div
-            class="mt-4 flex flex-col-reverse gap-2 border-t border-[#F0E2E4] pt-3.5 sm:mt-5 sm:flex-row sm:justify-end sm:gap-2.5 sm:pt-4"
+            class="mt-4 flex flex-col-reverse gap-2 border-t border-estetica-secondary pt-3.5 sm:mt-5 sm:flex-row sm:justify-end sm:gap-2.5 sm:pt-4"
           >
             <p-button
               type="button"
@@ -1672,7 +1711,7 @@
               [outlined]="true"
               (onClick)="fecharNovoAgendamento()"
               [disabled]="state.busy()"
-              styleClass="w-full border-[#D8B8BE] text-[#7A3B48] hover:bg-[#FAF4F5] sm:w-auto"
+              styleClass="w-full border-estetica-secondary text-estetica-primary-dark hover:bg-estetica-bg sm:w-auto"
             />
             <p-button
               type="submit"
@@ -1680,7 +1719,7 @@
               icon="pi pi-check"
               [loading]="state.busy()"
               [disabled]="!config()"
-              styleClass="w-full !bg-estetica-primary !border-estetica-primary !text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.55)] hover:!bg-[#873B4A] sm:w-auto"
+              styleClass="w-full bg-estetica-primary border-estetica-primary text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.55)] hover:bg-estetica-primary-dark sm:w-auto"
             />
           </div>
         </div>
@@ -1698,7 +1737,7 @@
     (click)="handleDetalhesDialogClick($event)"
     (close)="handleDialogClose()"
     [attr.aria-busy]="state.busy()"
-    class="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-3xl overflow-y-auto rounded-2xl border border-[#E8D5D8] bg-white p-3.5 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-[#2D2224]/45 sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:rounded-3xl sm:p-7 lg:max-w-4xl"
+    class="m-auto max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-3xl overflow-y-auto rounded-2xl border border-estetica-secondary bg-white p-3.5 text-estetica-text shadow-[0_28px_90px_-20px_rgba(60,30,36,0.55)] backdrop:bg-estetica-text/45 sm:max-h-[calc(100dvh-2rem)] sm:w-[calc(100vw-2rem)] sm:rounded-3xl sm:p-7 lg:max-w-4xl"
   >
     @if (selectedBooking(); as item) {
       <div class="mb-5 flex items-start justify-between gap-4">
@@ -1717,7 +1756,9 @@
             </span>
 
             @if (item.totalSessoes && item.totalSessoes > 1) {
-              <span class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary">
+              <span
+                class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-medium text-estetica-primary"
+              >
                 Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
               </span>
             }
@@ -1733,7 +1774,7 @@
 
           <h2
             id="detalhes-agendamento-title"
-            class="break-words font-serif text-2xl font-semibold text-[#2D2224] sm:text-3xl"
+            class="break-words font-serif text-2xl font-semibold text-estetica-text sm:text-3xl"
           >
             {{ clientName(item.idCliente) }}
           </h2>
@@ -1747,7 +1788,7 @@
           aria-label="Fechar detalhes do agendamento"
           (click)="fecharDetalhes()"
           [disabled]="state.busy()"
-          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-white text-[#2D2224] shadow-sm transition hover:bg-[#F6E4E7] hover:text-estetica-primary disabled:opacity-50"
+          class="inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-estetica-secondary bg-white text-estetica-text shadow-sm transition hover:bg-estetica-secondary hover:text-estetica-primary disabled:opacity-50"
         >
           <i class="pi pi-times text-sm" aria-hidden="true"></i>
         </button>
@@ -1757,14 +1798,14 @@
 
       <!-- Card Principal de Informações do Agendamento -->
       <div
-        class="rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+        class="rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
       >
         <dl class="grid gap-4 sm:grid-cols-2">
           <div>
             <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
               Data e horário
             </dt>
-            <dd class="mt-1 text-sm font-medium text-[#2D2224]">
+            <dd class="mt-1 text-sm font-medium text-estetica-text">
               @if (item.dataDefinida === false) {
                 <span class="text-amber-800">Horário em aberto (a definir)</span>
               } @else {
@@ -1777,7 +1818,7 @@
             <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
               Duração reservada
             </dt>
-            <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+            <dd class="mt-1 text-sm font-semibold text-estetica-text">
               {{ item.duracaoMinutos }} minutos
             </dd>
           </div>
@@ -1786,7 +1827,7 @@
             <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
               Profissional responsável
             </dt>
-            <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+            <dd class="mt-1 text-sm font-semibold text-estetica-text">
               {{ professionalName(item.idFuncionario) }}
             </dd>
           </div>
@@ -1814,7 +1855,7 @@
               <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
                 WhatsApp da cliente
               </dt>
-              <dd class="mt-1 text-sm font-semibold text-[#2D2224]">
+              <dd class="mt-1 text-sm font-semibold text-estetica-text">
                 {{ clienteObj.telefone | telefone }}
               </dd>
             </div>
@@ -1825,12 +1866,14 @@
               <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
                 Método de pagamento
               </dt>
-              <dd class="mt-1 text-sm font-medium text-[#2D2224]">{{ item.metodoPagamento }}</dd>
+              <dd class="mt-1 text-sm font-medium text-estetica-text">
+                {{ item.metodoPagamento }}
+              </dd>
             </div>
           }
 
           @if (item.reagendado && item.dataHoraAnterior) {
-            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+            <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
               <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
                 Histórico de reagendamento
               </dt>
@@ -1844,11 +1887,11 @@
           }
 
           @if (item.anotacoesFinais) {
-            <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+            <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
               <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
                 Anotações da sessão
               </dt>
-              <dd class="mt-1 whitespace-pre-line text-sm leading-relaxed text-[#2D2224]">
+              <dd class="mt-1 whitespace-pre-line text-sm leading-relaxed text-estetica-text">
                 {{ item.anotacoesFinais }}
               </dd>
             </div>
@@ -1856,7 +1899,7 @@
 
           @if (fotosDoAgendamento(item); as fotosRegistradas) {
             @if (fotosRegistradas.length > 0) {
-              <div class="border-t border-[#F0E2E4] pt-3 sm:col-span-2">
+              <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
                 <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
                   Registros visuais do resultado ({{ fotosRegistradas.length }})
                 </dt>
@@ -1865,7 +1908,7 @@
                     <button
                       type="button"
                       (click)="expandirImagem(fotoUrl, 'Foto ' + (idx + 1) + ' do resultado')"
-                      class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-[#E8D5D8] bg-white text-left shadow-2xs transition hover:border-estetica-primary hover:shadow-md"
+                      class="group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-estetica-secondary bg-white text-left shadow-2xs transition hover:border-estetica-primary hover:shadow-md"
                     >
                       <div class="relative overflow-hidden">
                         <img
@@ -1875,7 +1918,7 @@
                         />
                         <span
                           aria-hidden="true"
-                          class="absolute inset-0 flex items-center justify-center bg-[#2D2224]/30 opacity-0 transition group-hover:opacity-100"
+                          class="absolute inset-0 flex items-center justify-center bg-estetica-text/30 opacity-0 transition group-hover:opacity-100"
                         >
                           <i class="pi pi-search-plus text-sm text-white"></i>
                         </span>
@@ -1897,7 +1940,7 @@
         <!-- Barra de Ações Rápidas (Somente para Agendamentos Ativos) -->
         @if (isAtendimentoAtivo(item.status)) {
           <div
-            class="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-[#F0E2E4] pt-4"
+            class="mt-5 flex flex-wrap items-center justify-between gap-2.5 border-t border-estetica-secondary pt-4"
           >
             <div class="flex flex-wrap items-center gap-2.5">
               @if (item.status === 'AguardandoConfirmacao') {
@@ -1906,19 +1949,19 @@
                   icon="pi pi-check"
                   (onClick)="confirmarAgendamento(item)"
                   [disabled]="state.busy()"
-                  styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-xs hover:!opacity-90"
+                  styleClass="bg-estetica-primary border-estetica-primary text-white shadow-xs hover:opacity-90"
                 />
               }
 
               <button
                 type="button"
                 (click)="alternarPainelDetalhe('concluir')"
-                [disabled]="state.busy()"
+                [disabled]="state.busy() || item.dataDefinida === false"
                 [attr.aria-pressed]="detalhePainelAtivo() === 'concluir'"
                 [class]="
                   detalhePainelAtivo() === 'concluir'
                     ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                    : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                    : 'border-estetica-secondary bg-white text-estetica-text hover:border-estetica-primary/50 hover:bg-estetica-bg'
                 "
                 class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition disabled:opacity-50"
               >
@@ -1940,7 +1983,7 @@
                 [class]="
                   detalhePainelAtivo() === 'reagendar'
                     ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                    : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                    : 'border-estetica-secondary bg-white text-estetica-text hover:border-estetica-primary/50 hover:bg-estetica-bg'
                 "
                 class="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition disabled:opacity-50"
               >
@@ -1961,7 +2004,7 @@
                   [href]="waLink"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#25D366] bg-[#25D366] px-3.5 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-[#1EBE5D]"
+                  class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-green-700 bg-green-700 px-3.5 py-2 text-xs font-medium text-white shadow-xs transition hover:bg-green-800"
                 >
                   <i class="pi pi-whatsapp text-sm" aria-hidden="true"></i>
                   WhatsApp
@@ -1982,7 +2025,7 @@
           </div>
         } @else {
           <p
-            class="mt-4 rounded-xl bg-[#FAF4F5] px-4 py-3 text-xs font-medium text-estetica-text/80"
+            class="mt-4 rounded-xl bg-estetica-bg px-4 py-3 text-xs font-medium text-estetica-text/80"
           >
             Atendimento encerrado ({{ statusLabel(item.status) }}): procedimento e valores não podem
             ser alterados.
@@ -1993,18 +2036,18 @@
       <!-- CARD DE SESSÕES VINCULADAS DO PACOTE -->
       @if (sessoesDoPacoteSelecionado().length > 1) {
         <div
-          class="mt-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          class="mt-4 rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
         >
           <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h3 class="text-base font-medium text-[#2D2224]">Sessões deste pacote</h3>
+              <h3 class="text-base font-medium text-estetica-text">Sessões deste pacote</h3>
               <p class="text-xs text-estetica-text/75">
                 Clique em outra sessão para consultar detalhes, definir horário ou reagendar.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
               <span
-                class="rounded-full bg-[#F6E4E7] px-3 py-1 text-xs font-medium text-estetica-primary"
+                class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-medium text-estetica-primary"
               >
                 {{ progressoPacoteSelecionado().concluidas }}/{{
                   progressoPacoteSelecionado().total
@@ -2021,7 +2064,7 @@
             </div>
           </div>
 
-          <div class="relative ml-2 space-y-2.5 border-l-2 border-[#E2C6CB] pl-5">
+          <div class="relative ml-2 space-y-2.5 border-l-2 border-estetica-secondary pl-5">
             @for (sessao of sessoesDoPacoteSelecionado(); track sessao.id) {
               <div class="relative">
                 <span
@@ -2043,14 +2086,14 @@
                   [attr.aria-current]="sessao.id === item.id ? 'true' : null"
                   [class]="
                     sessao.id === item.id
-                      ? 'border-estetica-primary bg-[#F6E4E7]/50 ring-1 ring-estetica-primary/25'
-                      : 'border-[#E8D5D8] bg-white hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                      ? 'border-estetica-primary bg-estetica-secondary/50 ring-1 ring-estetica-primary/25'
+                      : 'border-estetica-secondary bg-white hover:border-estetica-primary/50 hover:bg-estetica-bg'
                   "
                   class="flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-xl border p-3 transition"
                 >
                   <div class="min-w-0">
                     <div class="flex flex-wrap items-center gap-2">
-                      <span class="text-sm font-medium text-[#2D2224]">
+                      <span class="text-sm font-medium text-estetica-text">
                         {{ sessao.sessaoNumero ?? 1 }}ª sessão
                       </span>
                       <span
@@ -2088,7 +2131,7 @@
                       </span>
                     } @else if (sessao.id !== item.id) {
                       <span
-                        class="rounded-lg border border-[#E8D5D8] bg-estetica-bg px-2.5 py-1 text-xs font-medium text-estetica-primary"
+                        class="rounded-lg border border-estetica-secondary bg-estetica-bg px-2.5 py-1 text-xs font-medium text-estetica-primary"
                       >
                         Ver sessão
                       </span>
@@ -2099,7 +2142,7 @@
                         (click)="irParaDataSessaoDoPacote(sessao, $event)"
                         aria-label="Ir para o dia desta sessão na agenda"
                         title="Ir para este dia na agenda"
-                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-[#E8D5D8] bg-white text-estetica-primary transition hover:bg-[#F6E4E7]"
+                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-lg border border-estetica-secondary bg-white text-estetica-primary transition hover:bg-estetica-secondary"
                       >
                         <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
                       </button>
@@ -2117,11 +2160,13 @@
         <form
           [formGroup]="concluirForm"
           (ngSubmit)="concluirAtendimento()"
-          class="mt-4 grid gap-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          class="mt-4 grid gap-4 rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
           novalidate
         >
           <div>
-            <h3 class="font-serif text-xl font-semibold text-[#2D2224]">Concluir atendimento</h3>
+            <h3 class="font-serif text-xl font-semibold text-estetica-text">
+              Concluir atendimento
+            </h3>
             <p class="mt-0.5 text-xs text-estetica-text/75">
               Registre a forma de pagamento, adicione anotações e anexe a foto do resultado.
             </p>
@@ -2142,7 +2187,7 @@
                   [class]="
                     concluirForm.controls.metodoPagamento.value === mp.value
                       ? 'border-estetica-primary bg-estetica-primary text-white shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                      : 'border-[#E8D5D8] bg-white text-[#2D2224] hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                      : 'border-estetica-secondary bg-white text-estetica-text hover:border-estetica-primary/50 hover:bg-estetica-bg'
                   "
                   class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border p-3 text-xs font-medium transition"
                 >
@@ -2167,7 +2212,7 @@
               formControlName="anotacoesFinais"
               rows="3"
               placeholder="Descreva informações que considerar importantes sobre o atendimento"
-              class="w-full rounded-xl border border-[#E8D5D8] bg-[#FAF4F5] p-3 text-sm text-[#2D2224]"
+              class="w-full rounded-xl border border-estetica-secondary bg-estetica-bg p-3 text-sm text-estetica-text"
             ></textarea>
           </div>
 
@@ -2191,15 +2236,15 @@
 
             <label
               for="foto-resultado-input"
-              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#D8B8BE] bg-[#FAF4F5] px-4 py-5 text-center transition hover:border-estetica-primary hover:bg-[#F6E4E7]/50"
+              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-estetica-secondary bg-estetica-bg px-4 py-5 text-center transition hover:border-estetica-primary hover:bg-estetica-secondary/50"
             >
               <span
                 aria-hidden="true"
-                class="flex size-10 items-center justify-center rounded-full bg-[#F6E4E7] text-estetica-primary"
+                class="flex size-10 items-center justify-center rounded-full bg-estetica-secondary text-estetica-primary"
               >
                 <i class="pi pi-images text-base"></i>
               </span>
-              <span class="text-xs font-medium text-[#2D2224]">
+              <span class="text-xs font-medium text-estetica-text">
                 Clique para selecionar uma ou mais fotos do resultado
               </span>
               <span class="text-[11px] text-estetica-text/70">
@@ -2221,7 +2266,7 @@
               <div class="mt-3 grid gap-2.5 sm:grid-cols-2">
                 @for (itemFoto of photos(); track itemFoto.id) {
                   <div
-                    class="flex items-center justify-between gap-3 rounded-xl border border-[#E8D5D8] bg-white p-2.5 shadow-2xs"
+                    class="flex items-center justify-between gap-3 rounded-xl border border-estetica-secondary bg-white p-2.5 shadow-2xs"
                   >
                     <button
                       type="button"
@@ -2238,7 +2283,7 @@
                           />
                           <span
                             aria-hidden="true"
-                            class="absolute inset-0 flex items-center justify-center bg-[#2D2224]/35 opacity-0 transition group-hover:opacity-100"
+                            class="absolute inset-0 flex items-center justify-center bg-estetica-text/35 opacity-0 transition group-hover:opacity-100"
                           >
                             <i class="pi pi-search-plus text-xs text-white"></i>
                           </span>
@@ -2246,7 +2291,7 @@
                       }
                       <div class="min-w-0">
                         <p
-                          class="truncate text-xs font-medium text-[#2D2224] group-hover:text-estetica-primary"
+                          class="truncate text-xs font-medium text-estetica-text group-hover:text-estetica-primary"
                         >
                           {{ itemFoto.file.name }}
                         </p>
@@ -2274,14 +2319,14 @@
               [outlined]="true"
               (onClick)="alternarPainelDetalhe('nenhum')"
               [disabled]="state.busy()"
-              styleClass="border-[#D8B8BE] text-[#7A3B48]"
+              styleClass="border-estetica-secondary text-estetica-primary-dark"
             />
             <p-button
               type="submit"
               label="Concluir e registrar pagamento"
               icon="pi pi-check"
               [loading]="state.busy()"
-              styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+              styleClass="bg-estetica-primary border-estetica-primary text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
             />
           </div>
         </form>
@@ -2292,11 +2337,11 @@
         <form
           [formGroup]="reagendarForm"
           (ngSubmit)="salvarReagendamento()"
-          class="mt-4 grid gap-4 rounded-2xl border border-[#E8D5D8] bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
+          class="mt-4 grid gap-4 rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_30px_-8px_rgba(110,55,65,0.15),0_4px_12px_-3px_rgba(74,50,55,0.08)]"
           novalidate
         >
           <div>
-            <h3 class="font-serif text-xl font-semibold text-[#2D2224]">
+            <h3 class="font-serif text-xl font-semibold text-estetica-text">
               {{
                 item.dataDefinida === false
                   ? 'Definir data e horário da sessão'
@@ -2325,12 +2370,14 @@
                 [showIcon]="true"
                 iconDisplay="input"
                 styleClass="w-full"
-                inputStyleClass="min-h-12 w-full rounded-xl border-[#E8D5D8] bg-white px-3.5 text-sm font-semibold text-[#2D2224]"
+                inputStyleClass="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-3.5 text-sm font-semibold text-estetica-text"
               />
             </div>
 
-            <div class="flex min-h-12 flex-col justify-center rounded-xl bg-[#F4E6E8] px-4 py-2.5">
-              <span class="text-[10px] font-medium tracking-wider text-[#8C5E66] uppercase">
+            <div
+              class="flex min-h-12 flex-col justify-center rounded-xl bg-estetica-secondary px-4 py-2.5"
+            >
+              <span class="text-[10px] font-medium tracking-wider text-estetica-text uppercase">
                 Selecionado
               </span>
               @if (reagendarDataHoraSignal(); as novaDt) {
@@ -2339,7 +2386,7 @@
                     {{ erroReagendar }}
                   </span>
                 } @else {
-                  <span class="mt-0.5 text-sm font-medium text-[#2D2224]">
+                  <span class="mt-0.5 text-sm font-medium text-estetica-text">
                     {{ formatarResumoHorario(novaDt, item.duracaoMinutos) }}
                   </span>
                 }
@@ -2367,7 +2414,7 @@
                           [class]="
                             isMesmoHorario(novaDt, slot.date)
                               ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                              : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50 hover:bg-estetica-bg'
                           "
                           class="h-10 cursor-pointer rounded-xl border text-xs transition"
                         >
@@ -2394,7 +2441,7 @@
                           [class]="
                             isMesmoHorario(novaDt, slot.date)
                               ? 'border-estetica-primary bg-estetica-primary text-white font-medium shadow-[0_6px_14px_-4px_rgba(158,71,88,0.5)]'
-                              : 'border-[#E8D5D8] bg-white text-[#2D2224] font-medium hover:border-estetica-primary/50 hover:bg-[#FAF4F5]'
+                              : 'border-estetica-secondary bg-white text-estetica-text font-medium hover:border-estetica-primary/50 hover:bg-estetica-bg'
                           "
                           class="h-10 cursor-pointer rounded-xl border text-xs transition"
                         >
@@ -2419,14 +2466,14 @@
               [outlined]="true"
               (onClick)="alternarPainelDetalhe('nenhum')"
               [disabled]="state.busy()"
-              styleClass="border-[#D8B8BE] text-[#7A3B48]"
+              styleClass="border-estetica-secondary text-estetica-primary-dark"
             />
             <p-button
               type="submit"
               label="Confirmar novo horário"
               icon="pi pi-calendar-clock"
               [loading]="state.busy()"
-              styleClass="!bg-estetica-primary !border-estetica-primary !text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
+              styleClass="bg-estetica-primary border-estetica-primary text-white shadow-[0_6px_16px_-4px_rgba(158,71,88,0.5)]"
             />
           </div>
         </form>
@@ -2474,25 +2521,25 @@
     aria-labelledby="imagem-preview-title"
     (cancel)="handleImagemDialogCancel($event)"
     (click)="handleImagemDialogClick($event)"
-    class="m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-4xl overflow-hidden rounded-3xl border border-[#E8D5D8] bg-white p-4 text-[#2D2224] shadow-[0_28px_90px_-20px_rgba(30,15,18,0.75)] backdrop:bg-[#2D2224]/70 sm:p-6"
+    class="m-auto max-h-[calc(100dvh-1.5rem)] w-[calc(100vw-1.5rem)] max-w-4xl overflow-hidden rounded-3xl border border-estetica-secondary bg-white p-4 text-estetica-text shadow-[0_28px_90px_-20px_rgba(30,15,18,0.75)] backdrop:bg-estetica-text/70 sm:p-6"
   >
     @if (imagemExpandida(); as img) {
       <div class="mb-3 flex items-center justify-between gap-3">
-        <h3 id="imagem-preview-title" class="truncate text-sm font-medium text-[#2D2224]">
+        <h3 id="imagem-preview-title" class="truncate text-sm font-medium text-estetica-text">
           {{ img.titulo }}
         </h3>
         <button
           type="button"
           aria-label="Fechar visualização da imagem"
           (click)="fecharImagemExpandida()"
-          class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#E8D5D8] bg-estetica-bg text-[#2D2224] transition hover:bg-[#F6E4E7] hover:text-estetica-primary"
+          class="inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-estetica-secondary bg-estetica-bg text-estetica-text transition hover:bg-estetica-secondary hover:text-estetica-primary"
         >
           <i class="pi pi-times text-xs" aria-hidden="true"></i>
         </button>
       </div>
 
       <div
-        class="flex max-h-[calc(100dvh-8rem)] items-center justify-center overflow-auto rounded-2xl bg-[#FAF4F5] p-2"
+        class="flex max-h-[calc(100dvh-8rem)] items-center justify-center overflow-auto rounded-2xl bg-estetica-bg p-2"
       >
         <img
           [src]="img.url"

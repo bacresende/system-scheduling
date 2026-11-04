@@ -1,289 +1,69 @@
-# WrEstetica
+# WR Estética
 
-## Estado do MVP
+MVP em Angular 21, standalone, zoneless, PrimeNG 21 e Tailwind CSS 4. Consulte [requisitos](docs/especificacao-requisito.md), [regras de desenvolvimento](docs/regras-desenvolvimento.md), [diretrizes visuais](docs/especificacao-visual.md) e [contexto de retomada](docs/CONTEXTO-PROXIMA-IA.md).
 
-Frontend Angular 21, zoneless, com componentes standalone, PrimeNG 21 e Tailwind 4.
-As regras de [desenvolvimento](docs/regras-desenvolvimento.md) complementam a
-[especificação funcional](docs/especificacao-requisito.md).
-As diretrizes de interface estão em
-[especificação visual](docs/especificacao-visual.md).
-Para retomar o trabalho com outra IA, consulte o
-[handoff de contexto](docs/CONTEXTO-PROXIMA-IA.md), que registra o estado
-observado do código, as lacunas de integração e as prioridades de continuidade.
+## Execução e backend
 
-**A integração com o backend está parcial.** `cloud/main.js` contém as Cloud
-Functions de pré-cadastro, login, sessão, consulta de CEP, conclusão do perfil e
-resumo administrativo do dashboard. As demais operações administrativas de
-usuários e serviços, agendamentos, anamneses e oportunidades ainda precisam de
-funções/endpoints.
-Não há autenticação simulada nem contas de demonstração.
+Frontend: `npm run build`, `npm test -- --watch=false` e `npm start`. No PowerShell, usar `npm.cmd` se a política bloquear `npm.ps1`.
 
-### Organização
+O Cloud Code está em `C:/Users/bacre/system-scheduling-wr/cloud`; o `main.js` dessa pasta carrega os módulos de funções. Execute `npm test` na pasta do backend. A exclusão preexistente do antigo `cloud/main.js` no repositório Angular foi preservada.
 
-```text
-src/app/
-  core/api/                  # transporte HTTP e configuração de integração
-  shared/ui/                 # feedback de requisições e validação de campos
-  shared/utils/              # utilitários sem regras de negócio
-  layout/main-layout/        # navegação exclusiva da administração
-  features/
-    auth/                    # sessão, guards, login, cadastro e redefinição de senha
-    usuarios/                # modelo único Usuario e operações administrativas
-    clientes/                # telas de clientes e conclusão progressiva do perfil
-    servicos/                # cadastro, edição e inativação
-    agendamentos/            # agenda diária/semanal, horários, pagamento e upload
-    anamnese/                # contratos e formulários facial e corporal
-    dashboard/               # indicadores gerenciais retornados pela API
-    oportunidades/           # prazo de retorno e convites via WhatsApp
-    portal/                  # agenda e linha do tempo da própria cliente
-```
+O ApiClient usa `https://parseapi.back4app.com/functions`, envia os cabeçalhos Parse e remove o envelope `{ result: ... }`. A sessão fica em `sessionStorage`. O papel é o campo `perfil` de `_User`, com ADMIN ou CLIENTE. Configurar ACL/CLP e provisionamento de administradores no ambiente publicado; nunca colocar Master Key no frontend.
 
-Os componentes externos usam arquivos `.css` vazios; os layouts usam Tailwind
-mobile-first e as cores `estetica-*` já definidas em [src/styles.css](src/styles.css).
-Controles interativos são PrimeNG. Componentes recebem `styleClass`; diretivas
-como `pInputText`/`pTextarea`, aplicadas em elementos nativos, recebem `class`
-(não possuem a mesma API `styleClass`). Imagens da linha do tempo são dinâmicas,
-não imagens estáticas do projeto.
+## Rotas e decisões de produto
 
-### Rotas
+- Login e pré-cadastro são públicos. O pré-cadastro exige nome, e-mail, telefone, CPF válido e senha.
+- `sessionGuard` restaura a sessão; `adminGuard` protege a administração.
+- Rotas ADMIN: dashboard, agendamentos, clientes, serviços, cupons e detalhes de atendimento/prontuário.
+- `/anamnese` é o link compartilhado com a CLIENTE autenticada. Cada envio registra uma ficha no perfil da sessão, sem serviço ou agendamento. O ADMIN consulta as fichas na aba Anamneses do prontuário.
+- O parâmetro antigo `agendamento` não seleciona nem associa registros. Não existem GET/PUT de anamnese por atendimento. As rotas antigas de tipos de ficha redirecionam para a ficha única.
+- A cliente pode acessar portal e anamnese com cadastro incompleto e completar o perfil depois. O ADMIN informa um CPF válido e único no cadastro inicial; a conclusão posterior exige nascimento e endereço e preserva esse CPF.
+- A tela separada de oportunidades foi retirada. `/oportunidades` redireciona para o dashboard. A futura apresentação dos retornos ficará no dashboard e está fora desta entrega. O contador legado da resposta do dashboard foi preservado.
 
-- Públicas, sem layout administrativo: `/login` (inclui redefinição de senha) e
-  `/pre-cadastro` (cadastro próprio do usuário).
-- `/completar-cadastro` não tem guard ativado atualmente. `/portal` tem
-  `clientGuard`, que verifica a sessão já carregada.
-- `/anamnese?agendamento=ID` é a rota da ficha única vinculada ao agendamento,
-  mas não tem guard ativado atualmente.
-- `/anamnese` sem parâmetro exige sessão de cliente e salva ficha ligada ao
-  perfil, sem associação inicial a serviço ou agendamento. O dashboard permite
-  copiar o link para compartilhá-lo; clientes sem conta podem preservar o
-  destino no fluxo de cadastro. Com `?agendamento=ID`, mantém a ficha vinculada.
-- Administração: `/dashboard`, `/clientes`, `/servicos`, `/agendamentos`,
-  `/clientes/:id` (prontuário), `/agendamentos/:id`, `/oportunidades`.
-- As proteções `sessionGuard` na raiz e `adminGuard` na área administrativa estão
-  comentadas em `src/app/app.routes.ts`; por isso, as rotas administrativas não
-  estão protegidas por esses guards no estado atual. O `sessionGuard` contém a
-  lógica de restauração/redirecionamento, mas precisa ser ligado às rotas.
+## Cloud Functions locais
 
-São usados imports estáticos e `component`, conforme a preferência do projeto.
-As páginas das funcionalidades são carregadas sob demanda com lazy loading.
-No build de produção, o bundle inicial medido ficou em aproximadamente 655 kB
-(149 kB de transferência estimada), abaixo dos limites de aviso (1,25 MB) e erro
-(1,35 MB) configurados no orçamento do Angular.
+Todas usam `POST /functions/NOME`. A publicação no Back4App não é automática.
 
-### Conectar uma API real
+| Área                | Funções                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Autenticação        | preCadastro, login, sessao                                                                                         |
+| Perfil              | completarCadastro, consultarCep                                                                                    |
+| Dashboard           | dashboard                                                                                                          |
+| Clientes            | listUsuarios, createUsuario, getClienteProntuario                                                                  |
+| Serviços            | listServicos, createServico, updateServico, deactivateServico, deleteServico                                       |
+| Cupons              | listCupons, createCupom, updateCupom, deactivateCupom, deleteCupom, validarCupom                                   |
+| Agenda              | getConfiguracaoAgenda, listAgendamentos, getAgendamento, createAgendamento, createPacoteAgendamentos               |
+| Operações           | confirmarAgendamento, reagendarAgendamento, marcarAlertaVistoAgendamento, cancelarAgendamento, concluirAgendamento |
+| Consultas da agenda | listarHorariosDisponiveis, calcularResumoFinanceiroAgendamento                                                     |
+| Arquivos            | uploadFotoAgendamento                                                                                              |
+| Anamnese            | createAnamnese, exclusivo de CLIENTE                                                                               |
 
-O [ApiClient](src/app/core/api/api-client.ts) usa
-`https://parseapi.back4app.com/functions` e adiciona os cabeçalhos do Parse.
-Essa URL está definida diretamente no serviço; não há atualmente um provider
-`API_BASE_URL` funcional. Publique `cloud/main.js` como Cloud Code no Back4App.
-A pessoa pode criar sua própria conta pela rota `/pre-cadastro`; o fluxo de
-criação administrativa de usuários ainda depende de endpoint a implementar.
-O cadastro usa o e-mail normalizado como `username`, cuja unicidade no Parse
-impede contas duplicadas. Se a clínica criar uma conta por outro meio, a pessoa
-deve usar “Esqueci minha senha” para definir seu acesso. Após o login, o fluxo de
-perfil leva a pessoa para
-`/completar-cadastro`. O token fica em `sessionStorage` e é enviado nas próximas
-requisições como `X-Parse-Session-Token`. O logout invalida a sessão pelo endpoint
-REST do Parse. A REST API Key usada no cliente é visível no navegador; não coloque
-a Master Key no frontend e configure ACL/CLP e permissões no Back4App.
+Logout e redefinição usam REST Parse `/logout` e `/requestPasswordReset`; o envio de e-mail exige configuração de `emailAdapter`.
 
-Configure um `emailAdapter` válido no app Back4App/Parse Server para o envio dos
-e-mails de redefinição. A solicitação usa diretamente
-`POST https://parseapi.back4app.com/requestPasswordReset`; o Parse processa o
-pedido e envia o link. Revise a URL de redefinição e os domínios permitidos na
-configuração do app antes de liberar o fluxo em produção.
+Contratos principais:
 
-### Cloud Functions implementadas
+- `dashboard({ timeZone })` retorna agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades e agendaHoje. O fuso IANA define os limites do dia.
+- `getClienteProntuario({ id })` retorna cliente, agendamentos e anamnesesAvulsas. As fichas ficam no nível da cliente; registros antigos com o mesmo idCliente continuam disponíveis.
+- `listAgendamentos({ inicio, fim })` retorna reservas do período, pendências e sessões irmãs, com paginação interna. Datas usam ISO 8601; nascimento usa YYYY-MM-DD.
+- `createPacoteAgendamentos` recebe a base de NovoAgendamento, idPacote, totalSessoes e sessoes: `{ dataHora, dataDefinida }[]`; retorna Agendamento[]. A primeira sessão precisa de data e são permitidas até 100 sessões.
+- `concluirAgendamento` recebe id, metodoPagamento (PIX/Cartao/Dinheiro), anotacoesFinais e URLs opcionais. Somente ADMIN, atendimento ativo com data definida.
+- `uploadFotoAgendamento` recebe id e arquivos: `{ nomeArquivo, mimeType, base64 }[]`; retorna `{ url, urls }`. O envio de um único arquivo também é aceito.
+- `createAnamnese` recebe somente respostas. idCliente vem da sessão e associações enviadas pelo chamador são ignoradas.
+- `createUsuario` exige CPF válido e único, normalizado no servidor. `completarCadastro` recebe CPF opcional se já existente, nascimento, endereço e ocupação profissional opcional.
+- Serviço referenciado por agendamentos não pode ser excluído: usar inativação. Código de cupom utilizado não pode ser renomeado.
 
-As respostas das Cloud Functions Parse vêm no envelope `{ result: ... }`; o
-`ApiClient` remove esse envelope antes de entregar os dados aos serviços.
+## Integridade
 
-| Método e caminho | Corpo / resposta |
-|---|---|
-| `POST /functions/preCadastro` | `{ nome, email, telefone, senha }` -> `Usuario` com `sessionToken`; cria `_User`, username=email e autentica |
-| `POST /functions/login` | `{ email, senha }` -> `Usuario` com `sessionToken` |
-| `POST /functions/sessao` | Requer `X-Parse-Session-Token`; retorna `Usuario` atual |
-| `POST /logout` | Endpoint REST do Parse; invalida a sessão autenticada |
-| `POST /functions/completarCadastro` | Requer sessão; `{ cpf, nasc, endereco, ocupacaoProfissional? }` -> atualiza o perfil do usuário autenticado, cliente ou admin, e calcula a conclusão no servidor; endereço pode ser preenchido manualmente mesmo se a consulta do CEP falhar |
-| `POST /functions/consultarCep` | Requer sessão; `{ cep }` -> consulta ViaCEP e retorna CEP, logradouro, complemento, bairro, cidade e UF |
-| `POST /functions/dashboard` | Requer sessão administrativa; `{ timeZone }` -> resumo, incluindo `agendaHoje` com horário, status e nomes de cliente/serviço |
+A agenda propaga falhas essenciais; não substitui erro HTTP por expediente/profissionais presumidos ou listagem bem-sucedida. O dispositivo administrativo deve usar o fuso da clínica.
 
-O Cloud Code atual determina o perfil pela associação do usuário aos papéis
-`ADMIN`/`CLIENTE`; o fluxo de pré-cadastro associa novos usuários ao papel
-`CLIENTE`. Nome, e-mail, telefone, CPF e nascimento permanecem em `_User`. O
-endereço é salvo na classe `Endereco` e associado ao usuário pelo ponteiro
-`_User.endereco`.
+O formulário envia todas as sessões em uma requisição, inclusive no agendamento simples. idPacote é estável por tentativa: perder a resposta e repetir os mesmos dados reutiliza a chave. Uma chave com dados diferentes é rejeitada. Falha intermediária dispara rollback compensatório; tentativas parciais cuja limpeza falhou podem ser retomadas com a mesma chave. Locks são locais ao processo; isso não equivale a uma transação distribuída entre instâncias reais do Parse.
 
-### Contratos de integração pendentes
+Valores e duração são snapshots calculados no servidor. O rateio distribui centavos restantes sem alterar o total contratado. Concluídos/cancelados não podem ser alterados como ativos. Sessões sem data precisam ser agendadas antes de receber pagamento ou fotos.
 
-As integrações abaixo ainda aguardam implementação. Datas de eventos devem ser
-ISO 8601 com offset/UTC; nascimento usa `YYYY-MM-DD`.
-| `POST /functions/listUsuarios` | `{ perfil: 'CLIENTE' }` -> `Usuario[]`; somente admin |
-| `POST /functions/createUsuario` | `{ nome, email, telefone, perfil: 'CLIENTE' }` -> `Usuario`; somente admin |
-| `POST /functions/listServicos` | `{}` -> `Servico[]`, incluindo inativos; somente admin |
-| `POST /functions/createServico` | `SalvarServico` -> `Servico`; somente admin |
-| `POST /functions/updateServico` | `{ id, ...SalvarServico }` -> `Servico`; somente admin |
-| `POST /functions/deactivateServico` | `{ id }` -> `Servico` inativado; somente admin |
-| `GET /clinica/agenda` | `ConfiguracaoAgenda` com fuso IANA, janelas de expediente e profissionais |
-| `GET /agendamentos?inicio=ISO&fim=ISO` | `Agendamento[]`; intervalo `[inicio, fim)`, incluindo eventos que interceptem a janela |
-| `GET /agendamentos/:id` | `Agendamento`; admin ou cliente proprietária |
-| `POST /functions/getClienteProntuario` | `{ id }` -> `{ cliente: Usuario, agendamentos: AtendimentoCliente[] }`; somente admin, incluindo dados cadastrais, serviço, anamnese, anotações e URLs de fotos autorizadas de todos os atendimentos do cliente |
-| `POST /agendamentos` | `NovoAgendamento` -> `Agendamento`; servidor calcula duração, valor e status pendente |
-| `POST /agendamentos/:id/cancelar` | `{}` -> `Agendamento` cancelado |
-| `POST /agendamentos/:id/concluir` | `{ metodoPagamento, anotacoesFinais, fotoResultadoUrl? }` -> `Agendamento` concluído |
-| `POST /agendamentos/:id/foto` | Multipart `foto` -> `{ url: "https://..." }`; upload autorizado para Storage |
-| `GET /anamnese?agendamento=ID` | `Anamnese` única ou `null` se ainda não preenchida |
-| `PUT /anamnese/:idAgendamento` | Respostas da ficha única -> `Anamnese` |
-| `POST /functions/createAnamneseAvulsa` | Respostas da ficha -> `Anamnese` associada à sessão cliente e sem `idServico`/`idAgendamento`; somente clientes autenticadas |
-| `GET /usuarios/me/linha-do-tempo` | `AtendimentoPortal[]`; somente dados da sessão, incluindo nome do serviço sem tipo de ficha |
-| `GET /oportunidades` | `CandidatoRetorno[]`: `{ agendamento, usuario, servico }` |
+JPEG/PNG/WebP de até 5 MB são transmitidos como base64 para Parse.File; somente URLs são persistidas no agendamento. O servidor verifica assinatura e estrutura básica do formato, sem decodificação completa. O upload vincula fotos imediatamente, preservando-as se a conclusão falhar. Arquivos de um lote que falhar antes do vínculo são removidos por compensação; uma falha de limpeza também é informada. A interface conserva URLs já recebidas para não repetir o upload na nova tentativa de conclusão.
 
-O resumo soma agendamentos com horário definido hoje, excluindo cancelados;
-conta clientes associados ao papel `CLIENTE`, soma os valores de atendimentos
-concluídos hoje e conta oportunidades de retorno pelo último atendimento
-concluído de cada combinação cliente/serviço. `agendaHoje` traz os dados
-necessários para a lista diária e indicadores de confirmações, reagendamentos
-não vistos e horários vencidos (`id`, `dataHora`, `status`, duração, dados de
-reagendamento, `cliente` e `servico`), sem chamadas adicionais do dashboard. O
-campo `timeZone` deve ser um fuso IANA e define os limites do dia para os cálculos.
+## Verificação e limites
 
-`Usuario` contém os dados da conta e `perfil: 'ADMIN' | 'CLIENTE'`; não há uma
-classe separada `Cliente`. Não devolver senha em nenhuma resposta. A política de
-senha, confirmação de e-mail e provisão de administradores ainda deve ser definida
-pelo backend.
+Testes locais usam HTTP simulado e Parse em memória. Publicação, ACL/CLP, e-mail, Storage real e fluxos em navegador precisam ser verificados no ambiente autorizado. O frontend atualizado depende da publicação de createPacoteAgendamentos.
 
-`Agendamento` inclui `valor` e `duracaoMinutos` como snapshots do momento da
-reserva, além dos campos da especificação. Alterar um serviço não pode alterar
-retroativamente duração ou valor de reservas existentes.
-
-`AtendimentoCliente` estende `Agendamento` com `nomeServico` e `anamnese`
-(`Anamnese | null`). O prontuário é uma consulta completa por cliente, sem
-intervalo de datas; o backend deve verificar o papel administrativo e retornar
-URLs de fotos que o administrador esteja autorizado a consultar. A interface
-usa a data do atendimento como referência para cada foto, pois o modelo atual
-não registra uma data individual por imagem.
-
-`ConfiguracaoAgenda`:
-
-```json
-{
-  "fusoHorario": "America/Sao_Paulo",
-  "expediente": [
-    { "diaSemana": 1, "inicio": "09:00", "fim": "18:00" }
-  ],
-  "funcionarios": [{ "id": "ID_REAL", "nome": "Profissional" }]
-}
-```
-
-Este exemplo é de contrato, não uma configuração de funcionamento presumida.
-`diaSemana` segue JavaScript (0 domingo, 6 sábado); várias janelas no mesmo dia
-permitem intervalos. A versão atual exige que o dispositivo administrativo use
-o fuso da clínica; divergências são bloqueadas com mensagem, sem converter
-silenciosamente horários.
-
-### Regras implementadas na interface e obrigações do backend
-
-- Uma seleção de serviço por agendamento; duração reservada integralmente.
-- Verificação de choque e expediente antes de criar. Intervalos adjacentes são
-  permitidos; cancelados não bloqueiam. O servidor deve repetir isso de forma
-  **atômica** para impedir concorrência entre operadores.
-- Conclusão exige pagamento; atendimentos encerrados não exibem ações de
-  alteração. API deve impedir transições inválidas e alteração financeira.
-- Perfil incompleto bloqueia portal e anamnese; acesso administrativo depende
-  de papel. Guards não substituem autorização nem proteção dos dados clínicos.
-- Cadastro usa Reactive Forms, e-mail/telefone válidos e CPF com dígitos
-  verificadores; servidor deve repetir as validações e garantir unicidade.
-- Facial exige informar ácidos quando aplicável. Cliente/serviço da ficha vêm
-  do agendamento, não de campos editáveis. Fichas encerradas são somente leitura.
-- Fotos JPEG/PNG/WebP até 5 MB são enviadas em multipart, nunca base64. O backend
-  valida conteúdo real, acesso, tamanho, Storage, URL e autorização. Uploads
-  provisórios precisam expirar se a conclusão falhar; URLs assinadas precisam ser
-  renovadas no endpoint de histórico. Fotos clínicas devem ter acesso autorizado.
-- Oportunidades verificam conclusão, prazo positivo e data atingida. O endpoint
-  deve definir a seleção de candidatos (por exemplo, último atendimento de cada
-  cliente/serviço), evitando convites duplicados. WhatsApp abre um link com texto;
-  **não há envio automático**, nem promessa de entrega.
-- Falhas HTTP são exibidas: 401 sessão/credenciais, 403 permissão, 409 conflito;
-  erros de rede têm mensagem e não são convertidos em sucesso/dados fictícios.
-
-### Pendências explícitas
-
-1. Implementar e integrar todos os endpoints acima, autenticação real, banco,
-   Storage, autorização por registro, CSRF e validações transacionais.
-2. Definir horários reais, profissionais, política de senha e retenção/consentimento
-   para dados e fotos de saúde.
-3. A especificação não define campos de capilar/sobrancelha. As respectivas
-   rotas mostram essa pendência; não inventam formulários ou salvamentos.
-4. Validar integração e acessibilidade em navegador com dados reais autorizados.
-   Build e testes unitários não certificam conformidade WCAG/AXE ou segurança do
-   backend.
-
-### Validação local
-
-```bash
-npm run build
-npm test -- --watch=false
-```
-
-Testes cobrem intervalos/expediente, conflitos, cancelamentos, retornos, CPF,
-API sem configuração e guards de sessão, perfil e papel.
-
----
-
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+O portal da cliente ainda chama `GET /functions/usuarios/me/linha-do-tempo`, sem implementação no backend local, fora do escopo desta correção administrativa. Consulte o [registro das correções](docs/auditoria-admin-2026-11-03.md).

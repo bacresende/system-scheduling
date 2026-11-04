@@ -4,7 +4,6 @@ import { Usuario } from '../../usuarios/models/usuario.model';
 
 export interface AtendimentoCliente extends Agendamento {
   nomeServico: string;
-  anamnese: Anamnese | null;
 }
 
 export interface ClienteProntuario {

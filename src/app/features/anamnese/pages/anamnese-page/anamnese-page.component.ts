@@ -24,7 +24,7 @@ export class AnamnesePageComponent implements OnInit {
   protected readonly form = inject(FormBuilder).nonNullable.group({
     tipoPele: ['Normal' as Anamnese['tipoPele'], Validators.required],
     usaAcidos: [false],
-    quaisAcidos: [''],
+    quaisAcidos: ['', Validators.maxLength(500)],
     sensibilidadeSol: [false],
     temVarizes: [false],
     fezCirurgiaRecente: [false],
@@ -36,33 +36,19 @@ export class AnamnesePageComponent implements OnInit {
   });
   ngOnInit(): void {
     void this.state.run(async () => {
-      const id = await this.context.load();
-      if (id) {
-        const existing = await this.api.get(id);
-        if (existing) {
-          this.form.patchValue({ ...existing, quaisAcidos: existing.quaisAcidos ?? '' });
-        }
-      }
-      this.context.editable.set(
-        this.context.standalone() || this.context.booking()?.status === 'Pendente',
-      );
-      if (!this.context.editable()) this.form.disable();
+      this.context.load();
     });
   }
   protected save(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.context.editable()) return;
     void this.state.run(async () => {
       const value = this.form.getRawValue();
       const respostas = {
         ...value,
         quaisAcidos: value.usaAcidos ? value.quaisAcidos.trim() : undefined,
       };
-      if (this.context.standalone()) {
-        await this.api.saveStandalone(respostas);
-      } else {
-        await this.api.save(this.context.editableId(), respostas);
-      }
+      await this.api.saveStandalone(respostas);
     }, 'Ficha de anamnese salva.');
   }
 }

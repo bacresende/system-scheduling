@@ -80,7 +80,7 @@ describe('Access and progressive profile guards', () => {
     const { Router } = await import('@angular/router');
     expect(TestBed.inject(Router).url).toBe('/anamnese');
   });
-  it('allows an administrator to reach a booking anamnesis', async () => {
+  it('redirects administrators away from the client form even with a legacy booking parameter', async () => {
     const harness = await setup({
       id: 'admin',
       nome: 'Admin',
@@ -91,7 +91,7 @@ describe('Access and progressive profile guards', () => {
     });
     await harness.navigateByUrl('/anamnese?agendamento=booking-1');
     const { Router } = await import('@angular/router');
-    expect(TestBed.inject(Router).url).toBe('/anamnese?agendamento=booking-1');
+    expect(TestBed.inject(Router).url).toBe('/dashboard');
   });
   it('uses the portal as the home page for incomplete client profiles', () => {
     expect(homeFor(null, client(false).perfil)).toBe('/portal');

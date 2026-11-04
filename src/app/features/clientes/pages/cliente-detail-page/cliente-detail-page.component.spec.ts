@@ -27,7 +27,20 @@ describe('ClienteDetailPageComponent', () => {
         pais: 'Brasil',
       },
     },
-    anamnesesAvulsas: [],
+    anamnesesAvulsas: [
+      {
+          idCliente: 'cliente-1',
+          dataPreenchimento: '2026-10-10T09:00:00-03:00',
+          tipoPele: 'Mista',
+          usaAcidos: true,
+          quaisAcidos: 'Ácido glicólico',
+          sensibilidadeSol: false,
+          temVarizes: false,
+          fezCirurgiaRecente: false,
+          praticaAtividadeFisica: true,
+          alergiaCosmeticos: false,
+        },
+    ],
     agendamentos: [
       {
         id: 'atendimento-antigo',
@@ -40,7 +53,6 @@ describe('ClienteDetailPageComponent', () => {
         valor: 100,
         nomeServico: 'Limpeza de pele',
         fotoResultadoUrl: 'https://storage.example.test/antiga.jpg',
-        anamnese: null,
       },
       {
         id: 'atendimento-recente',
@@ -57,20 +69,7 @@ describe('ClienteDetailPageComponent', () => {
           'https://storage.example.test/recente-1.jpg',
           'https://storage.example.test/recente-2.jpg',
         ],
-        anamnese: {
-          idCliente: 'cliente-1',
-          idServico: 'servico-1',
-          idAgendamento: 'atendimento-recente',
-          dataPreenchimento: '2026-10-10T09:00:00-03:00',
-          tipoPele: 'Mista',
-          usaAcidos: true,
-          quaisAcidos: 'Ácido glicólico',
-          sensibilidadeSol: false,
-          temVarizes: false,
-          fezCirurgiaRecente: false,
-          praticaAtividadeFisica: true,
-          alergiaCosmeticos: false,
-        },
+
       },
     ],
   };

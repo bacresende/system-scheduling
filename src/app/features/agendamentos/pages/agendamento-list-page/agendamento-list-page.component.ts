@@ -43,7 +43,6 @@ import {
   StatusAgendamento,
 } from '../../models/agendamento.model';
 import {
-  availableSlotsForDay,
   calculateBookingPricing,
   endTime,
   HorarioDisponivelSlot,
@@ -52,7 +51,7 @@ import {
   validateSlot,
   whatsappLink,
 } from '../../services/agenda-rules';
-import { AgendamentosService, DEFAULT_AGENDA_CONFIG } from '../../services/agendamentos.service';
+import { AgendamentosService } from '../../services/agendamentos.service';
 
 export type FiltroStatusAgenda = 'TODOS' | 'AGUARDANDO' | 'CONFIRMADO' | 'CONCLUIDO' | 'CANCELADO';
 
@@ -123,6 +122,11 @@ export class AgendamentoListPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
+  private creationAttempt: {
+    signature: string;
+    payload: Parameters<AgendamentosService['createPackage']>[0];
+  } | null = null;
+  private fetchSequence = 0;
 
   private readonly novoDialogRef =
     viewChild<ElementRef<HTMLDialogElement>>('novoAgendamentoDialog');
@@ -135,6 +139,7 @@ export class AgendamentoListPageComponent implements OnInit {
   protected readonly config = signal<ConfiguracaoAgenda | null>(null);
   protected readonly clientes = signal<Usuario[]>([]);
   protected readonly servicos = signal<Servico[]>([]);
+  protected readonly servicosAtivos = computed(() => this.servicos().filter(item => item.ativo));
   protected readonly cupons = signal<Cupom[]>([]);
   protected readonly bookings = signal<Agendamento[]>([]);
   protected readonly loadCycle = signal(0);
@@ -630,8 +635,8 @@ export class AgendamentoListPageComponent implements OnInit {
         ignoreBookingId: ignorarId,
       });
       this.slotsServidor.update((atual) => ({ ...atual, [chave]: slots }));
-    } catch {
-      // Sem resposta do backend: segue com a prévia local; o backend revalida ao salvar.
+    } catch (error: unknown) {
+      this.state.error.set(`Não foi possível consultar os horários disponíveis. ${errorMessage(error)}`);
     } finally {
       this.slotsServidorPendentes.delete(chave);
     }
@@ -650,17 +655,7 @@ export class AgendamentoListPageComponent implements OnInit {
     const config = this.config();
     if (!config) return [];
     const servidor = this.slotsServidor()[this.chaveSlots(dia, duracao, ignorarId)];
-    if (!servidor) {
-      return availableSlotsForDay(
-        dia,
-        duracao,
-        config.expediente,
-        this.bookings(),
-        30,
-        ignorarId,
-        outrasDatas,
-      );
-    }
+    if (!servidor) return [];
     // Remove os horários que conflitam com sessões ainda não salvas deste mesmo pacote
     return servidor.filter((slot) => {
       const fim = endTime(slot.date, duracao);
@@ -708,9 +703,10 @@ export class AgendamentoListPageComponent implements OnInit {
       const erro = resultado.erroCupom ?? null;
       this.validacaoCupomServidor.set({ chave, erro });
       return erro;
-    } catch {
-      // Falha de comunicação: o backend revalida o cupom ao criar o agendamento.
-      return null;
+    } catch (error: unknown) {
+      const erro = `Não foi possível validar o cupom. ${errorMessage(error)}`;
+      this.validacaoCupomServidor.set({ chave, erro });
+      return erro;
     } finally {
       if (this.chaveCupomAtual() === chave) this.validandoCupom.set(false);
     }
@@ -737,7 +733,9 @@ export class AgendamentoListPageComponent implements OnInit {
   protected loadAll(): void {
     this.loadCycle.update((c) => c + 1);
     void this.state.run(async () => {
-      const [configResult, clientesResult, servicosResult, cuponsResult] = await Promise.allSettled(
+      this.config.set(null);
+      this.bookings.set([]);
+      const [loadedConfig, clientes, servicos, cupons] = await Promise.all(
         [
           this.api.config(),
           this.usuariosApi.listByProfile('CLIENTE'),
@@ -746,11 +744,7 @@ export class AgendamentoListPageComponent implements OnInit {
         ],
       );
 
-      const loadedConfig =
-        configResult.status === 'fulfilled' ? configResult.value : DEFAULT_AGENDA_CONFIG;
-
       if (
-        configResult.status === 'fulfilled' &&
         loadedConfig.fusoHorario &&
         loadedConfig.fusoHorario !== Intl.DateTimeFormat().resolvedOptions().timeZone
       ) {
@@ -760,15 +754,9 @@ export class AgendamentoListPageComponent implements OnInit {
       }
 
       this.config.set(loadedConfig);
-      if (clientesResult.status === 'fulfilled') {
-        this.clientes.set(clientesResult.value);
-      }
-      if (servicosResult.status === 'fulfilled') {
-        this.servicos.set(servicosResult.value.filter((item) => item.ativo));
-      }
-      if (cuponsResult.status === 'fulfilled') {
-        this.cupons.set(cuponsResult.value);
-      }
+      this.clientes.set(clientes);
+      this.servicos.set(servicos);
+      this.cupons.set(cupons);
 
       if (!this.form.controls.idFuncionario.value && loadedConfig.funcionarios.length > 0) {
         this.form.controls.idFuncionario.setValue(loadedConfig.funcionarios[0].id);
@@ -779,15 +767,18 @@ export class AgendamentoListPageComponent implements OnInit {
   }
 
   private async fetch(): Promise<void> {
+    const sequence = ++this.fetchSequence;
     const raw = this.rawDays();
     const first = raw[0];
     const last = new Date(first);
     last.setDate(first.getDate() + raw.length);
+    this.bookings.set([]);
+    this.slotsServidor.set({});
     try {
       const remoteBookings = await this.api.list(first, last);
-      this.bookings.set(remoteBookings);
-    } catch {
-      // Preserva agendamentos em memória caso o endpoint de listagem ainda não esteja disponível
+      if (sequence === this.fetchSequence) this.bookings.set(remoteBookings);
+    } catch (error: unknown) {
+      if (sequence === this.fetchSequence) throw error;
     }
     // A agenda mudou: horários livres consultados antes podem estar desatualizados
     this.slotsServidor.set({});
@@ -1396,6 +1387,15 @@ export class AgendamentoListPageComponent implements OnInit {
     if (!start) return;
 
     void this.state.run(async () => {
+      const inputSignature = JSON.stringify({ value, sessoes: this.sessoesExtras() });
+      if (this.creationAttempt?.signature === inputSignature) {
+        await this.api.createPackage(this.creationAttempt.payload);
+        this.creationAttempt = null;
+        this.fecharDialogNovoAgendamento();
+        this.limparFormularioNovo();
+        await this.fetch();
+        return;
+      }
       const config = this.config();
       const service = this.servicos().find((item) => item.id === value.idServico && item.ativo);
       if (!config || !service) {
@@ -1423,12 +1423,7 @@ export class AgendamentoListPageComponent implements OnInit {
       const dayEnd = new Date(dayStart);
       dayEnd.setDate(dayEnd.getDate() + 1);
 
-      let existingBookings = this.bookings();
-      try {
-        existingBookings = await this.api.list(dayStart, dayEnd);
-      } catch {
-        // Usa os agendamentos atuais em memória se a API de listagem não responder
-      }
+      const existingBookings = await this.api.list(dayStart, dayEnd);
 
       const error = validateSlot(
         start,
@@ -1449,7 +1444,6 @@ export class AgendamentoListPageComponent implements OnInit {
 
       const totalSessoes = Math.max(1, value.totalSessoes);
       const financeiro = this.resumoFinanceiro();
-      const idPacote = totalSessoes > 1 ? `pkg-${Date.now()}` : undefined;
       const tipoDesconto = value.usarDescontoManual
         ? value.tipoDescontoManual === 'PORCENTAGEM'
           ? ('MANUAL_PORCENTAGEM' as const)
@@ -1470,49 +1464,31 @@ export class AgendamentoListPageComponent implements OnInit {
         valorDesconto: financeiro.valorDesconto,
         tipoDesconto,
         codigoCupom: value.usarDescontoManual ? null : value.codigoCupom,
-        idPacote,
         sessaoNumero: 1,
         totalSessoes,
         dataDefinida: true,
         criadoPor: 'ADMIN',
       };
 
-      // Erros do backend (horário ocupado, cupom esgotado etc.) interrompem o fluxo
-      // e são exibidos pelo RequestState; nada é adicionado à agenda sem ter sido salvo.
+      const sessoes = [
+        { dataHora: start.toISOString(), dataDefinida: true },
+        ...this.sessoesExtras().map(extra => ({
+          dataHora: extra.dataHora && !extra.definirDepois ? extra.dataHora.toISOString() : start.toISOString(),
+          dataDefinida: !extra.definirDepois && Boolean(extra.dataHora),
+        })),
+      ];
+      this.creationAttempt = {
+        signature: inputSignature,
+        payload: { ...basePayload, idPacote: `pkg-${globalThis.crypto.randomUUID()}`, sessoes },
+      };
       try {
-        await this.api.create(basePayload);
+        await this.api.createPackage(this.creationAttempt.payload);
       } catch (error: unknown) {
         this.slotsServidor.set({});
         void this.carregarSlotsServidor(start, service.duracaoMinutos);
-        void this.fetch();
         throw error;
       }
-
-      let sessoesCriadas = 1;
-      try {
-        for (const extra of this.sessoesExtras()) {
-          const extraPayload: NovoAgendamento = {
-            ...basePayload,
-            sessaoNumero: extra.sessaoNumero,
-            dataDefinida: !extra.definirDepois && Boolean(extra.dataHora),
-            dataHora:
-              !extra.definirDepois && extra.dataHora
-                ? extra.dataHora.toISOString()
-                : start.toISOString(),
-          };
-          await this.api.create(extraPayload);
-          sessoesCriadas++;
-        }
-      } catch (error: unknown) {
-        // Parte do pacote já foi salva: fecha o formulário (evita duplicar ao salvar de novo)
-        // e recarrega a agenda para refletir o que existe no banco
-        this.fecharDialogNovoAgendamento();
-        this.limparFormularioNovo();
-        await this.fetch();
-        throw new Error(
-          `${sessoesCriadas} de ${totalSessoes} sessões foram criadas. A ${sessoesCriadas + 1}ª falhou: ${errorMessage(error)} Defina-a pelo pacote na agenda.`,
-        );
-      }
+      this.creationAttempt = null;
 
       this.fecharDialogNovoAgendamento();
       this.limparFormularioNovo();
@@ -1521,6 +1497,12 @@ export class AgendamentoListPageComponent implements OnInit {
   }
 
   // --- Detalhes / Concluir / Reagendar / Cancelar Modal Logic ---
+  protected abrirDetalhesPeloCard(event: MouseEvent, item: Agendamento): void {
+    const target = event.target as HTMLElement;
+    if (target.closest('a, button, input, select, textarea, [role="button"]')) return;
+    this.abrirDetalhes(item, 'nenhum');
+  }
+
   protected abrirDetalhes(
     item: Agendamento,
     painelInicial: PainelDetalheAgendamento = 'nenhum',
@@ -1740,7 +1722,7 @@ export class AgendamentoListPageComponent implements OnInit {
               booking.id,
             );
           }
-          void this.fetch();
+          await this.fetch();
           throw error;
         }
       },
@@ -1754,7 +1736,7 @@ export class AgendamentoListPageComponent implements OnInit {
     this.concluirForm.markAllAsTouched();
     if (this.concluirForm.invalid) return;
     const booking = this.selectedBooking();
-    if (!booking || !this.isAtendimentoAtivo(booking.status)) {
+    if (!booking || !this.isAtendimentoAtivo(booking.status) || booking.dataDefinida === false) {
       this.state.error.set('Somente agendamentos ativos podem ser concluídos.');
       return;
     }
@@ -1772,6 +1754,10 @@ export class AgendamentoListPageComponent implements OnInit {
 
       const fotosExistentes = this.fotosDoAgendamento(booking);
       const todasFotos = [...fotosExistentes, ...novasUrls];
+      if (novasUrls.length) {
+        this.atualizarBookingNaLista({ ...booking, fotoResultadoUrl: todasFotos[0], fotosResultadoUrls: todasFotos });
+        this.limparFotoSelecionada();
+      }
       const formVal = this.concluirForm.getRawValue();
 
       const res = await this.api.complete(booking.id, {
