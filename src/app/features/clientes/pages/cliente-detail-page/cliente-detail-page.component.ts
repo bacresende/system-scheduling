@@ -1,4 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { AnamneseRespostasComponent } from '../../../anamnese/components/anamnese-respostas.component';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -34,6 +35,7 @@ interface AtendimentoFotos {
 @Component({
   selector: 'app-cliente-detail-page',
   imports: [
+    AnamneseRespostasComponent,
     CurrencyPipe,
     DatePipe,
     RouterLink,
@@ -120,10 +122,6 @@ export class ClienteDetailPageComponent implements OnInit {
       case 'Cancelado':
         return 'Cancelado';
     }
-  }
-
-  protected simNao(value: boolean): string {
-    return value ? 'Sim' : 'Não';
   }
 
   protected agendaDate(value: Date | string): string {

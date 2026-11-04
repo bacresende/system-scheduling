@@ -1,16 +1,14 @@
+import { CriarAnamneseCorporal } from './anamnese-corporal.model';
+import { Usuario } from '../../usuarios/models/usuario.model';
+
 export interface AnamneseBase {
   id?: string;
   idCliente: string;
   dataPreenchimento: Date | string;
 }
 
-export interface Anamnese extends AnamneseBase {
-  tipoPele: 'Seca' | 'Oleosa' | 'Mista' | 'Normal';
-  usaAcidos: boolean;
-  quaisAcidos?: string;
-  sensibilidadeSol: boolean;
-  temVarizes: boolean;
-  fezCirurgiaRecente: boolean;
-  praticaAtividadeFisica: boolean;
-  alergiaCosmeticos: boolean;
+export interface AnamneseCorporal extends AnamneseBase, Omit<CriarAnamneseCorporal, 'declaracao'> {
+  declaracao: { informacoesVerdadeiras: true; texto: string; aceitaEm: string; idUsuario: string };
 }
+export type Anamnese = AnamneseCorporal;
+export interface DetalheAnamnese { anamnese: Anamnese; cliente: Usuario; }

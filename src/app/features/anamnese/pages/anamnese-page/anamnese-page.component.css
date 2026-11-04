@@ -1,0 +1,16 @@
+/* Paleta local do Sim/Não; acompanha as cores da clínica. */
+:host {
+  --p-togglebutton-background: var(--cor-secundaria);
+  --p-togglebutton-border-color: var(--cor-secundaria);
+  --p-togglebutton-color: var(--cor-texto);
+  --p-togglebutton-hover-background: var(--cor-secundaria);
+  --p-togglebutton-hover-color: var(--cor-primaria-escura);
+  --p-togglebutton-checked-background: var(--cor-primaria);
+  --p-togglebutton-checked-border-color: var(--cor-primaria);
+  --p-togglebutton-checked-color: #fff;
+  --p-togglebutton-content-checked-background: var(--cor-primaria);
+  --p-togglebutton-content-checked-shadow: none;
+  --p-togglebutton-focus-ring-color: var(--cor-primaria);
+  --p-togglebutton-focus-ring-width: 2px;
+  --p-togglebutton-focus-ring-offset: 3px;
+}

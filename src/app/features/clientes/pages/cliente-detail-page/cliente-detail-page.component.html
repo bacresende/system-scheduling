@@ -244,18 +244,9 @@
                 Ficha preenchida em
                 {{ anamnese.dataPreenchimento | date: "dd/MM/yyyy 'às' HH:mm" }}
               </summary>
-              <dl class="grid gap-3 border-t border-estetica-secondary p-5 sm:grid-cols-2 lg:grid-cols-4">
-                <div><dt class="text-xs text-estetica-text/70">Tipo de pele</dt><dd class="text-sm">{{ anamnese.tipoPele }}</dd></div>
-                <div><dt class="text-xs text-estetica-text/70">Usa ácidos</dt><dd class="text-sm">{{ simNao(anamnese.usaAcidos) }}</dd></div>
-                @if (anamnese.usaAcidos) {
-                  <div><dt class="text-xs text-estetica-text/70">Quais ácidos</dt><dd class="text-sm">{{ anamnese.quaisAcidos || 'Não informado' }}</dd></div>
-                }
-                <div><dt class="text-xs text-estetica-text/70">Sensibilidade ao sol</dt><dd class="text-sm">{{ simNao(anamnese.sensibilidadeSol) }}</dd></div>
-                <div><dt class="text-xs text-estetica-text/70">Varizes</dt><dd class="text-sm">{{ simNao(anamnese.temVarizes) }}</dd></div>
-                <div><dt class="text-xs text-estetica-text/70">Cirurgia recente</dt><dd class="text-sm">{{ simNao(anamnese.fezCirurgiaRecente) }}</dd></div>
-                <div><dt class="text-xs text-estetica-text/70">Pratica atividade física</dt><dd class="text-sm">{{ simNao(anamnese.praticaAtividadeFisica) }}</dd></div>
-                <div><dt class="text-xs text-estetica-text/70">Alergia a cosméticos</dt><dd class="text-sm">{{ simNao(anamnese.alergiaCosmeticos) }}</dd></div>
-              </dl>
+              <div class="border-t border-estetica-secondary p-5">
+                <app-anamnese-respostas [anamnese]="anamnese" />
+              </div>
             </details>
           }
         </div>

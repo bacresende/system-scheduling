@@ -216,36 +216,16 @@ describe('Frontend forms and clinical flows', () => {
     });
     expect(fixture.nativeElement.querySelector('form')).toBeNull();
   });
-  it('requires acids to be specified when the response is affirmative', async () => {
+  it('requires explicit answers before saving corporal anamnesis', async () => {
     const fixture = await setup(AnamnesePageComponent);
     const root: HTMLElement = fixture.nativeElement;
-    expect(root.querySelector('#varizes')).not.toBeNull();
-    expect(root.querySelector('#cirurgia')).not.toBeNull();
-    expect(root.querySelector('#atividade')).not.toBeNull();
-    expect(root.querySelector('#alergia')).not.toBeNull();
-    const checkbox = root.querySelector<HTMLInputElement>('#acidos');
-    if (!checkbox) throw new Error('Checkbox not found');
-    checkbox.click();
-    await fixture.whenStable();
-    request.mockClear();
+    expect(root.querySelector('#contraindicacoesAbsolutas-trombose')).not.toBeNull();
+    expect(root.querySelector('#historico-diabetes')).not.toBeNull();
+    expect(request).not.toHaveBeenCalled();
     submit(root);
     await fixture.whenStable();
-    expect(root.textContent).toContain('Informe quais ácidos');
+    expect(root.textContent).toContain('Revise os campos obrigatórios');
     expect(request).not.toHaveBeenCalled();
-  });
-  it('saves client anamnesis without reading a booking or a legacy endpoint', async () => {
-    const fixture = await setup(AnamnesePageComponent);
-    const root: HTMLElement = fixture.nativeElement;
-    expect(request).not.toHaveBeenCalled();
-    request.mockClear();
-    request.mockResolvedValue({ id: 'ficha' });
-    submit(root);
-    await fixture.whenStable();
-    expect(request).toHaveBeenCalledWith(
-      'POST',
-      '/createAnamnese',
-      expect.objectContaining({ tipoPele: 'Normal' }),
-    );
   });
   it('rejects invalid files and excessive uploads without sending to the API', async () => {
     TestBed.configureTestingModule({ providers: [{ provide: ApiClient, useValue: { request } }] });

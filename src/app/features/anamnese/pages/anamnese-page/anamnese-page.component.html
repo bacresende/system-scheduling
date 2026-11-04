@@ -1,79 +1,150 @@
-<h1 class="mb-2 font-serif text-4xl tracking-tight">Ficha de anamnese</h1>
-<p class="mb-6 text-sm text-estetica-text/75">
-  Responda à ficha para registrar suas informações no seu perfil.
-</p>
-<app-request-feedback />
-<form
-  [formGroup]="form"
-  (ngSubmit)="save()"
-  class="flex flex-col gap-6 rounded-2xl border border-estetica-secondary bg-white p-5 sm:p-7"
-  novalidate
->
-  <fieldset class="flex flex-col gap-4">
-    <legend class="mb-1 text-lg font-semibold">Cuidados com a pele</legend>
-    <div>
-      <label for="pele" class="mb-2 block text-sm font-medium">Como você considera seu tipo de pele?</label>
-      <p-select
-        inputId="pele"
-        formControlName="tipoPele"
-        [options]="tipos"
-        styleClass="w-full md:w-72"
-      />
-      <app-field-error [control]="form.controls.tipoPele" />
-    </div>
-    <label for="acidos" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="acidos" formControlName="usaAcidos" [binary]="true" />
-      <span>Usa ácidos na pele?</span>
-    </label>
-    @if (form.controls.usaAcidos.value) {
-      <div>
-        <label for="quais-acidos" class="mb-2 block text-sm font-medium">Quais ácidos utiliza?</label>
-        <input
-          pInputText
-          id="quais-acidos"
-          formControlName="quaisAcidos"
-          maxlength="500"
-          class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg px-4 text-estetica-text"
-          [attr.aria-invalid]="form.hasError('acidos') && form.controls.quaisAcidos.touched"
-          aria-describedby="acidos-error"
-        />
-        @if (form.hasError('acidos') && (form.controls.quaisAcidos.dirty || form.controls.quaisAcidos.touched)) {
-          <p id="acidos-error" role="alert" class="mt-1 text-sm text-red-800">Informe quais ácidos utiliza.</p>
-        }
+<div class="mx-auto max-w-6xl pb-8 text-estetica-text">
+  <header class="relative mb-6 overflow-hidden rounded-3xl border border-estetica-secondary bg-white p-6 shadow-md shadow-estetica-primary/10 sm:p-8">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-estetica-secondary/50"></div>
+    <div class="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      <div class="max-w-xl">
+        <p class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-estetica-primary"><i class="pi pi-heart" aria-hidden="true"></i> Um cuidado que começa com você</p>
+        <h1 class="font-serif text-3xl tracking-tight sm:text-4xl lg:text-5xl">Avaliação corporal</h1>
+        <p class="mt-3 max-w-lg text-sm leading-relaxed text-estetica-text/75">Cada detalhe ajuda a conhecer você melhor. Preencha sua ficha com calma para preparar o seu atendimento.</p>
       </div>
-    }
-    <label for="sol" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="sol" formControlName="sensibilidadeSol" [binary]="true" />
-      <span>Tem sensibilidade ao sol?</span>
-    </label>
-  </fieldset>
+      <div class="flex w-fit items-center gap-2 rounded-full border border-estetica-secondary bg-estetica-bg px-4 py-2 text-xs font-medium">
+        <i class="pi pi-lock text-estetica-primary" aria-hidden="true"></i> Ficha pessoal e confidencial
+      </div>
+    </div>
+  </header>
 
-  <fieldset class="flex flex-col gap-3 border-t border-estetica-secondary pt-5">
-    <legend class="mb-1 text-lg font-semibold">Saúde e rotina</legend>
-    <label for="varizes" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="varizes" formControlName="temVarizes" [binary]="true" />
-      <span>Tem varizes?</span>
-    </label>
-    <label for="cirurgia" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="cirurgia" formControlName="fezCirurgiaRecente" [binary]="true" />
-      <span>Fez cirurgia recentemente?</span>
-    </label>
-    <label for="atividade" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="atividade" formControlName="praticaAtividadeFisica" [binary]="true" />
-      <span>Pratica atividade física?</span>
-    </label>
-    <label for="alergia" class="flex min-h-11 items-center gap-3">
-      <p-checkbox inputId="alergia" formControlName="alergiaCosmeticos" [binary]="true" />
-      <span>Tem alergia a cosméticos?</span>
-    </label>
-  </fieldset>
+  @if (usuario(); as pessoa) {
+    <section aria-label="Dados do cliente" class="mb-6 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm shadow-estetica-primary/10 sm:px-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex min-w-0 items-center gap-3">
+          <span aria-hidden="true" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-xl text-estetica-primary"><i class="pi pi-user"></i></span>
+          <div class="min-w-0">
+            <p class="mb-0.5 text-xs text-estetica-text/65">Preenchendo como</p>
+            <h2 class="break-words font-semibold">{{ pessoa.nome }}</h2>
+            <p class="break-all text-sm text-estetica-text/70">{{ pessoa.email || 'E-mail não informado' }}</p>
+          </div>
+        </div>
+        <button pButton type="button" [text]="true" (click)="showProfile.set(!showProfile())" [attr.aria-expanded]="showProfile()" aria-controls="anamnese-profile" class="min-h-11 shrink-0 justify-center gap-2 rounded-xl px-3 text-sm text-estetica-primary">
+          {{ showProfile() ? 'Ocultar cadastro' : 'Ver dados do cadastro' }}<i [class]="showProfile() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div id="anamnese-profile" [hidden]="!showProfile()" class="mt-5 border-t border-estetica-secondary pt-5">
+        <dl class="grid gap-x-6 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <div><dt class="mb-1 text-xs text-estetica-text/65">Telefone</dt><dd>{{ pessoa.telefone | telefone }}</dd></div>
+          <div><dt class="mb-1 text-xs text-estetica-text/65">CPF</dt><dd>{{ pessoa.cpf | cpf }}</dd></div>
+          <div><dt class="mb-1 text-xs text-estetica-text/65">Nascimento</dt><dd>{{ pessoa.nasc ? (pessoa.nasc | date: 'dd/MM/yyyy' : 'UTC') : 'Não informado' }} @if (idade !== null) { <span class="text-estetica-text/65">· {{ idade }} anos</span> }</dd></div>
+          <div><dt class="mb-1 text-xs text-estetica-text/65">Profissão</dt><dd>{{ pessoa.ocupacaoProfissional || 'Não informada' }}</dd></div>
+          @if (pessoa.endereco; as endereco) {
+            <div class="sm:col-span-2"><dt class="mb-1 text-xs text-estetica-text/65">Endereço</dt><dd class="break-words">{{ endereco.logradouro }}, {{ endereco.numeroResidencia }} {{ endereco.complemento }} — {{ endereco.bairro }}, {{ endereco.cidade }}/{{ endereco.estado }} — {{ endereco.cep }}</dd></div>
+          }
+        </dl>
+        <p class="mt-4 text-xs text-estetica-text/65">Informações do seu cadastro. Você não precisa preenchê-las novamente.</p>
+      </div>
+    </section>
+  }
 
-  <p-button
-    type="submit"
-    label="Salvar ficha"
-    icon="pi pi-check"
-    [loading]="state.busy()"
-    [disabled]="!context.editable() || state.busy()"
-    styleClass="w-full bg-estetica-primary text-estetica-text border-estetica-primary sm:w-auto"
-  />
-</form>
+  @if (saved()) {
+    <section role="status" class="rounded-3xl border border-estetica-secondary bg-white px-6 py-12 text-center shadow-md shadow-estetica-primary/10 sm:py-16">
+      <span aria-hidden="true" class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-estetica-tertiary/20 text-3xl text-estetica-text"><i class="pi pi-check"></i></span>
+      <p class="mb-2 text-xs font-semibold uppercase tracking-widest text-estetica-primary">Preenchimento concluído</p>
+      <h2 class="font-serif text-3xl sm:text-4xl">Obrigada por compartilhar.</h2>
+      <p class="mx-auto mt-4 max-w-md text-sm leading-relaxed text-estetica-text/75">Sua ficha foi registrada e está disponível no seu prontuário. O profissional responsável analisará as informações antes do procedimento.</p>
+    </section>
+  } @else {
+    <div class="grid items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <aside class="rounded-2xl border border-estetica-secondary bg-white p-4 shadow-md shadow-estetica-primary/10 sm:p-5 lg:sticky lg:top-6" aria-label="Progresso do preenchimento">
+        <div class="mb-2 flex items-center justify-between gap-3"><h2 class="text-sm font-semibold">Sua ficha</h2><span class="text-sm font-semibold text-estetica-primary">{{ progress().percent }}%</span></div>
+        <div role="progressbar" aria-label="Campos obrigatórios preenchidos" [attr.aria-valuenow]="progress().percent" aria-valuemin="0" aria-valuemax="100" class="h-1.5 overflow-hidden rounded-full bg-estetica-secondary"><div class="h-full rounded-full bg-estetica-primary motion-safe:transition-[width]" [style.width.%]="progress().percent"></div></div>
+        <p class="mt-2 text-xs text-estetica-text/65">{{ progress().answered }} de {{ progress().total }} campos obrigatórios</p>
+        <nav aria-label="Etapas da anamnese" class="mt-5 border-t border-estetica-secondary pt-4">
+          <ol class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+            @for (step of steps; track step.title; let index = $index) {
+              <li>
+                <button pButton type="button" [text]="true" [disabled]="state.busy()" (click)="goToStep(index)" [attr.aria-current]="currentStep() === index ? 'step' : null" [attr.aria-label]="step.title + (stepComplete(index) ? ', preenchida' : ', pendente')" class="min-h-14 w-full justify-start gap-2 rounded-xl px-2 py-2 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary sm:gap-3" [class.bg-estetica-secondary]="currentStep() === index" [class.text-estetica-primary]="currentStep() === index" [class.text-estetica-text]="currentStep() !== index">
+                  <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-estetica-secondary bg-white text-xs" aria-hidden="true">@if (stepComplete(index)) { <i class="pi pi-check text-xs"></i> } @else { {{ index + 1 }} }</span>
+                  <span class="min-w-0 leading-tight">{{ step.title }}<span class="mt-1 hidden text-xs font-normal text-estetica-text/65 lg:block">{{ stepComplete(index) ? 'Preenchida' : currentStep() === index ? 'Você está aqui' : 'A preencher' }}</span></span>
+                </button>
+              </li>
+            }
+          </ol>
+        </nav>
+        <p class="mt-5 hidden border-t border-estetica-secondary pt-4 text-xs leading-relaxed text-estetica-text/65 lg:block"><i class="pi pi-info-circle mr-1" aria-hidden="true"></i> Você pode voltar às etapas para revisar. As respostas são enviadas ao finalizar a ficha.</p>
+      </aside>
+
+      <div class="min-w-0">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="mb-6 flex items-start gap-4">
+            <span aria-hidden="true" class="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-xl text-estetica-primary sm:flex"><i [class]="'pi ' + activeStep().icon"></i></span>
+            <div>
+              <p class="mb-1 text-xs font-semibold uppercase tracking-widest text-estetica-primary">Etapa {{ currentStep() + 1 }} de {{ steps.length }}</p>
+              <h2 id="anamnese-step-title" tabindex="-1" class="scroll-mt-6 rounded font-serif text-3xl tracking-tight focus:outline-none focus-visible:ring-2 focus-visible:ring-estetica-primary">{{ activeStep().title }}</h2>
+              <p class="mt-2 text-sm leading-relaxed text-estetica-text/70">{{ activeStep().description }}</p>
+            </div>
+          </div>
+          <app-request-feedback />
+          @for (section of sections; track section.key) {
+            <fieldset [hidden]="!activeStep().sections.includes(section.key)" [formGroup]="group(section.key)" [attr.inert]="state.busy() || !context.editable() ? '' : null" [disabled]="state.busy() || !context.editable()" class="mb-5 min-w-0 rounded-2xl border border-estetica-secondary bg-white px-4 pb-5 pt-3 shadow-md shadow-estetica-primary/10 sm:px-6 sm:pb-6">
+              <legend class="max-w-full px-2 text-base font-semibold">{{ section.label.replace(' — conforme a ficha', '') }}</legend>
+              <p class="mb-5 mt-1 text-xs text-estetica-text/65">Campos com <span class="font-semibold text-estetica-primary">*</span> são obrigatórios.</p>
+              <div class="grid items-start gap-4 sm:grid-cols-2">
+                @for (field of section.fields; track field.key) {
+                  @if (visible(section.key, field)) {
+                    <div class="min-w-0" [class.sm:col-span-2]="field.type === 'boolean' || field.when || field.key === 'principaisQueixas'" [class.rounded-xl]="field.type === 'boolean'" [class.bg-estetica-bg]="field.type === 'boolean'" [class.p-4]="field.type === 'boolean'" [class.border-l-2]="!!field.when" [class.border-estetica-secondary]="!!field.when" [class.pl-4]="!!field.when">
+                      <div [class]="field.type === 'boolean' ? 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5' : ''">
+                        <label [id]="section.key + '-' + field.key + '-label'" [attr.for]="field.type === 'boolean' ? null : section.key + '-' + field.key" class="block text-sm font-medium leading-relaxed" [class.mb-2]="field.type !== 'boolean'">{{ fieldLabel(field) }} @if (field.required) { <span class="text-estetica-primary" aria-hidden="true">*</span> } @else { <span class="text-xs font-normal text-estetica-text/60">(opcional)</span> }</label>
+                        @switch (field.type) {
+                          @case ('boolean') {
+                            <p-selectbutton [id]="section.key + '-' + field.key" [ariaLabelledBy]="section.key + '-' + field.key + '-label'" [formControlName]="field.key" [options]="simNao" optionLabel="label" optionValue="value" [allowEmpty]="false" (onChange)="refreshValidation()" class="shrink-0" styleClass="min-h-11 min-w-20" />
+                          }
+                          @case ('select') {
+                            <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" placeholder="Selecione uma opção" styleClass="min-h-12 w-full rounded-xl" />
+                          }
+                          @case ('text') {
+                            <textarea pTextarea [id]="section.key + '-' + field.key" [formControlName]="field.key" [attr.maxlength]="field.maxLength" [rows]="field.key === 'principaisQueixas' ? 4 : 2" class="w-full resize-y rounded-xl border-estetica-secondary bg-estetica-bg/50 p-3 text-sm" [placeholder]="field.key === 'principaisQueixas' ? 'Conte o que mais incomoda e o que você gostaria de melhorar…' : 'Descreva aqui…'"></textarea>
+                          }
+                          @case ('number') {
+                            <input pInputText [id]="section.key + '-' + field.key" type="number" [formControlName]="field.key" [attr.min]="field.min" [attr.max]="field.max" [attr.step]="field.integer ? 1 : 'any'" placeholder="Informe a quantidade" class="min-h-12 w-full rounded-xl border-estetica-secondary bg-estetica-bg/50 px-3" />
+                          }
+                          @case ('date') {
+                            <p-datepicker [inputId]="section.key + '-' + field.key" [formControlName]="field.key" dataType="string" dateFormat="yy-mm-dd" [maxDate]="maxDate" [showIcon]="true" placeholder="Selecione a data" styleClass="min-h-12 w-full" />
+                          }
+                        }
+                      </div>
+                      <app-field-error [control]="control(section.key, field.key)" />
+                    </div>
+                  }
+                }
+              </div>
+            </fieldset>
+          }
+
+          <div [hidden]="currentStep() !== steps.length - 1">
+            <section aria-label="Revisão das etapas" class="mb-5 rounded-2xl border border-estetica-secondary bg-white p-5 shadow-md shadow-estetica-primary/10 sm:p-6">
+              <h3 class="mb-1 font-semibold">Tudo pronto para enviar?</h3>
+              <p class="mb-4 text-sm text-estetica-text/70">Você pode revisar as respostas de cada etapa antes de confirmar.</p>
+              <ul class="divide-y divide-estetica-secondary">
+                @for (step of steps.slice(0, -1); track step.title; let index = $index) {
+                  <li class="flex items-center justify-between gap-3 py-3">
+                    <div class="flex items-center gap-3"><i [class]="stepComplete(index) ? 'pi pi-check-circle text-estetica-primary' : 'pi pi-circle text-estetica-text/60'" aria-hidden="true"></i><div class="text-sm font-medium">{{ step.title }}<span class="mt-0.5 block text-xs font-normal text-estetica-text/65">{{ stepComplete(index) ? 'Campos obrigatórios preenchidos' : 'Há campos para preencher' }}</span></div></div>
+                    <p-button type="button" label="Revisar" [text]="true" [ariaLabel]="'Revisar ' + step.title" (onClick)="goToStep(index)" styleClass="min-h-11 shrink-0 text-sm text-estetica-primary" />
+                  </li>
+                }
+              </ul>
+            </section>
+            <div class="rounded-2xl border border-estetica-secondary bg-estetica-secondary/40 p-5 sm:p-6">
+              <div class="flex items-start gap-3"><p-checkbox inputId="declaracao" formControlName="informacoesVerdadeiras" [binary]="true" /><label for="declaracao" class="text-sm font-medium leading-relaxed">Declaro que as informações fornecidas nesta ficha são verdadeiras. <span class="text-estetica-primary">*</span></label></div>
+              <app-field-error [control]="form.controls.informacoesVerdadeiras" />
+              <p class="mt-3 text-xs leading-relaxed text-estetica-text/70">A ficha será analisada pelo profissional responsável antes do procedimento.</p>
+            </div>
+          </div>
+
+          <footer class="mt-6 flex flex-col-reverse gap-3 border-t border-estetica-secondary pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p-button type="button" label="Voltar" icon="pi pi-arrow-left" [text]="true" [disabled]="currentStep() === 0 || state.busy()" (onClick)="goToStep(currentStep() - 1)" styleClass="min-h-12 w-full justify-center rounded-xl text-estetica-text sm:w-auto" />
+            <p class="text-center text-xs text-estetica-text/65 sm:hidden">Etapa {{ currentStep() + 1 }} de {{ steps.length }}</p>
+            <p-button type="submit" [label]="currentStep() === steps.length - 1 ? 'Finalizar e enviar ficha' : 'Continuar'" [icon]="currentStep() === steps.length - 1 ? 'pi pi-check' : 'pi pi-arrow-right'" iconPos="right" [loading]="state.busy()" [disabled]="!context.editable() || state.busy()" styleClass="min-h-12 w-full justify-center rounded-xl border-estetica-primary bg-estetica-primary px-6 text-white sm:w-auto" />
+          </footer>
+        </form>
+      </div>
+    </div>
+  }
+</div>

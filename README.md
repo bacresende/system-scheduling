@@ -36,19 +36,19 @@ Todas usam `POST /functions/NOME`. A publicação no Back4App não é automátic
 | Operações           | confirmarAgendamento, reagendarAgendamento, marcarAlertaVistoAgendamento, cancelarAgendamento, concluirAgendamento |
 | Consultas da agenda | listarHorariosDisponiveis, calcularResumoFinanceiroAgendamento                                                     |
 | Arquivos            | uploadFotoAgendamento                                                                                              |
-| Anamnese            | createAnamnese, exclusivo de CLIENTE                                                                               |
+| Anamnese            | createAnamnese (CLIENTE), getAnamnese e listAnamneses (dono ou ADMIN)                                               |
 
 Logout e redefinição usam REST Parse `/logout` e `/requestPasswordReset`; o envio de e-mail exige configuração de `emailAdapter`.
 
 Contratos principais:
 
 - `dashboard({ timeZone })` retorna agendamentosHoje, clientes, receitaConcluidaHoje, oportunidades e agendaHoje. O fuso IANA define os limites do dia.
-- `getClienteProntuario({ id })` retorna cliente, agendamentos e anamnesesAvulsas. As fichas ficam no nível da cliente; registros antigos com o mesmo idCliente continuam disponíveis.
+- `getClienteProntuario({ id })` retorna cliente, agendamentos e anamnesesAvulsas. As fichas ficam no nível da cliente; todas as fichas corporais do mesmo idCliente são retornadas.
 - `listAgendamentos({ inicio, fim })` retorna reservas do período, pendências e sessões irmãs, com paginação interna. Datas usam ISO 8601; nascimento usa YYYY-MM-DD.
 - `createPacoteAgendamentos` recebe a base de NovoAgendamento, idPacote, totalSessoes e sessoes: `{ dataHora, dataDefinida }[]`; retorna Agendamento[]. A primeira sessão precisa de data e são permitidas até 100 sessões.
 - `concluirAgendamento` recebe id, metodoPagamento (PIX/Cartao/Dinheiro), anotacoesFinais e URLs opcionais. Somente ADMIN, atendimento ativo com data definida.
 - `uploadFotoAgendamento` recebe id e arquivos: `{ nomeArquivo, mimeType, base64 }[]`; retorna `{ url, urls }`. O envio de um único arquivo também é aceito.
-- `createAnamnese` recebe somente respostas. idCliente vem da sessão e associações enviadas pelo chamador são ignoradas.
+- `createAnamnese` recebe `{ tipo: 'CORPORAL', respostas, declaracao: { informacoesVerdadeiras: true } }`. idCliente e data vêm do servidor. O formulário em `/anamnese` segue a avaliação corporal completa, com cabeçalho do cadastro e blocos condicionais. A ficha corporal é o único formato de anamnese. Consulte [o contrato e a geração dos modelos](C:/Users/bacre/system-scheduling-wr/docs/anamnese-corporal.md).
 - `createUsuario` exige CPF válido e único, normalizado no servidor. `completarCadastro` recebe CPF opcional se já existente, nascimento, endereço e ocupação profissional opcional.
 - Serviço referenciado por agendamentos não pode ser excluído: usar inativação. Código de cupom utilizado não pode ser renomeado.
 

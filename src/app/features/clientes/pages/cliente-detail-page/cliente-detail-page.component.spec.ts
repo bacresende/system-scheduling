@@ -4,6 +4,7 @@ import { afterEach, vi } from 'vitest';
 import { ApiClient } from '../../../../core/api/api-client';
 import { ClienteProntuario } from '../../models/cliente-prontuario.model';
 import { ClienteDetailPageComponent } from './cliente-detail-page.component';
+import { fichaCorporal } from '../../../anamnese/testing/anamnese.fixture';
 
 describe('ClienteDetailPageComponent', () => {
   const request = vi.fn<(method: string, path: string, body?: unknown) => Promise<unknown>>();
@@ -31,14 +32,9 @@ describe('ClienteDetailPageComponent', () => {
       {
           idCliente: 'cliente-1',
           dataPreenchimento: '2026-10-10T09:00:00-03:00',
-          tipoPele: 'Mista',
-          usaAcidos: true,
-          quaisAcidos: 'Ácido glicólico',
-          sensibilidadeSol: false,
-          temVarizes: false,
-          fezCirurgiaRecente: false,
-          praticaAtividadeFisica: true,
-          alergiaCosmeticos: false,
+          ...fichaCorporal,
+          id: 'corporal-1',
+          declaracao: { informacoesVerdadeiras: true, texto: 'Informações verdadeiras', aceitaEm: '2026-10-10T12:00:00Z', idUsuario: 'cliente-1' },
         },
     ],
     agendamentos: [
@@ -113,7 +109,7 @@ describe('ClienteDetailPageComponent', () => {
     expect(root.textContent).toContain('Ana Silva');
     expect(root.textContent).toContain('Rua das Flores, 10');
     expect(root.textContent).toContain('Limpeza de pele');
-    expect(root.textContent).toContain('Ácido glicólico');
+    expect(root.textContent).toContain('Avaliação corporal');
     expect(root.querySelectorAll('img')).toHaveLength(3);
     expect(root.textContent).toContain('3 fotos');
     expect(root.querySelectorAll('[role="tab"]')).toHaveLength(4);
@@ -142,5 +138,21 @@ describe('ClienteDetailPageComponent', () => {
     const root: HTMLElement = fixture.nativeElement;
     expect(root.textContent).toContain('Prontuário indisponível.');
     expect(root.textContent).not.toContain('Nenhum agendamento foi registrado');
+  });
+
+  it('mostra todos os blocos da ficha corporal sem discriminador de versão', async () => {
+    request.mockResolvedValue({ ...prontuario, anamnesesAvulsas: [
+      { ...fichaCorporal, id: 'corporal-1', idCliente: 'cliente-1', dataPreenchimento: '2026-11-01T12:00:00Z',
+        declaracao: { informacoesVerdadeiras: true, texto: 'Informações verdadeiras', aceitaEm: '2026-11-01T12:00:00Z', idUsuario: 'cliente-1' } },
+    ] });
+    const fixture = TestBed.createComponent(ClienteDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const root: HTMLElement = fixture.nativeElement;
+    expect(root.textContent).toContain('Avaliação corporal');
+    expect(root.textContent).toContain('Histórico de saúde');
+    expect(root.textContent).toContain('Caminhada');
+    expect(root.textContent).toContain('Informações verdadeiras');
+    expect(root.textContent).not.toContain('[object Object]');
   });
 });

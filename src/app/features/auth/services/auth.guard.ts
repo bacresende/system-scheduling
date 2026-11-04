@@ -24,7 +24,7 @@ export const sessionGuard: CanActivateFn = async (
   try {
     const session = await auth.restore();
     if (!session) {
-      return router.createUrlTree(['/login']);
+      return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
     }
     if (
       session.perfil === 'CLIENTE' &&
@@ -36,7 +36,7 @@ export const sessionGuard: CanActivateFn = async (
     return true;
   } catch (error: unknown) {
     return router.createUrlTree(['/login'], {
-      queryParams: { erro: errorMessage(error) },
+      queryParams: { erro: errorMessage(error), returnUrl: state.url },
     });
   }
 };
