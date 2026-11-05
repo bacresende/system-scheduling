@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, linkedSignal } fro
 import { DatePipe } from '@angular/common';
 import { AnamneseCorporal } from '../models/anamnese.model';
 import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
+import { ETAPAS_ANAMNESE } from '../models/anamnese-etapas.config';
 
 @Component({
   selector: 'app-anamnese-respostas',
@@ -13,7 +14,7 @@ export class AnamneseRespostasComponent {
   readonly anamnese = input.required<AnamneseCorporal>();
   protected readonly sections = computed(() => {
     const respostas = this.anamnese().respostas as unknown as Record<string, Record<string, unknown>>;
-    return SECOES_ANAMNESE
+    const subsections = SECOES_ANAMNESE
       .map((section) => ({
         ...section,
         fields: section.fields
@@ -21,6 +22,11 @@ export class AnamneseRespostasComponent {
           .map((field) => ({ ...field, value: respostas[section.key][field.key] })),
       }))
       .filter((section) => section.fields.length > 0);
+    return ETAPAS_ANAMNESE.map((step) => ({
+      key: step.key,
+      label: step.title,
+      subsections: step.sections.flatMap((key) => subsections.filter((section) => section.key === key)),
+    }));
   });
   protected readonly collapsed = linkedSignal<ReadonlySet<string>>(
     () => new Set(this.sections().slice(1).map((section) => section.key)),

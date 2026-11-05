@@ -279,7 +279,7 @@
                 @for (anamnese of ficha.anamnesesAvulsas; track anamnese.id) {
                   <details [open]="ficha.anamnesesAvulsas.length === 1" class="rounded-2xl border border-estetica-secondary bg-white shadow-sm">
                     <summary
-                      class="cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                      class="cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold text-estetica-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
                     >
                       Ficha preenchida em
                       {{ anamnese.dataPreenchimento | date: "dd/MM/yyyy 'às' HH:mm" }}

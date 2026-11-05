@@ -32,7 +32,7 @@ describe('AnamneseRespostasComponent', () => {
     const element: HTMLElement = fixture.nativeElement;
     const sections = Array.from(element.querySelectorAll('details'));
     const buttons = Array.from(element.querySelectorAll('button'));
-    expect(sections.length).toBeGreaterThan(1);
+    expect(sections.length).toBe(5);
     expect(sections[0].open).toBe(true);
     expect(sections.slice(1).every((section) => !section.open)).toBe(true);
 
@@ -52,6 +52,43 @@ describe('AnamneseRespostasComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(sections.every((section) => section.open)).toBe(true);
+  });
+
+  it('agrupa todas as respostas nos mesmos cinco assuntos do preenchimento', async () => {
+    const fixture = await render();
+    const element: HTMLElement = fixture.nativeElement;
+    const sections = Array.from(element.querySelectorAll('details'));
+    expect(sections.map(section => section.querySelector('summary')!.textContent!.trim().replace(/^\d+\s*/, '')))
+      .toEqual(['Sobre você', 'Segurança', 'Saúde pessoal', 'Sua rotina', 'Histórico']);
+    const subtitles = sections.map(section => Array.from(section.querySelectorAll('h4'))
+      .map(title => title.textContent!.trim()));
+    expect(subtitles).toEqual([
+      ['Informações gerais', 'Queixas e acompanhamento'],
+      ['Contraindicações absolutas — conforme a ficha', 'Contraindicações relativas — conforme a ficha'],
+      ['Saúde pessoal'],
+      ['Alimentação e digestão', 'Hábitos e rotina'],
+      ['Histórico de saúde'],
+    ]);
+    const storedAnswers = Object.values(ficha.respostas).reduce(
+      (total, answers) => total + Object.keys(answers).length, 0,
+    );
+    expect(element.querySelectorAll('dt').length).toBe(storedAnswers);
+  });
+
+  it('mantém cinco grupos ao exibir as respostas de saúde masculina', async () => {
+    const fixture = await render({
+      ...ficha,
+      respostas: {
+        ...ficha.respostas,
+        saudePessoal: { sexo: 'Masculino' },
+        saudeMasculina: { ejaculacao: 'Normal', disfuncaoEretil: false },
+      },
+    });
+    const sections = fixture.nativeElement.querySelectorAll('details') as NodeListOf<HTMLDetailsElement>;
+    expect(sections.length).toBe(5);
+    expect(sections[2].textContent).toContain('Saúde masculina');
+    expect(sections[2].textContent).toContain('Disfunção erétil');
+    expect(sections[2].textContent).not.toContain('Saúde feminina');
   });
 
   it('preserva respostas negativas, zero e textos, distinguindo campos vazios', async () => {
@@ -74,6 +111,8 @@ describe('AnamneseRespostasComponent', () => {
       },
     });
     const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelectorAll('details').length).toBe(5);
+    expect(element.querySelectorAll('details')[2].textContent).toContain('Saúde feminina');
     const answer = (label: string) => Array.from(element.querySelectorAll('dt'))
       .find((dt) => dt.textContent?.includes(label))?.nextElementSibling?.textContent?.trim();
 

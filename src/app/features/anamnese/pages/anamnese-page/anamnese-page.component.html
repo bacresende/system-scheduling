@@ -83,8 +83,11 @@
           </div>
           <app-request-feedback />
           @for (section of sections; track section.key) {
-            <fieldset [hidden]="!activeStep().sections.includes(section.key) || !sectionVisible(section)" [formGroup]="group(section.key)" [attr.inert]="state.busy() || !context.editable() ? '' : null" [disabled]="state.busy() || !context.editable()" class="mb-5 min-w-0 rounded-2xl border border-estetica-secondary bg-white px-4 pb-5 pt-3 shadow-md shadow-estetica-primary/10 sm:px-6 sm:pb-6">
-              <legend class="max-w-full px-2 text-base font-semibold">{{ section.label.replace(' — conforme a ficha', '') }}</legend>
+            <fieldset [hidden]="!activeStep().sections.includes(section.key) || !sectionVisible(section)" [formGroup]="group(section.key)" [attr.inert]="state.busy() || !context.editable() ? '' : null" [disabled]="state.busy() || !context.editable()" class="mb-5 min-w-0 rounded-2xl border border-estetica-secondary bg-white shadow-sm shadow-estetica-primary/10">
+              <legend class="float-left w-full rounded-t-2xl bg-estetica-secondary px-4 py-2 text-base font-semibold text-estetica-primary">
+                {{ section.label.replace(' — conforme a ficha', '') }}
+              </legend>
+              <div class="clear-both p-4 sm:p-5">
               <p class="mb-5 mt-1 text-xs text-estetica-text/65">Campos com <span class="font-semibold text-estetica-primary">*</span> são obrigatórios.</p>
               <div class="grid items-start gap-4 sm:grid-cols-2">
                 @for (field of section.fields; track field.key) {
@@ -114,6 +117,7 @@
                     </div>
                   }
                 }
+              </div>
               </div>
             </fieldset>
           }

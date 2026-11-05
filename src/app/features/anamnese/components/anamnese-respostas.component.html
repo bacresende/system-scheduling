@@ -45,46 +45,53 @@
           aria-hidden="true"
         ></i>
       </summary>
-      <dl class="grid items-start gap-4 p-4 sm:grid-cols-2 sm:p-5">
-        @for (field of section.fields; track field.key) {
-          <div
-            class="min-w-0"
-            [class.sm:col-span-2]="field.type === 'text' || field.type === 'boolean' || !!field.when"
-            [class.rounded-xl]="field.type === 'boolean'"
-            [class.bg-estetica-bg]="field.type === 'boolean'"
-            [class.p-4]="field.type === 'boolean'"
-            [class.sm:flex]="field.type === 'boolean'"
-            [class.sm:items-center]="field.type === 'boolean'"
-            [class.sm:justify-between]="field.type === 'boolean'"
-            [class.gap-4]="field.type === 'boolean'"
-            [class.border-l-2]="!!field.when"
-            [class.border-estetica-secondary]="!!field.when"
-            [class.pl-4]="!!field.when"
-          >
-            <dt class="text-base font-medium leading-relaxed text-estetica-text">{{ field.label }}</dt>
-            <dd class="mt-2 text-base leading-relaxed" [class.sm:mt-0]="field.type === 'boolean'" [class.shrink-0]="field.type === 'boolean'">
-              @if (field.value === true || field.value === false) {
-                <span
-                  class="inline-flex min-w-16 justify-center rounded-lg px-3 py-1 font-semibold"
-                  [class.bg-estetica-primary]="field.value === true"
-                  [class.text-white]="field.value === true"
-                  [class.bg-estetica-bg-oficial]="field.value === false"
-                  [class.text-estetica-primary]="field.value === false"
-                >{{ field.value ? 'Sim' : 'Não' }}</span>
-              } @else if (isEmpty(field.value)) {
-                <span class="text-estetica-text/65">Não informado</span>
-              } @else {
-                <span class="block rounded-xl border border-estetica-secondary bg-estetica-bg/50 p-3 whitespace-pre-wrap break-words text-estetica-text">{{ display(field.value, field.type) }}</span>
+      <div class="space-y-6 p-4 sm:p-5">
+        @for (subsection of section.subsections; track subsection.key) {
+          <section>
+            <h4 class="mb-4 border-b border-estetica-secondary pb-2 font-semibold text-estetica-primary">
+              {{ subsection.label }}
+            </h4>
+            <dl class="grid items-start gap-4 sm:grid-cols-2">
+              @for (field of subsection.fields; track field.key) {
+                <div
+                  class="min-w-0"
+                  [class.sm:col-span-2]="field.type === 'text' || field.type === 'boolean' || !!field.when"
+                  [class.rounded-xl]="field.type === 'boolean'"
+                  [class.bg-estetica-bg]="field.type === 'boolean'"
+                  [class.p-4]="field.type === 'boolean'"
+                  [class.sm:flex]="field.type === 'boolean'"
+                  [class.sm:items-center]="field.type === 'boolean'"
+                  [class.sm:justify-between]="field.type === 'boolean'"
+                  [class.gap-4]="field.type === 'boolean'"
+                  [class.border-l-2]="!!field.when"
+                  [class.border-estetica-secondary]="!!field.when"
+                  [class.pl-4]="!!field.when"
+                >
+                  <dt class="text-base font-medium leading-relaxed text-estetica-text">{{ field.label }}</dt>
+                  <dd class="mt-2 text-base leading-relaxed" [class.sm:mt-0]="field.type === 'boolean'" [class.shrink-0]="field.type === 'boolean'">
+                    @if (field.value === true || field.value === false) {
+                      <span
+                        class="inline-flex min-w-16 justify-center rounded-lg px-3 py-1 font-semibold"
+                        [class.bg-estetica-primary]="field.value === true"
+                        [class.text-white]="field.value === true"
+                        [class.bg-estetica-bg-oficial]="field.value === false"
+                        [class.text-estetica-primary]="field.value === false"
+                      >{{ field.value ? 'Sim' : 'Não' }}</span>
+                    } @else if (isEmpty(field.value)) {
+                      <span class="text-estetica-text/65">Não informado</span>
+                    } @else {
+                      <span class="block rounded-xl border border-estetica-secondary bg-estetica-bg/50 p-3 whitespace-pre-wrap break-words text-estetica-text">{{ display(field.value, field.type) }}</span>
+                    }
+                  </dd>
+                </div>
               }
-            </dd>
-          </div>
+            </dl>
+          </section>
+        } @empty {
+          <p class="text-sm text-estetica-text/75">Nenhuma resposta registrada nesta seção.</p>
         }
-      </dl>
+      </div>
     </details>
-  } @empty {
-    <p class="rounded-xl border border-dashed border-estetica-secondary bg-white p-5 text-sm text-estetica-text/75">
-      Nenhuma resposta registrada nesta ficha.
-    </p>
   }
 
   <section aria-label="Declaração de veracidade" class="rounded-2xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:p-5">

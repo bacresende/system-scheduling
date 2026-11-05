@@ -12,6 +12,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { AnamneseContext, AnamneseService } from '../../services/anamnese.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { CampoAnamnese, SecaoAnamnese, SECOES_ANAMNESE } from '../../models/anamnese-corporal.config';
+import { EtapaAnamnese, ETAPAS_ANAMNESE } from '../../models/anamnese-etapas.config';
 import { RespostasAnamneseCorporal } from '../../models/anamnese-corporal.model';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { FieldError } from '../../../../shared/ui/field-error';
@@ -40,13 +41,9 @@ export class AnamnesePageComponent implements OnInit {
   protected readonly saved = signal(false);
   protected readonly showProfile = signal(false);
   protected readonly currentStep = signal(0);
-  protected readonly steps = [
-    { title: 'Sobre você', icon: 'pi-user', description: 'Conte o que você busca e como podemos cuidar de você.', sections: ['informacoesGerais', 'queixas'] },
-    { title: 'Segurança', icon: 'pi-shield', description: 'Estas informações ajudam o profissional a avaliar os cuidados necessários.', sections: ['contraindicacoesAbsolutas', 'contraindicacoesRelativas'] },
-    { title: 'Saúde pessoal', icon: 'pi-heart', description: 'Selecione seu sexo para exibir as perguntas correspondentes. Você também pode optar por não informar.', sections: ['saudePessoal', 'saudeFeminina', 'saudeMasculina'] },
-    { title: 'Sua rotina', icon: 'pi-sun', description: 'Vamos conhecer sua alimentação, seu sono e seus hábitos.', sections: ['alimentacao', 'habitos'] },
-    { title: 'Histórico', icon: 'pi-file', description: 'Compartilhe seu histórico de saúde e os cuidados que já realiza.', sections: ['historico'] },
-    { title: 'Revisão', icon: 'pi-check-circle', description: 'Confira as etapas e confirme suas informações para enviar a ficha.', sections: [] },
+  protected readonly steps: EtapaAnamnese[] = [
+    ...ETAPAS_ANAMNESE,
+    { key: 'revisao', title: 'Revisão', icon: 'pi-check-circle', description: 'Confira as etapas e confirme suas informações para enviar a ficha.', sections: [] },
   ];
   protected readonly activeStep = computed(() => this.steps[this.currentStep()]);
   private readonly validationVersion = signal(0);
