@@ -15,31 +15,6 @@
   --p-togglebutton-focus-ring-offset: 3px;
 }
 
-/*
- * Escala legível para baixa visão. Mantém a hierarquia visual sem usar textos
- * menores que 14 px e reforça o contraste das informações auxiliares.
- */
-:host .text-xs {
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
-:host .text-sm {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-:host .text-estetica-text\/60,
-:host .text-estetica-text\/65,
-:host .text-estetica-text\/70,
-:host .text-estetica-text\/75 {
-  color: color-mix(in srgb, var(--cor-texto) 82%, transparent);
-}
-
-@media (max-width: 40rem) {
-  :host button,
-  :host textarea,
-  :host input {
-    font-size: 1rem;
-  }
-}
+/* Mantém a escala legível também quando o formulário é renderizado isoladamente. */
+:host .text-xs { font-size: 0.875rem; line-height: 1.5; }
+:host .text-sm { font-size: 1rem; line-height: 1.5; }

@@ -81,7 +81,7 @@
         <div class="sm:col-span-2">
           <label for="codigo-cupom" class="mb-2 block text-sm font-semibold">Nome do cupom</label>
 
-          <div class="flex w-full">
+          <div class="flex w-full flex-wrap items-start gap-2">
             <input
               pInputText
               id="codigo-cupom"
@@ -89,7 +89,7 @@
               autocomplete="off"
               placeholder="Ex.: BEMVINDA10"
               autofocus
-              class="min-h-12 w-full rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
+              class="min-h-12 min-w-0 flex-1 basis-48 rounded-xl border-estetica-secondary bg-white px-4 text-estetica-text uppercase placeholder:normal-case placeholder:text-estetica-text/70 focus:border-estetica-primary focus:ring-1 focus:ring-estetica-primary"
               [invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
               [attr.aria-invalid]="form.controls.codigo.invalid && form.controls.codigo.touched"
               aria-describedby="codigo-cupom-ajuda codigo-cupom-erro"
@@ -101,8 +101,9 @@
               label="Gerar"
               icon="pi pi-sparkles"
               ariaLabel="Gerar código de cupom"
+              class="shrink-0"
               (onClick)="gerarCodigo()"
-              styleClass="min-h-12 rounded-r-xl rounded-l-none border-estetica-primary text-estetica-bg hover:bg-estetica-primary hover:text-white"
+              styleClass="min-h-12 w-max rounded-xl border-estetica-primary text-estetica-bg hover:bg-estetica-primary hover:text-white"
             />
           </div>
           <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
@@ -542,7 +543,7 @@
                 >
                   <div class="min-w-0">
                     <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                      <i class="pi pi-globe text-[11px]" aria-hidden="true"></i>
+                      <i class="pi pi-globe text-xs" aria-hidden="true"></i>
                       Limite global
                     </dt>
                     <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -551,7 +552,7 @@
                   </div>
                   <div class="min-w-0">
                     <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                      <i class="pi pi-chart-bar text-[11px]" aria-hidden="true"></i>
+                      <i class="pi pi-chart-bar text-xs" aria-hidden="true"></i>
                       Usos realizados
                     </dt>
                     <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -560,7 +561,7 @@
                   </div>
                   <div class="min-w-0">
                     <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                      <i class="pi pi-user text-[11px]" aria-hidden="true"></i>
+                      <i class="pi pi-user text-xs" aria-hidden="true"></i>
                       Por cliente
                     </dt>
                     <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -570,7 +571,7 @@
                   @if (cupom.dataMinima || cupom.dataMaxima) {
                     <div class="col-span-2 border-t border-estetica-secondary pt-3">
                       <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                        <i class="pi pi-calendar text-[11px]" aria-hidden="true"></i>
+                        <i class="pi pi-calendar text-xs" aria-hidden="true"></i>
                         Período de validade
                       </dt>
                       <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -582,7 +583,7 @@
                   @if (cupom.servicosValidos.length) {
                     <div class="col-span-2 border-t border-estetica-secondary pt-3">
                       <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                        <i class="pi pi-sparkles text-[11px]" aria-hidden="true"></i>
+                        <i class="pi pi-sparkles text-xs" aria-hidden="true"></i>
                         Serviços válidos
                       </dt>
                       <dd class="mt-2 flex flex-wrap gap-1.5">
@@ -599,7 +600,7 @@
                   @if (cupom.minimoSessoes !== null || cupom.maximoSessoes !== null) {
                     <div class="col-span-2 border-t border-estetica-secondary pt-3">
                       <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                        <i class="pi pi-calendar-clock text-[11px]" aria-hidden="true"></i>
+                        <i class="pi pi-calendar-clock text-xs" aria-hidden="true"></i>
                         Quantidade de sessões
                       </dt>
                       <dd class="mt-1 text-sm font-semibold text-estetica-text">

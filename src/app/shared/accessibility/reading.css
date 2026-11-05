@@ -1,0 +1,197 @@
+/* Escala relativa: respeita também o tamanho padrão e o zoom do navegador. */
+html[data-reading-size='125'] { font-size: 125%; }
+html[data-reading-size='150'] { font-size: 150%; }
+html[data-reading-size='200'] { font-size: 200%; }
+
+html {
+  scroll-padding-block: 1.5rem;
+}
+
+body {
+  line-height: 1.5;
+}
+
+/* Texto auxiliar continua secundário pela hierarquia, sem depender de baixa opacidade. */
+:root :is(
+  .text-estetica-text\/40, .text-estetica-text\/45, .text-estetica-text\/50,
+  .text-estetica-text\/55, .text-estetica-text\/60, .text-estetica-text\/65,
+  .text-estetica-text\/70, .text-estetica-text\/75, .text-estetica-text\/80
+) {
+  color: var(--cor-texto-secundario);
+}
+
+html:root {
+  --p-primary-color: var(--cor-primaria);
+  --p-primary-hover-color: var(--cor-primaria-escura);
+  --p-primary-active-color: var(--cor-primaria-escura);
+  --p-primary-contrast-color: #fff;
+  --p-text-muted-color: var(--cor-texto-secundario);
+  --p-form-field-placeholder-color: var(--cor-texto-secundario);
+  --p-form-field-icon-color: var(--cor-primaria);
+  --p-form-field-border-color: var(--cor-borda-controle);
+  --p-form-field-hover-border-color: var(--cor-primaria);
+  --p-form-field-focus-border-color: var(--cor-primaria);
+  --p-focus-ring-color: var(--cor-primaria);
+  --p-focus-ring-width: 3px;
+  --p-focus-ring-offset: 3px;
+}
+
+:root :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']), textarea, select, .p-select, .p-multiselect) {
+  min-width: 0;
+  min-height: 2.75rem;
+  font-size: 1rem;
+  border-color: var(--cor-borda-controle);
+}
+
+:root :is(input, textarea)::placeholder {
+  color: var(--cor-texto-secundario);
+  opacity: 1;
+}
+
+:root :is(button, summary, .p-tab, .p-select-option, .p-multiselect-option) {
+  min-height: 2.75rem;
+}
+
+:root :is(a.inline-flex, a.flex) { min-height: 2.75rem; }
+
+:root .grid > * { min-width: 0; }
+
+:root :is(.p-datepicker, .p-inputnumber, .p-password) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+:root :is(.p-datepicker-panel, .p-select-overlay, .p-multiselect-overlay) {
+  max-width: calc(100vw - 1rem);
+  overflow-x: auto;
+}
+
+:root .p-selectbutton {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+
+:root .p-selectbutton .p-togglebutton {
+  min-width: 0;
+  flex: 1 1 4rem;
+}
+
+:root :is(button, .p-datepicker-day) {
+  min-width: 2.75rem;
+}
+
+:root :is(.p-button-label, .p-select-option, .p-multiselect-option) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Contorno duplo continua perceptível sobre botões claros e escuros. */
+:root :is(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--cor-primaria);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px #fff;
+}
+
+:root :is(input, textarea, .p-select)[aria-invalid='true'],
+:root :is(.p-inputtext, .p-textarea, .p-select).p-invalid {
+  border-color: #b91c1c;
+  border-width: 2px;
+}
+
+html.reading-contrast {
+  --cor-texto: #161616;
+  --cor-texto-secundario: #303030;
+  --cor-primaria: #7c2138;
+  --cor-secundaria: #efdee3;
+  --cor-fundo: #fff;
+  --cor-fundo-oficial: #f4f4f4;
+  --cor-borda-controle: #595959;
+}
+
+html.reading-contrast :is(.border-estetica-secondary, .border-estetica-secondary\/70, .border-estetica-secondary\/80) {
+  border-color: #8c7078;
+}
+
+html.reading-contrast :is(.text-white\/60, .text-white\/70, .text-white\/75, .text-white\/80) {
+  color: #fff;
+}
+
+/* Ampliação de texto exige que linhas e grades também possam crescer. */
+html.reading-enlarged { overflow-wrap: anywhere; }
+
+html.reading-enlarged .p-select-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+html.reading-enlarged :is(.truncate, .line-clamp-2, .line-clamp-3) {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  -webkit-line-clamp: unset;
+  overflow-wrap: anywhere;
+}
+
+html.reading-enlarged :is(h1, h2, h3, p, dt, dd, label, a, button) {
+  overflow-wrap: anywhere;
+}
+
+html.reading-enlarged :is(.flex, .inline-flex) {
+  flex-wrap: wrap;
+}
+
+html.reading-enlarged app-reading-controls summary.flex { flex-wrap: nowrap; }
+
+html.reading-enlarged :is(.flex, .inline-flex) > :is(div, section, header) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html.reading-enlarged :is(.min-w-60, .min-w-48, .min-w-40, .w-44, .w-48) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+html.reading-enlarged .p-tablist-tab-list { flex-wrap: wrap; }
+html.reading-enlarged .p-tab {
+  flex: 1 1 100%;
+  white-space: normal;
+  border-left: 3px solid transparent;
+}
+html.reading-enlarged .p-tab-active {
+  border-left-color: var(--cor-primaria);
+  background: var(--cor-secundaria);
+}
+html.reading-enlarged :is(.p-tablist-active-bar, .p-tablist-nav-button) { display: none; }
+
+@media (max-width: 80rem) {
+  html.reading-enlarged :is(.grid-cols-2, .sm\:grid-cols-2, .md\:grid-cols-3, .lg\:grid-cols-2, .lg\:grid-cols-3, .sm\:grid-cols-3) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html.reading-enlarged :is(.col-span-2, .sm\:col-span-2, .lg\:col-span-2, .sm\:col-span-3) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 40rem) {
+  html.reading-enlarged :is(.p-4, .p-5, .p-6, .p-8, .px-4, .px-5, .px-6, .px-8, .px-12) {
+    padding-inline: 0.5rem;
+  }
+
+  html.reading-enlarged h1 { font-size: 1.5rem; line-height: 1.25; }
+  html.reading-enlarged h2 { font-size: 1.25rem; line-height: 1.35; }
+  html.reading-enlarged [class*='tracking-'] { letter-spacing: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

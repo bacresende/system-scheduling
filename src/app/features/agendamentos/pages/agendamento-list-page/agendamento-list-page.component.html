@@ -74,19 +74,19 @@
             <div class="min-w-0">
               <div class="mb-1 flex flex-wrap items-center gap-2">
                 <span
-                  class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900"
+                  class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900"
                 >
                   @if (alerta.reagendado) {
-                    <i class="pi pi-sync text-[10px]" aria-hidden="true"></i>
+                    <i class="pi pi-sync text-xs" aria-hidden="true"></i>
                     Reagendado pela cliente
                   } @else {
-                    <i class="pi pi-clock text-[10px]" aria-hidden="true"></i>
+                    <i class="pi pi-clock text-xs" aria-hidden="true"></i>
                     Aguardando confirmação
                   }
                 </span>
                 @if (alerta.totalSessoes && alerta.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
+                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-xs font-semibold text-estetica-primary"
                   >
                     Sessão {{ alerta.sessaoNumero ?? 1 }}/{{ alerta.totalSessoes }}
                   </span>
@@ -193,14 +193,14 @@
             <div class="min-w-0">
               <div class="mb-1 flex flex-wrap items-center gap-2">
                 <span
-                  class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
+                  class="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-estetica-primary"
                 >
-                  <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
+                  <i class="pi pi-history text-xs" aria-hidden="true"></i>
                   Horário vencido · Sem baixa
                 </span>
                 @if (vencido.totalSessoes && vencido.totalSessoes > 1) {
                   <span
-                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
+                    class="rounded-full bg-estetica-secondary px-2.5 py-0.5 text-xs font-medium text-estetica-primary"
                   >
                     Sessão {{ vencido.sessaoNumero ?? 1 }}/{{ vencido.totalSessoes }}
                   </span>
@@ -298,7 +298,7 @@
                 serviceName(aberta.idServico)
               }}</span>
               <span
-                class="ml-2 rounded-full bg-estetica-secondary px-2.5 py-0.5 text-[11px] font-semibold text-estetica-primary"
+                class="ml-2 rounded-full bg-estetica-secondary px-2.5 py-0.5 text-xs font-semibold text-estetica-primary"
               >
                 {{ aberta.sessaoNumero ?? 1 }}ª de {{ aberta.totalSessoes ?? 1 }}
               </span>
@@ -419,7 +419,7 @@
               aria-label="Limpar busca"
               class="absolute top-1/2 right-2.5 inline-flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-estetica-text/60 hover:bg-estetica-bg hover:text-estetica-text"
             >
-              <i class="pi pi-times text-[10px]" aria-hidden="true"></i>
+              <i class="pi pi-times text-xs" aria-hidden="true"></i>
             </button>
           }
         </div>
@@ -550,7 +550,7 @@
                       · {{ encontrado.sessaoNumero ?? 1 }}/{{ encontrado.totalSessoes }}
                     }
                   </p>
-                  <p class="mt-0.5 text-[11px] font-medium text-estetica-primary">
+                  <p class="mt-0.5 text-xs font-medium text-estetica-primary">
                     @if (encontrado.dataDefinida === false) {
                       Horário em aberto
                     } @else {
@@ -637,18 +637,18 @@
 
                         @if (item.reagendado) {
                           <span
-                            class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900"
+                            class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900"
                           >
-                            <i class="pi pi-sync text-[10px]" aria-hidden="true"></i>
+                            <i class="pi pi-sync text-xs" aria-hidden="true"></i>
                             Reagendado
                           </span>
                         }
 
                         @if (isBookingOverdue(item)) {
                           <span
-                            class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-[11px] font-medium text-estetica-primary"
+                            class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-estetica-primary"
                           >
-                            <i class="pi pi-history text-[10px]" aria-hidden="true"></i>
+                            <i class="pi pi-history text-xs" aria-hidden="true"></i>
                             Horário vencido · Dar baixa
                           </span>
                         }
@@ -660,12 +660,12 @@
                         </p>
                         @if (item.codigoCupom) {
                           <span
-                            class="inline-block rounded-full bg-estetica-secondary px-2 py-0.5 text-[10px] font-semibold text-estetica-primary"
+                            class="inline-block rounded-full bg-estetica-secondary px-2 py-0.5 text-xs font-semibold text-estetica-primary"
                           >
                             {{ item.codigoCupom }}
                           </span>
                         } @else if (item.valorDesconto && item.valorDesconto > 0) {
-                          <span class="block text-[11px] text-estetica-text/70">c/ desconto</span>
+                          <span class="block text-xs text-estetica-text/70">c/ desconto</span>
                         }
                       </div>
                     </div>
@@ -675,7 +675,7 @@
                       <div
                         class="inline-flex items-center gap-2 rounded-full bg-estetica-secondary px-3 py-1 text-xs font-medium text-estetica-primary-dark"
                       >
-                        <i class="pi pi-clock text-[11px]" aria-hidden="true"></i>
+                        <i class="pi pi-clock text-xs" aria-hidden="true"></i>
                         <span>
                           {{ item.dataHora | date: 'HH:mm' }} –
                           {{ endTime(item.dataHora, item.duracaoMinutos) | date: 'HH:mm' }}
@@ -700,7 +700,7 @@
                     >
                       <div class="min-w-0">
                         <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                          <i class="pi pi-user text-[11px]" aria-hidden="true"></i>
+                          <i class="pi pi-user text-xs" aria-hidden="true"></i>
                           Profissional
                         </dt>
                         <dd class="mt-1 truncate font-semibold text-estetica-text">
@@ -709,7 +709,7 @@
                       </div>
                       <div class="min-w-0">
                         <dt class="flex items-center gap-1.5 font-medium text-estetica-text/65">
-                          <i class="pi pi-wallet text-[11px]" aria-hidden="true"></i>
+                          <i class="pi pi-wallet text-xs" aria-hidden="true"></i>
                           Pagamento
                         </dt>
                         <dd class="mt-1 truncate font-semibold text-estetica-text">
@@ -845,9 +845,9 @@
                 class="flex shrink-0 cursor-pointer flex-col items-center rounded-xl px-3 py-1.5 text-xs"
               >
                 <span class="font-semibold">{{ day.shortLabel }}</span>
-                <span class="text-[11px]">{{ day.date | date: 'dd/MM' }}</span>
+                <span class="text-xs">{{ day.date | date: 'dd/MM' }}</span>
                 <span
-                  class="mt-0.5 rounded-full bg-estetica-secondary px-1.5 text-[10px] font-medium text-estetica-primary"
+                  class="mt-0.5 rounded-full bg-estetica-secondary px-1.5 text-xs font-medium text-estetica-primary"
                 >
                   {{ day.items.length }}
                 </span>
@@ -878,7 +878,7 @@
                       </span>
                       @if (day.isToday) {
                         <span
-                          class="rounded-full bg-estetica-primary px-2 py-0.5 text-[10px] font-medium text-white"
+                          class="rounded-full bg-estetica-primary px-2 py-0.5 text-xs font-medium text-white"
                         >
                           Hoje
                         </span>
@@ -921,7 +921,7 @@
                         </span>
                         @if (item.totalSessoes && item.totalSessoes > 1) {
                           <span
-                            class="rounded-full bg-estetica-secondary px-1.5 py-0.5 text-[10px] font-medium text-estetica-primary"
+                            class="rounded-full bg-estetica-secondary px-1.5 py-0.5 text-xs font-medium text-estetica-primary"
                           >
                             {{ item.sessaoNumero ?? 1 }}/{{ item.totalSessoes }}
                           </span>
@@ -931,20 +931,20 @@
                       <p class="mt-1 truncate text-xs font-medium text-estetica-text">
                         {{ clientName(item.idCliente) }}
                       </p>
-                      <p class="truncate text-[11px] text-estetica-text/75">
+                      <p class="truncate text-xs text-estetica-text/75">
                         {{ serviceName(item.idServico) }}
                       </p>
 
                       <div class="mt-1.5 flex flex-wrap items-center gap-1">
                         <span
-                          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
                           [class]="statusBadgeClass(item.status)"
                         >
                           {{ statusLabel(item.status) }}
                         </span>
                         @if (item.reagendado) {
                           <span
-                            class="rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-900"
+                            class="rounded-full bg-amber-100 px-1.5 py-0.5 text-xs font-semibold text-amber-900"
                           >
                             Reagendado
                           </span>
@@ -1053,7 +1053,7 @@
             <div class="min-w-0">
               <label
                 for="cliente"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Cliente
               </label>
@@ -1075,7 +1075,7 @@
             <div class="min-w-0">
               <label
                 for="funcionario"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Profissional
               </label>
@@ -1094,7 +1094,7 @@
             <div class="min-w-0 sm:col-span-2">
               <label
                 for="servico"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Serviço
               </label>
@@ -1197,7 +1197,7 @@
             <div class="min-w-0">
               <label
                 for="inicio"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Data
               </label>
@@ -1219,7 +1219,7 @@
             <div
               class="flex min-h-12 min-w-0 flex-col justify-center rounded-xl bg-estetica-secondary px-3.5 py-2.5 sm:px-4"
             >
-              <span class="text-[10px] font-medium tracking-wider text-estetica-text uppercase">
+              <span class="text-xs font-medium tracking-wider text-estetica-text uppercase">
                 Selecionado
               </span>
               @if (formDataHora() && servicoSelecionado(); as srv) {
@@ -1261,7 +1261,7 @@
               @if (horariosManhaPrimeiraSessao().length) {
                 <div>
                   <span
-                    class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                    class="mb-2 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                   >
                     Manhã
                   </span>
@@ -1290,7 +1290,7 @@
               @if (horariosTardePrimeiraSessao().length) {
                 <div [class.mt-3.5]="horariosManhaPrimeiraSessao().length > 0" class="sm:mt-4">
                   <span
-                    class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                    class="mb-2 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                   >
                     Tarde
                   </span>
@@ -1346,7 +1346,7 @@
             <div class="mb-4 sm:mb-5">
               <label
                 for="modo-repeticao-pacote"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Preenchimento das próximas sessões
               </label>
@@ -1432,7 +1432,7 @@
                     >
                       <div class="min-w-0 sm:max-w-xs">
                         <label
-                          class="mb-1 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                          class="mb-1 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                         >
                           Data da {{ sessao.sessaoNumero }}ª sessão
                         </label>
@@ -1455,7 +1455,7 @@
                             @if (slotsExtra.length) {
                               @if (horariosManhaSessaoExtra(sessao).length) {
                                 <span
-                                  class="mb-1.5 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                                  class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                                 >
                                   Manhã
                                 </span>
@@ -1489,7 +1489,7 @@
 
                               @if (horariosTardeSessaoExtra(sessao).length) {
                                 <span
-                                  class="mt-2.5 mb-1.5 block text-[10px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                                  class="mt-2.5 mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                                 >
                                   Tarde
                                 </span>
@@ -1574,7 +1574,7 @@
             <div class="min-w-0">
               <label
                 for="cupom-agendamento"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Cupom de desconto (opcional)
               </label>
@@ -1611,7 +1611,7 @@
               <div class="min-w-0">
                 <label
                   for="tipo-desconto-manual"
-                  class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                  class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                 >
                   Formato do desconto
                 </label>
@@ -1627,7 +1627,7 @@
               <div class="min-w-0">
                 <label
                   for="valor-desconto-manual"
-                  class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                  class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                 >
                   Valor do desconto
                 </label>
@@ -1656,7 +1656,7 @@
             class="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between sm:gap-4"
           >
             <div class="min-w-0">
-              <span class="text-[10px] font-bold tracking-wider text-estetica-primary uppercase">
+              <span class="text-xs font-bold tracking-wider text-estetica-primary uppercase">
                 Resumo do pacote
               </span>
               <p class="mt-0.5 text-sm font-medium text-estetica-text">
@@ -1683,7 +1683,7 @@
 
             <div class="min-w-0 text-left min-[480px]:text-right">
               <span
-                class="block text-[10px] font-bold tracking-wider text-estetica-text/65 uppercase"
+                class="block text-xs font-bold tracking-wider text-estetica-text/65 uppercase"
               >
                 Total final
               </span>
@@ -1691,7 +1691,7 @@
                 {{ resumoFinanceiro().valorFinal | currency: 'BRL' }}
               </p>
               @if (resumoSessoesPacote().total > 1) {
-                <span class="block text-[11px] text-estetica-text/70">
+                <span class="block text-xs text-estetica-text/70">
                   {{
                     resumoFinanceiro().valoresSessoes[resumoFinanceiro().valoresSessoes.length - 1]
                       | currency: 'BRL'
@@ -1802,7 +1802,7 @@
       >
         <dl class="grid gap-4 sm:grid-cols-2">
           <div>
-            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+            <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
               Data e horário
             </dt>
             <dd class="mt-1 text-sm font-medium text-estetica-text">
@@ -1815,7 +1815,7 @@
           </div>
 
           <div>
-            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+            <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
               Duração reservada
             </dt>
             <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -1824,7 +1824,7 @@
           </div>
 
           <div>
-            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+            <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
               Profissional responsável
             </dt>
             <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -1833,7 +1833,7 @@
           </div>
 
           <div>
-            <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+            <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
               Valor da sessão
             </dt>
             <dd class="mt-1 text-sm font-medium text-estetica-primary">
@@ -1852,7 +1852,7 @@
 
           @if (clientById(item.idCliente); as clienteObj) {
             <div>
-              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
                 WhatsApp da cliente
               </dt>
               <dd class="mt-1 text-sm font-semibold text-estetica-text">
@@ -1863,7 +1863,7 @@
 
           @if (item.metodoPagamento) {
             <div>
-              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
                 Método de pagamento
               </dt>
               <dd class="mt-1 text-sm font-medium text-estetica-text">
@@ -1874,7 +1874,7 @@
 
           @if (item.reagendado && item.dataHoraAnterior) {
             <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
-              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
                 Histórico de reagendamento
               </dt>
               <dd class="mt-1 text-xs font-medium text-estetica-text/80">
@@ -1888,7 +1888,7 @@
 
           @if (item.anotacoesFinais) {
             <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
-              <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+              <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
                 Anotações da sessão
               </dt>
               <dd class="mt-1 whitespace-pre-line text-sm leading-relaxed text-estetica-text">
@@ -1900,7 +1900,7 @@
           @if (fotosDoAgendamento(item); as fotosRegistradas) {
             @if (fotosRegistradas.length > 0) {
               <div class="border-t border-estetica-secondary pt-3 sm:col-span-2">
-                <dt class="text-[11px] font-medium tracking-wider text-estetica-text/60 uppercase">
+                <dt class="text-xs font-medium tracking-wider text-estetica-text/60 uppercase">
                   Registros visuais do resultado ({{ fotosRegistradas.length }})
                 </dt>
                 <dd class="mt-2.5 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -1924,10 +1924,10 @@
                         </span>
                       </div>
                       <span
-                        class="flex w-full items-center justify-between px-2.5 py-1.5 text-[11px] font-medium text-estetica-primary"
+                        class="flex w-full items-center justify-between px-2.5 py-1.5 text-xs font-medium text-estetica-primary"
                       >
                         <span>Foto {{ idx + 1 }}</span>
-                        <i class="pi pi-search-plus text-[10px]" aria-hidden="true"></i>
+                        <i class="pi pi-search-plus text-xs" aria-hidden="true"></i>
                       </span>
                     </button>
                   }
@@ -2097,14 +2097,14 @@
                         {{ sessao.sessaoNumero ?? 1 }}ª sessão
                       </span>
                       <span
-                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-medium"
+                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
                         [class]="statusBadgeClass(sessao.status)"
                       >
                         {{ statusLabel(sessao.status) }}
                       </span>
                       @if (sessao.id === item.id) {
                         <span
-                          class="rounded-full bg-estetica-primary px-2.5 py-0.5 text-[10px] font-medium text-white"
+                          class="rounded-full bg-estetica-primary px-2.5 py-0.5 text-xs font-medium text-white"
                         >
                           Visualizando agora
                         </span>
@@ -2174,7 +2174,7 @@
 
           <div>
             <span
-              class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              class="mb-2 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
             >
               Método de pagamento
             </span>
@@ -2202,7 +2202,7 @@
           <div>
             <label
               for="anotacoes-finais"
-              class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+              class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
             >
               Anotações da sessão (opcional)
             </label>
@@ -2219,7 +2219,7 @@
           <div>
             <div class="mb-1.5 flex items-center justify-between gap-2">
               <span
-                class="block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Fotos do resultado (opcional · pode selecionar várias)
               </span>
@@ -2247,7 +2247,7 @@
               <span class="text-xs font-medium text-estetica-text">
                 Clique para selecionar uma ou mais fotos do resultado
               </span>
-              <span class="text-[11px] text-estetica-text/70">
+              <span class="text-xs text-estetica-text/70">
                 Você pode selecionar várias imagens de uma vez · JPEG, PNG ou WebP (máx. 5 MB cada)
               </span>
               <input
@@ -2295,7 +2295,7 @@
                         >
                           {{ itemFoto.file.name }}
                         </p>
-                        <p class="text-[11px] text-estetica-primary">Clique para ampliar</p>
+                        <p class="text-xs text-estetica-primary">Clique para ampliar</p>
                       </div>
                     </button>
                     <button
@@ -2357,7 +2357,7 @@
             <div>
               <label
                 for="nova-data-hora"
-                class="mb-1.5 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                class="mb-1.5 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
               >
                 Data
               </label>
@@ -2377,7 +2377,7 @@
             <div
               class="flex min-h-12 flex-col justify-center rounded-xl bg-estetica-secondary px-4 py-2.5"
             >
-              <span class="text-[10px] font-medium tracking-wider text-estetica-text uppercase">
+              <span class="text-xs font-medium tracking-wider text-estetica-text uppercase">
                 Selecionado
               </span>
               @if (reagendarDataHoraSignal(); as novaDt) {
@@ -2401,7 +2401,7 @@
                 @if (horariosManhaReagendamento().length) {
                   <div>
                     <span
-                      class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                      class="mb-2 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                     >
                       Manhã
                     </span>
@@ -2428,7 +2428,7 @@
                 @if (horariosTardeReagendamento().length) {
                   <div [class.mt-4]="horariosManhaReagendamento().length > 0">
                     <span
-                      class="mb-2 block text-[11px] font-medium tracking-wider text-estetica-text/65 uppercase"
+                      class="mb-2 block text-xs font-medium tracking-wider text-estetica-text/65 uppercase"
                     >
                       Tarde
                     </span>

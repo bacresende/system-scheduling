@@ -1,0 +1,78 @@
+.layout-navigation {
+  display: none;
+  flex-direction: column;
+}
+
+.layout-menu-toggle { display: none; }
+
+:host(.compact-navigation) .layout-navigation.navigation-open {
+  display: flex;
+}
+
+.bottom-navigation {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.125rem;
+  padding: 0.5rem;
+}
+
+.bottom-navigation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 2.75rem;
+  min-height: 3.5rem;
+  padding-inline: 0.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.bottom-navigation-probe {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: max-content;
+  visibility: hidden;
+  pointer-events: none;
+  /* Mede a largura necessária sem criar rolagem horizontal no documento. */
+  transform: translateX(-100%);
+}
+
+main { padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+
+@media (min-width: 64rem) {
+  .layout-shell { display: flex; }
+  .layout-sidebar {
+    width: 16rem;
+    flex-shrink: 0;
+    border-right-width: 1px;
+    border-bottom-width: 0;
+  }
+  .layout-navigation { display: flex; }
+  .layout-menu-toggle { display: none; }
+  .bottom-navigation, .layout-mobile-logout { display: none; }
+  main { padding-bottom: 2rem; }
+}
+
+/* O menu só substitui a navegação quando os cinco itens não cabem. */
+:host(.compact-navigation) .layout-shell { display: block; }
+:host(.compact-navigation) .layout-sidebar {
+  width: auto;
+  border-right-width: 0;
+  border-bottom-width: 1px;
+}
+:host(.compact-navigation) .layout-menu-toggle { display: inline-flex; }
+:host(.compact-navigation) .layout-navigation:not(.navigation-open) { display: none; }
+:host(.compact-navigation) .bottom-navigation,
+:host(.compact-navigation) .layout-mobile-logout { display: none; }
+:host(.compact-navigation) main { padding-bottom: 1rem; }

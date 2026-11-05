@@ -2,6 +2,7 @@
 @import 'tailwindcss';
 @plugin "tailwindcss-primeui";
 @import 'primeicons/primeicons.css';
+@import './app/shared/accessibility/reading.css';
 
 /* 1. O seu "Painel de Controlo" de cores através de variáveis nativas do CSS */
 :root {
@@ -12,10 +13,16 @@
   --cor-fundo: #fcfafa;
   --cor-fundo-oficial: #f3f1f0;
   --cor-texto: #4a4a4a;
+  --cor-texto-secundario: #626262;
+  --cor-borda-controle: var(--cor-secundaria);
 }
 
 /* 2. Ensinando o Tailwind v4 a ler o seu painel de controlo */
 @theme {
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 1rem;
+  --text-sm--line-height: 1.5;
   --color-estetica-primary: var(--cor-primaria);
   --color-estetica-primary-dark: var(--cor-primaria-escura);
   --color-estetica-secondary: var(--cor-secundaria);

@@ -8,7 +8,7 @@ import { switchMap } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
-      <small class="block text-red-600" role="alert">Preencha este campo com um valor válido.</small>
+      <small class="mt-2 block text-sm font-medium text-red-800" role="alert">Preencha este campo com um valor válido.</small>
     }
   `
 })

@@ -4,10 +4,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
 import { MessageModule } from 'primeng/message';
 import { ApiClient } from './core/api/api-client';
+import { ReadingControlsComponent } from './shared/accessibility/reading-controls.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MessageModule],
+  imports: [RouterOutlet, MessageModule, ReadingControlsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.css'

@@ -30,7 +30,7 @@
           </div>
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
-              <div class="mb-2 flex items-center gap-2">
+              <div class="relative mb-2 flex flex-wrap items-center gap-2">
                 <label
                   id="nascimento-perfil-label"
                   for="nascimento-perfil"
@@ -38,7 +38,7 @@
                 >
                   Data de nascimento
                 </label>
-                <span class="profile-help relative inline-flex">
+                <span class="profile-help inline-flex">
                   <button
                     type="button"
                     class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
@@ -53,7 +53,7 @@
                   <span
                     id="nascimento-perfil-hint"
                     role="tooltip"
-                    class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
+                    class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-full rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
                     [class.visible]="activeHint() === 'nascimento'"
                     [class.opacity-100]="activeHint() === 'nascimento'"
                   >
@@ -124,12 +124,12 @@
           <legend class="mb-4 px-1 text-lg font-semibold">Endereço</legend>
           @for (field of fields; track field.key) {
             <div>
-              <div class="mb-2 flex items-center gap-2">
+              <div class="relative mb-2 flex flex-wrap items-center gap-2">
                 <label [for]="'endereco-' + field.key" class="text-sm font-semibold">
                   {{ field.label }}
                 </label>
                 @if (field.key === 'cep') {
-                  <span class="profile-help relative inline-flex">
+                  <span class="profile-help inline-flex">
                     <button
                       type="button"
                       class="inline-flex size-6 items-center justify-center rounded-full text-estetica-text/70 transition hover:bg-estetica-secondary hover:text-estetica-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
@@ -144,7 +144,7 @@
                     <span
                       id="endereco-cep-hint"
                       role="tooltip"
-                      class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-max max-w-[min(18rem,calc(100vw-3rem))] rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
+                      class="profile-help-tooltip invisible absolute left-0 top-full z-20 mt-2 w-full rounded-lg bg-estetica-text px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition"
                       [class.visible]="activeHint() === 'cep'"
                       [class.opacity-100]="activeHint() === 'cep'"
                     >
