@@ -60,6 +60,12 @@ export class ClienteDetailPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   protected readonly prontuario = signal<ClienteProntuario | null>(null);
 
+  protected readonly anamneses = computed(() =>
+    [...(this.prontuario()?.anamnesesAvulsas ?? [])].sort(
+      (a, b) => new Date(b.dataPreenchimento).getTime() - new Date(a.dataPreenchimento).getTime(),
+    ),
+  );
+
   protected readonly agendamentos = computed(() =>
     [...(this.prontuario()?.agendamentos ?? [])].sort(
       (a, b) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime(),

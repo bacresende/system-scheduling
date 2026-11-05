@@ -67,7 +67,18 @@
                   [class.border-estetica-secondary]="!!field.when"
                   [class.pl-4]="!!field.when"
                 >
-                  <dt class="text-base font-medium leading-relaxed text-estetica-text">{{ field.label }}</dt>
+                  <dt
+                    class="min-w-0 text-base font-medium leading-relaxed text-estetica-text"
+                    [class.sm:flex]="field.type === 'boolean'"
+                    [class.sm:flex-1]="field.type === 'boolean'"
+                    [class.sm:items-center]="field.type === 'boolean'"
+                    [class.sm:gap-4]="field.type === 'boolean'"
+                  >
+                    <span>{{ field.label }}</span>
+                    @if (field.type === 'boolean') {
+                      <span aria-hidden="true" class="hidden min-w-6 flex-1 border-t border-estetica-primary/20 sm:block"></span>
+                    }
+                  </dt>
                   <dd class="mt-2 text-base leading-relaxed" [class.sm:mt-0]="field.type === 'boolean'" [class.shrink-0]="field.type === 'boolean'">
                     @if (field.value === true || field.value === false) {
                       <span

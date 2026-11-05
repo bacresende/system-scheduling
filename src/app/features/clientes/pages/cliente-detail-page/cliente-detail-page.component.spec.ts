@@ -113,6 +113,10 @@ describe('ClienteDetailPageComponent', () => {
     expect(root.querySelectorAll('img')).toHaveLength(3);
     expect(root.textContent).toContain('3 fotos');
     expect(root.querySelectorAll('[role="tab"]')).toHaveLength(4);
+    const anamnese = root.querySelector<HTMLDetailsElement>('ol[aria-label="Anamneses da mais recente para a mais antiga"] > li > details');
+    expect(anamnese?.open).toBe(true);
+    expect(anamnese?.querySelector('summary')?.textContent).toContain('Anamnese corporal');
+    expect(anamnese?.querySelector('summary')?.textContent).not.toContain('Mais recente');
     expect(root.querySelector('[role="tablist"]')?.getAttribute('aria-label')).toBe(
       'Seções do prontuário da cliente',
     );
@@ -126,6 +130,37 @@ describe('ClienteDetailPageComponent', () => {
     );
     expect(photoVisits[1].querySelectorAll('img')).toHaveLength(1);
     expect(root.querySelectorAll('a[href="/agendamentos?data=2026-10-10"]')).toHaveLength(2);
+  });
+
+  it('ordena as fichas por data e destaca apenas a mais recente sem alterar os dados recebidos', async () => {
+    const original = prontuario.anamnesesAvulsas[0];
+    const anamnesesAvulsas = [
+      original,
+      { ...original, id: 'recente', dataPreenchimento: '2026-11-04T12:00:00Z' },
+      { ...original, id: 'intermediaria', dataPreenchimento: '2026-10-20T12:00:00Z' },
+    ];
+    request.mockResolvedValue({ ...prontuario, anamnesesAvulsas });
+    const fixture = TestBed.createComponent(ClienteDetailPageComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const root: HTMLElement = fixture.nativeElement;
+    const cards = Array.from(root.querySelectorAll<HTMLDetailsElement>(
+      'ol[aria-label="Anamneses da mais recente para a mais antiga"] > li > details',
+    ));
+    const titles = cards.map(card => card.querySelector('summary')!);
+    expect(cards).toHaveLength(3);
+    expect(titles[0].textContent).toContain('04/11/2026');
+    expect(titles[1].textContent).toContain('20/10/2026');
+    expect(titles[2].textContent).toContain('10/10/2026');
+    expect(titles[0].textContent).toContain('Mais recente');
+    expect(titles.slice(1).every(title => !title.textContent?.includes('Mais recente'))).toBe(true);
+    expect(cards.every(card => !card.open)).toBe(true);
+    titles[0].click();
+    expect(cards[0].open).toBe(true);
+    expect(cards[0].querySelector('app-anamnese-respostas')).not.toBeNull();
+    expect(anamnesesAvulsas.map(item => item.id)).toEqual(['corporal-1', 'recente', 'intermediaria']);
   });
 
   it('displays API errors instead of showing an empty client record', async () => {
