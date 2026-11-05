@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { Select } from 'primeng/select';
 import { vi } from 'vitest';
 import { ApiClient } from '../../../../core/api/api-client';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -46,6 +48,29 @@ describe('Avaliação corporal autenticada', () => {
     await fixture.whenStable();
     expect(request).not.toHaveBeenCalled();
     expect(component.form.invalid).toBe(true);
+  });
+
+  it('mantém os painéis dos selects limitados ao viewport mobile', async () => {
+    const { fixture } = await setup();
+    const selects = fixture.debugElement.queryAll(By.directive(Select));
+
+    expect(selects.length).toBeGreaterThan(0);
+    for (const select of selects) {
+      expect(select.componentInstance.panelStyleClass).toBe('anamnese-select-panel');
+      expect(select.componentInstance.styleClass).toContain('min-w-0');
+    }
+  });
+
+  it('não apresenta textos auxiliares menores que 14 px', async () => {
+    const { root } = await setup();
+    const smallTexts = root.querySelectorAll<HTMLElement>('.text-xs, .text-sm');
+
+    expect(smallTexts.length).toBeGreaterThan(0);
+    for (const element of smallTexts) {
+      const fontSize = getComputedStyle(element).fontSize;
+      const sizeInPixels = Number.parseFloat(fontSize) * (fontSize.endsWith('rem') ? 16 : 1);
+      expect(sizeInPixels).toBeGreaterThanOrEqual(14);
+    }
   });
 
   it('salva somente respostas e aceite, sem identidade/contato/data enviados pelo cliente', async () => {

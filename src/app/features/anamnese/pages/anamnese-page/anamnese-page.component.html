@@ -97,7 +97,7 @@
                             <p-selectbutton [id]="section.key + '-' + field.key" [ariaLabelledBy]="section.key + '-' + field.key + '-label'" [formControlName]="field.key" [options]="simNao" optionLabel="label" optionValue="value" [allowEmpty]="false" (onChange)="refreshValidation()" class="shrink-0" styleClass="min-h-11 min-w-20" />
                           }
                           @case ('select') {
-                            <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" (onChange)="refreshValidation()" placeholder="Selecione uma opção" styleClass="min-h-12 w-full items-center rounded-xl" />
+                            <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" (onChange)="refreshValidation()" placeholder="Selecione uma opção" styleClass="min-h-12 w-full min-w-0 items-center rounded-xl" panelStyleClass="anamnese-select-panel" />
                           }
                           @case ('text') {
                             <textarea pTextarea [id]="section.key + '-' + field.key" [formControlName]="field.key" [attr.maxlength]="field.maxLength" [rows]="field.key === 'principaisQueixas' ? 4 : 2" class="w-full resize-y rounded-xl border-estetica-secondary bg-estetica-bg/50 p-3 text-sm" [placeholder]="field.key === 'principaisQueixas' ? 'Conte o que mais incomoda e o que você gostaria de melhorar…' : 'Descreva aqui…'"></textarea>

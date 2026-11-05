@@ -35,6 +35,21 @@ body {
   min-height: 48px;
 }
 
+/* Impede que opções extensas aumentem a largura da página em telas pequenas. */
+.anamnese-select-panel {
+  max-width: calc(100vw - 2rem);
+}
+
+.anamnese-select-panel .p-select-list {
+  max-width: 100%;
+}
+
+.anamnese-select-panel .p-select-option {
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .p-datepicker-day-selected,
 .p-datepicker-day-selected:hover {
   background-color: var(--cor-primaria);
