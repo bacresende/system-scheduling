@@ -34,7 +34,15 @@
       </span>
     </header>
 
-    <p-tabs value="dados" [scrollable]="true" class="block">
+    <p-tabs
+      value="dados"
+      [scrollable]="true"
+      [style.--p-tabs-tablist-background]="'transparent'"
+      [style.--p-tabs-tabpanel-background]="'transparent'"
+      [style.--p-tabs-tab-active-color]="'var(--cor-primaria)'"
+      [style.--p-tabs-active-bar-background]="'var(--cor-primaria)'"
+      [style.--p-tabs-tab-focus-ring-color]="'var(--cor-primaria)'"
+    >
       <p-tablist [pt]="{ tabList: { 'aria-label': 'Seções do prontuário da cliente' } }">
         <p-tab value="dados">Dados cadastrais</p-tab>
         <p-tab value="fotos">
@@ -43,7 +51,9 @@
         </p-tab>
         <p-tab value="anamneses">
           Anamneses
-          <span class="ml-1 text-xs text-estetica-text/70">({{ ficha.anamnesesAvulsas.length }})</span>
+          <span class="ml-1 text-xs text-estetica-text/70"
+            >({{ ficha.anamnesesAvulsas.length }})</span
+          >
         </p-tab>
         <p-tab value="agendamentos">
           Agendamentos
@@ -53,288 +63,338 @@
 
       <p-tabpanels>
         <p-tabpanel value="dados">
-      <section
-        aria-labelledby="dados-cliente-title"
-        class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
-      >
-        <h2 id="dados-cliente-title" class="mb-5 text-xl font-semibold text-estetica-text">
-          Dados cadastrados
-        </h2>
+          <section
+            aria-labelledby="dados-cliente-title"
+            class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
+          >
+            <h2 id="dados-cliente-title" class="mb-5 text-xl font-semibold text-estetica-text">
+              Dados cadastrados
+            </h2>
 
-        <dl class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
-          <div class="min-w-0">
-            <dt class="text-xs font-medium text-estetica-text/70">E-mail</dt>
-            <dd class="mt-1 break-all text-sm font-medium">
-              <a
-                [href]="'mailto:' + ficha.cliente.email"
-                class="text-estetica-primary underline underline-offset-2"
-              >
-                {{ ficha.cliente.email }}
-              </a>
-            </dd>
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-estetica-text/70">Telefone</dt>
-            <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.telefone | telefone }}</dd>
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-estetica-text/70">CPF</dt>
-            <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.cpf | cpf }}</dd>
-          </div>
-          <div>
-            <dt class="text-xs font-medium text-estetica-text/70">Data de nascimento</dt>
-            <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.nasc | birthdate }}</dd>
-          </div>
-          <div class="sm:col-span-2">
-            <dt class="text-xs font-medium text-estetica-text/70">Ocupação profissional</dt>
-            <dd class="mt-1 text-sm font-medium">
-              {{ ficha.cliente.ocupacaoProfissional || 'Não informado' }}
-            </dd>
-          </div>
-        </dl>
-
-        <section aria-labelledby="endereco-cliente-title" class="mt-6 border-t border-estetica-secondary pt-5">
-          <h3 id="endereco-cliente-title" class="mb-4 text-base font-semibold">Endereço</h3>
-          @if (ficha.cliente.endereco; as endereco) {
             <dl class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
-              <div>
-                <dt class="text-xs font-medium text-estetica-text/70">CEP</dt>
-                <dd class="mt-1 text-sm font-medium">{{ endereco.cep | cep }}</dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-estetica-text/70">Logradouro</dt>
-                <dd class="mt-1 text-sm font-medium">
-                  {{ endereco.logradouro }}, {{ endereco.numeroResidencia }}
+              <div class="min-w-0">
+                <dt class="text-xs font-medium text-estetica-text/70">E-mail</dt>
+                <dd class="mt-1 break-all text-sm font-medium">
+                  <a
+                    [href]="'mailto:' + ficha.cliente.email"
+                    class="text-estetica-primary underline underline-offset-2"
+                  >
+                    {{ ficha.cliente.email }}
+                  </a>
                 </dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-estetica-text/70">Bairro</dt>
-                <dd class="mt-1 text-sm font-medium">{{ endereco.bairro }}</dd>
+                <dt class="text-xs font-medium text-estetica-text/70">Telefone</dt>
+                <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.telefone | telefone }}</dd>
               </div>
               <div>
-                <dt class="text-xs font-medium text-estetica-text/70">Complemento</dt>
+                <dt class="text-xs font-medium text-estetica-text/70">CPF</dt>
+                <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.cpf | cpf }}</dd>
+              </div>
+              <div>
+                <dt class="text-xs font-medium text-estetica-text/70">Data de nascimento</dt>
+                <dd class="mt-1 text-sm font-medium">{{ ficha.cliente.nasc | birthdate }}</dd>
+              </div>
+              <div class="sm:col-span-2">
+                <dt class="text-xs font-medium text-estetica-text/70">Ocupação profissional</dt>
                 <dd class="mt-1 text-sm font-medium">
-                  {{ endereco.complemento || 'Não informado' }}
+                  {{ ficha.cliente.ocupacaoProfissional || 'Não informado' }}
                 </dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-estetica-text/70">Cidade</dt>
-                <dd class="mt-1 text-sm font-medium">{{ endereco.cidade }}</dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-estetica-text/70">Estado</dt>
-                <dd class="mt-1 text-sm font-medium">{{ endereco.estado }}</dd>
-              </div>
-              <div>
-                <dt class="text-xs font-medium text-estetica-text/70">País</dt>
-                <dd class="mt-1 text-sm font-medium">{{ endereco.pais }}</dd>
               </div>
             </dl>
-          } @else {
-            <p class="text-sm text-estetica-text/75">Endereço não informado.</p>
-          }
-        </section>
-      </section>
+
+            <section
+              aria-labelledby="endereco-cliente-title"
+              class="mt-6 border-t border-estetica-secondary pt-5"
+            >
+              <h3 id="endereco-cliente-title" class="mb-4 text-base font-semibold">Endereço</h3>
+              @if (ficha.cliente.endereco; as endereco) {
+                <dl class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">CEP</dt>
+                    <dd class="mt-1 text-sm font-medium">{{ endereco.cep | cep }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">Logradouro</dt>
+                    <dd class="mt-1 text-sm font-medium">
+                      {{ endereco.logradouro }}, {{ endereco.numeroResidencia }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">Bairro</dt>
+                    <dd class="mt-1 text-sm font-medium">{{ endereco.bairro }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">Complemento</dt>
+                    <dd class="mt-1 text-sm font-medium">
+                      {{ endereco.complemento || 'Não informado' }}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">Cidade</dt>
+                    <dd class="mt-1 text-sm font-medium">{{ endereco.cidade }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">Estado</dt>
+                    <dd class="mt-1 text-sm font-medium">{{ endereco.estado }}</dd>
+                  </div>
+                  <div>
+                    <dt class="text-xs font-medium text-estetica-text/70">País</dt>
+                    <dd class="mt-1 text-sm font-medium">{{ endereco.pais }}</dd>
+                  </div>
+                </dl>
+              } @else {
+                <p class="text-sm text-estetica-text/75">Endereço não informado.</p>
+              }
+            </section>
+          </section>
         </p-tabpanel>
 
         <p-tabpanel value="fotos">
-      <section aria-labelledby="fotos-cliente-title">
-        <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 id="fotos-cliente-title" class="text-xl font-semibold text-estetica-text">
-              Fotos dos atendimentos
-            </h2>
-            <p class="mt-1 text-sm text-estetica-text/70">
-              Resultados organizados por atendimento, do mais recente ao mais antigo.
-            </p>
-          </div>
-          <span class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
-            {{ totalFotos() }} {{ totalFotos() === 1 ? 'foto' : 'fotos' }}
-          </span>
-        </div>
+          <section aria-labelledby="fotos-cliente-title">
+            <div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 id="fotos-cliente-title" class="text-xl font-semibold text-estetica-text">
+                  Fotos dos atendimentos
+                </h2>
+                <p class="mt-1 text-sm text-estetica-text/70">
+                  Resultados organizados por atendimento, do mais recente ao mais antigo.
+                </p>
+              </div>
+              <span
+                class="rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
+              >
+                {{ totalFotos() }} {{ totalFotos() === 1 ? 'foto' : 'fotos' }}
+              </span>
+            </div>
 
-        @if (fotos().length) {
-          <ol aria-label="Fotos dos atendimentos em ordem cronológica" class="grid gap-5">
-            @for (atendimento of fotos(); track atendimento.id) {
-              <li>
-                <article class="overflow-hidden rounded-2xl border border-estetica-secondary bg-white shadow-sm">
-                  <header class="flex flex-wrap items-center justify-between gap-3 border-b border-estetica-secondary bg-estetica-bg px-4 py-4 sm:px-5">
-                    <div class="flex min-w-0 items-start gap-3">
-                      <span
-                        aria-hidden="true"
-                        class="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-estetica-primary"
+            @if (fotos().length) {
+              <ol aria-label="Fotos dos atendimentos em ordem cronológica" class="grid gap-5">
+                @for (atendimento of fotos(); track atendimento.id) {
+                  <li>
+                    <article
+                      class="overflow-hidden rounded-2xl border border-estetica-secondary bg-white shadow-sm"
+                    >
+                      <header
+                        class="flex flex-wrap items-center justify-between gap-3 border-b border-estetica-secondary bg-estetica-bg px-4 py-4 sm:px-5"
                       >
-                        <i class="pi pi-camera" aria-hidden="true"></i>
-                      </span>
-                      <div class="min-w-0">
-                        <h3 class="font-semibold text-estetica-text">{{ atendimento.nomeServico }}</h3>
-                        <p class="mt-1 text-sm text-estetica-text/75">
-                          {{ atendimento.dataHora | date: "dd/MM/yyyy 'às' HH:mm" }}
-                        </p>
+                        <div class="flex min-w-0 items-start gap-3">
+                          <span
+                            aria-hidden="true"
+                            class="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-estetica-primary"
+                          >
+                            <i class="pi pi-camera" aria-hidden="true"></i>
+                          </span>
+                          <div class="min-w-0">
+                            <h3 class="font-semibold text-estetica-text">
+                              {{ atendimento.nomeServico }}
+                            </h3>
+                            <p class="mt-1 text-sm text-estetica-text/75">
+                              {{ atendimento.dataHora | date: "dd/MM/yyyy 'às' HH:mm" }}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
+                        >
+                          {{ atendimento.fotos.length }}
+                          {{ atendimento.fotos.length === 1 ? 'foto' : 'fotos' }}
+                        </span>
+                      </header>
+
+                      <div
+                        class="grid gap-3 p-4 sm:p-5"
+                        [class.max-w-2xl]="atendimento.fotos.length === 1"
+                        [class.sm:grid-cols-2]="atendimento.fotos.length > 1"
+                        [class.xl:grid-cols-3]="atendimento.fotos.length > 2"
+                      >
+                        @for (foto of atendimento.fotos; track foto.id) {
+                          <a
+                            [href]="foto.url"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            [attr.aria-label]="
+                              'Abrir foto ' +
+                              ($index + 1) +
+                              ' de ' +
+                              atendimento.fotos.length +
+                              ' do serviço ' +
+                              atendimento.nomeServico +
+                              ' em nova aba'
+                            "
+                            class="group overflow-hidden rounded-xl border border-estetica-secondary bg-estetica-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                          >
+                            <img
+                              [src]="foto.url"
+                              [alt]="
+                                'Foto ' +
+                                ($index + 1) +
+                                ' do resultado de ' +
+                                atendimento.nomeServico
+                              "
+                              loading="lazy"
+                              class="aspect-video w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                            />
+                          </a>
+                        }
                       </div>
+
+                      <footer class="border-t border-estetica-secondary px-4 py-2 sm:px-5">
+                        <a
+                          routerLink="/agendamentos"
+                          [queryParams]="{ data: agendaDate(atendimento.dataHora) }"
+                          class="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-estetica-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                        >
+                          Ir para o dia na agenda
+                          <i class="pi pi-calendar" aria-hidden="true"></i>
+                        </a>
+                      </footer>
+                    </article>
+                  </li>
+                }
+              </ol>
+            } @else {
+              <p
+                class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75"
+              >
+                Nenhuma foto de resultado foi registrada nos atendimentos deste cliente.
+              </p>
+            }
+          </section>
+        </p-tabpanel>
+
+        <p-tabpanel value="anamneses">
+          <section aria-labelledby="anamneses-avulsas-title" class="mt-6">
+            <header class="mb-4">
+              <h2 id="anamneses-avulsas-title" class="text-2xl font-semibold text-estetica-text">
+                Anamneses
+              </h2>
+              <p class="mt-1 text-sm text-estetica-text/70">
+                Fichas vinculadas ao perfil da cliente, sem serviço ou agendamento associado.
+              </p>
+            </header>
+
+            @if (ficha.anamnesesAvulsas.length) {
+              <div class="grid gap-4">
+                @for (anamnese of ficha.anamnesesAvulsas; track anamnese.id) {
+                  <details [open]="ficha.anamnesesAvulsas.length === 1" class="rounded-2xl border border-estetica-secondary bg-white shadow-sm">
+                    <summary
+                      class="cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                    >
+                      Ficha preenchida em
+                      {{ anamnese.dataPreenchimento | date: "dd/MM/yyyy 'às' HH:mm" }}
+                    </summary>
+                    <div class="border-t border-estetica-secondary bg-estetica-bg-oficial/50 p-3 sm:p-5">
+                      <app-anamnese-respostas [anamnese]="anamnese" />
                     </div>
-                    <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
-                      {{ atendimento.fotos.length }}
-                      {{ atendimento.fotos.length === 1 ? 'foto' : 'fotos' }}
-                    </span>
-                  </header>
+                  </details>
+                }
+              </div>
+            } @else {
+              <p
+                class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75"
+              >
+                Nenhuma anamnese foi preenchida.
+              </p>
+            }
+          </section>
+        </p-tabpanel>
 
-                  <div
-                    class="grid gap-3 p-4 sm:p-5"
-                    [class.max-w-2xl]="atendimento.fotos.length === 1"
-                    [class.sm:grid-cols-2]="atendimento.fotos.length > 1"
-                    [class.xl:grid-cols-3]="atendimento.fotos.length > 2"
+        <p-tabpanel value="agendamentos">
+          <section aria-labelledby="historico-cliente-title" class="mt-6">
+            <header class="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 id="historico-cliente-title" class="text-2xl font-semibold text-estetica-text">
+                  Histórico de agendamentos
+                </h2>
+                <p class="mt-1 text-sm text-estetica-text/70">
+                  {{ agendamentos().length }}
+                  {{
+                    agendamentos().length === 1
+                      ? 'atendimento registrado'
+                      : 'atendimentos registrados'
+                  }}
+                </p>
+              </div>
+            </header>
+
+            @if (agendamentos().length) {
+              <div class="grid gap-4">
+                @for (item of agendamentos(); track item.id) {
+                  <article
+                    class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6"
                   >
-                    @for (foto of atendimento.fotos; track foto.id) {
-                      <a
-                        [href]="foto.url"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        [attr.aria-label]="'Abrir foto ' + ($index + 1) + ' de ' + atendimento.fotos.length + ' do serviço ' + atendimento.nomeServico + ' em nova aba'"
-                        class="group overflow-hidden rounded-xl border border-estetica-secondary bg-estetica-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                    <div
+                      class="flex flex-col gap-3 border-b border-estetica-secondary pb-4 sm:flex-row sm:items-start sm:justify-between"
+                    >
+                      <div>
+                        <p class="font-semibold text-estetica-text">{{ item.nomeServico }}</p>
+                        <p class="mt-1 text-sm text-estetica-text/75">
+                          {{ item.dataHora | date: "EEEE, dd 'de' MMMM 'de' yyyy 'às' HH:mm" }}
+                        </p>
+                        @if (item.totalSessoes && item.totalSessoes > 1) {
+                          <p class="mt-1 text-xs text-estetica-text/70">
+                            Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
+                          </p>
+                        }
+                      </div>
+                      <span
+                        class="w-fit rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark"
                       >
-                        <img
-                          [src]="foto.url"
-                          [alt]="'Foto ' + ($index + 1) + ' do resultado de ' + atendimento.nomeServico"
-                          loading="lazy"
-                          class="aspect-video w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-                        />
-                      </a>
-                    }
-                  </div>
+                        {{ statusAgendamento(item) }}
+                      </span>
+                    </div>
 
-                  <footer class="border-t border-estetica-secondary px-4 py-2 sm:px-5">
+                    <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      <div>
+                        <dt class="text-xs text-estetica-text/70">Valor registrado</dt>
+                        <dd class="mt-1 text-sm font-semibold">
+                          {{ item.valor | currency: 'BRL' }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs text-estetica-text/70">Duração</dt>
+                        <dd class="mt-1 text-sm font-medium">{{ item.duracaoMinutos }} minutos</dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs text-estetica-text/70">Pagamento</dt>
+                        <dd class="mt-1 text-sm font-medium">
+                          {{ item.metodoPagamento || 'Não registrado' }}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-xs text-estetica-text/70">Cupom</dt>
+                        <dd class="mt-1 text-sm font-medium">
+                          {{ item.codigoCupom || 'Não utilizado' }}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    @if (item.anotacoesFinais) {
+                      <p class="mt-4 rounded-lg bg-estetica-bg p-3 text-sm">
+                        <span class="font-semibold">Anotações:</span> {{ item.anotacoesFinais }}
+                      </p>
+                    }
+
                     <a
                       routerLink="/agendamentos"
-                      [queryParams]="{ data: agendaDate(atendimento.dataHora) }"
-                      class="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-estetica-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                      [queryParams]="{ data: agendaDate(item.dataHora) }"
+                      class="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-estetica-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-primary"
                     >
                       Ir para o dia na agenda
                       <i class="pi pi-calendar" aria-hidden="true"></i>
                     </a>
-                  </footer>
-                </article>
-              </li>
-            }
-          </ol>
-        } @else {
-          <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
-            Nenhuma foto de resultado foi registrada nos atendimentos deste cliente.
-          </p>
-        }
-      </section>
-        </p-tabpanel>
-
-        <p-tabpanel value="anamneses">
-    <section aria-labelledby="anamneses-avulsas-title" class="mt-6">
-      <header class="mb-4">
-        <h2 id="anamneses-avulsas-title" class="text-2xl font-semibold text-estetica-text">
-          Anamneses
-        </h2>
-        <p class="mt-1 text-sm text-estetica-text/70">
-          Fichas vinculadas ao perfil da cliente, sem serviço ou agendamento associado.
-        </p>
-      </header>
-
-      @if (ficha.anamnesesAvulsas.length) {
-        <div class="grid gap-4">
-          @for (anamnese of ficha.anamnesesAvulsas; track anamnese.id) {
-            <details class="rounded-2xl border border-estetica-secondary bg-white shadow-sm">
-              <summary class="cursor-pointer rounded-2xl px-5 py-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary">
-                Ficha preenchida em
-                {{ anamnese.dataPreenchimento | date: "dd/MM/yyyy 'às' HH:mm" }}
-              </summary>
-              <div class="border-t border-estetica-secondary p-5">
-                <app-anamnese-respostas [anamnese]="anamnese" />
+                  </article>
+                }
               </div>
-            </details>
-          }
-        </div>
-      } @else {
-        <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
-          Nenhuma anamnese foi preenchida.
-        </p>
-      }
-    </section>
-        </p-tabpanel>
-
-        <p-tabpanel value="agendamentos">
-    <section aria-labelledby="historico-cliente-title" class="mt-6">
-      <header class="mb-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 id="historico-cliente-title" class="text-2xl font-semibold text-estetica-text">
-            Histórico de agendamentos
-          </h2>
-          <p class="mt-1 text-sm text-estetica-text/70">
-            {{ agendamentos().length }}
-            {{ agendamentos().length === 1 ? 'atendimento registrado' : 'atendimentos registrados' }}
-          </p>
-        </div>
-      </header>
-
-      @if (agendamentos().length) {
-        <div class="grid gap-4">
-          @for (item of agendamentos(); track item.id) {
-            <article class="rounded-2xl border border-estetica-secondary bg-white p-5 shadow-sm sm:p-6">
-              <div class="flex flex-col gap-3 border-b border-estetica-secondary pb-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p class="font-semibold text-estetica-text">{{ item.nomeServico }}</p>
-                  <p class="mt-1 text-sm text-estetica-text/75">
-                    {{ item.dataHora | date: "EEEE, dd 'de' MMMM 'de' yyyy 'às' HH:mm" }}
-                  </p>
-                  @if (item.totalSessoes && item.totalSessoes > 1) {
-                    <p class="mt-1 text-xs text-estetica-text/70">
-                      Sessão {{ item.sessaoNumero ?? 1 }} de {{ item.totalSessoes }}
-                    </p>
-                  }
-                </div>
-                <span class="w-fit rounded-full bg-estetica-secondary px-3 py-1 text-xs font-semibold text-estetica-primary-dark">
-                  {{ statusAgendamento(item) }}
-                </span>
-              </div>
-
-              <dl class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div>
-                  <dt class="text-xs text-estetica-text/70">Valor registrado</dt>
-                  <dd class="mt-1 text-sm font-semibold">{{ item.valor | currency: 'BRL' }}</dd>
-                </div>
-                <div>
-                  <dt class="text-xs text-estetica-text/70">Duração</dt>
-                  <dd class="mt-1 text-sm font-medium">{{ item.duracaoMinutos }} minutos</dd>
-                </div>
-                <div>
-                  <dt class="text-xs text-estetica-text/70">Pagamento</dt>
-                  <dd class="mt-1 text-sm font-medium">{{ item.metodoPagamento || 'Não registrado' }}</dd>
-                </div>
-                <div>
-                  <dt class="text-xs text-estetica-text/70">Cupom</dt>
-                  <dd class="mt-1 text-sm font-medium">{{ item.codigoCupom || 'Não utilizado' }}</dd>
-                </div>
-              </dl>
-
-              @if (item.anotacoesFinais) {
-                <p class="mt-4 rounded-lg bg-estetica-bg p-3 text-sm">
-                  <span class="font-semibold">Anotações:</span> {{ item.anotacoesFinais }}
-                </p>
-              }
-
-              <a
-                routerLink="/agendamentos"
-                [queryParams]="{ data: agendaDate(item.dataHora) }"
-                class="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-estetica-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-primary"
+            } @else {
+              <p
+                class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75"
               >
-                Ir para o dia na agenda
-                <i class="pi pi-calendar" aria-hidden="true"></i>
-              </a>
-            </article>
-          }
-        </div>
-      } @else {
-        <p class="rounded-2xl border border-dashed border-estetica-secondary bg-white p-6 text-sm text-estetica-text/75">
-          Nenhum agendamento foi registrado para este cliente.
-        </p>
-      }
-    </section>
+                Nenhum agendamento foi registrado para este cliente.
+              </p>
+            }
+          </section>
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>

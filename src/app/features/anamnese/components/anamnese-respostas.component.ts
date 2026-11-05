@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, linkedSignal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AnamneseCorporal } from '../models/anamnese.model';
 import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
@@ -7,39 +7,55 @@ import { SECOES_ANAMNESE } from '../models/anamnese-corporal.config';
   selector: 'app-anamnese-respostas',
   imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    @for (section of sections; track section.key) {
-      @if (hasSection(section.key)) {
-      <details class="mt-3 rounded-lg border border-estetica-secondary p-3">
-        <summary class="cursor-pointer font-semibold">{{ section.label }}</summary>
-        <dl class="mt-3 grid gap-3 sm:grid-cols-2">
-          @for (field of section.fields; track field.key) {
-            @if (value(section.key, field.key) !== undefined) {
-              <div><dt class="text-xs text-estetica-text/70">{{ field.label }}</dt>
-                <dd class="whitespace-pre-wrap break-words text-sm">{{ display(value(section.key, field.key)) }}</dd></div>
-            }
-          }
-        </dl>
-      </details>
-      }
-    }
-    <p class="mt-3 text-sm">{{ anamnese().declaracao.texto }}
-      Confirmado em {{ anamnese().declaracao.aceitaEm | date: 'dd/MM/yyyy HH:mm' }}.</p>
-  `,
+  templateUrl: './anamnese-respostas.component.html',
 })
 export class AnamneseRespostasComponent {
   readonly anamnese = input.required<AnamneseCorporal>();
-  protected readonly sections = SECOES_ANAMNESE;
-  protected hasSection(section: string): boolean {
-    return Object.prototype.hasOwnProperty.call(this.anamnese().respostas, section);
-  }
-  protected value(section: string, field: string): unknown {
+  protected readonly sections = computed(() => {
     const respostas = this.anamnese().respostas as unknown as Record<string, Record<string, unknown>>;
-    return respostas[section]?.[field];
+    return SECOES_ANAMNESE
+      .map((section) => ({
+        ...section,
+        fields: section.fields
+          .filter((field) => respostas[section.key]?.[field.key] !== undefined)
+          .map((field) => ({ ...field, value: respostas[section.key][field.key] })),
+      }))
+      .filter((section) => section.fields.length > 0);
+  });
+  protected readonly collapsed = linkedSignal<ReadonlySet<string>>(
+    () => new Set(this.sections().slice(1).map((section) => section.key)),
+  );
+
+  protected expandAll(): void {
+    this.collapsed.set(new Set());
   }
-  protected display(value: unknown): string {
+
+  protected collapseAll(): void {
+    this.collapsed.set(new Set(this.sections().map((section) => section.key)));
+  }
+
+  protected syncSection(key: string, event: Event): void {
+    const open = (event.target as HTMLDetailsElement).open;
+    if (this.collapsed().has(key) === !open) return;
+    this.collapsed.update((current) => {
+      const next = new Set(current);
+      if (open) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  protected isEmpty(value: unknown): boolean {
+    return value === null || value === undefined || (typeof value === 'string' && !value.trim());
+  }
+
+  protected display(value: unknown, type: string): string {
+    if (this.isEmpty(value)) return 'Não informado';
     if (value === true) return 'Sim';
     if (value === false) return 'Não';
-    return value === null || value === '' ? 'Não informado' : String(value);
+    if (type === 'date' && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value.split('-').reverse().join('/');
+    }
+    return String(value);
   }
 }

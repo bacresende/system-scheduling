@@ -1,0 +1,100 @@
+<div class="space-y-4">
+  <header class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <p class="mb-1 text-sm font-semibold tracking-widest text-estetica-primary uppercase">Avaliação corporal</p>
+      <h3 class="font-serif text-2xl tracking-tight text-estetica-text">Respostas da ficha</h3>
+      <p class="mt-1 text-sm text-estetica-text/75">
+        Selecione uma seção para consultar as informações preenchidas.
+      </p>
+    </div>
+    @if (sections().length) {
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          (click)="expandAll()"
+          class="min-h-11 rounded-lg border border-estetica-secondary bg-white px-3 text-sm font-semibold text-estetica-primary hover:bg-estetica-secondary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+        >
+          Expandir seções
+        </button>
+        <button
+          type="button"
+          (click)="collapseAll()"
+          class="min-h-11 rounded-lg border border-estetica-secondary bg-white px-3 text-sm font-semibold text-estetica-primary hover:bg-estetica-secondary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+        >
+          Recolher seções
+        </button>
+      </div>
+    }
+  </header>
+
+  @for (section of sections(); track section.key; let index = $index) {
+    <details
+      [open]="!collapsed().has(section.key)"
+      (toggle)="syncSection(section.key, $event)"
+      class="group rounded-2xl border border-estetica-secondary bg-white shadow-sm shadow-estetica-primary/10"
+    >
+      <summary
+        class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-4 py-4 font-semibold text-estetica-text group-open:rounded-b-none group-open:bg-estetica-secondary group-open:text-estetica-primary hover:bg-estetica-secondary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary [&::-webkit-details-marker]:hidden sm:px-5"
+      >
+        <span class="flex items-center gap-3">
+          <span aria-hidden="true" class="flex size-8 shrink-0 items-center justify-center rounded-full border border-estetica-secondary bg-white text-sm text-estetica-primary">{{ index + 1 }}</span>
+          <span>{{ section.label }}</span>
+        </span>
+        <i
+          class="pi pi-chevron-down shrink-0 text-sm text-estetica-primary group-open:rotate-180"
+          aria-hidden="true"
+        ></i>
+      </summary>
+      <dl class="grid items-start gap-4 p-4 sm:grid-cols-2 sm:p-5">
+        @for (field of section.fields; track field.key) {
+          <div
+            class="min-w-0"
+            [class.sm:col-span-2]="field.type === 'text' || field.type === 'boolean' || !!field.when"
+            [class.rounded-xl]="field.type === 'boolean'"
+            [class.bg-estetica-bg]="field.type === 'boolean'"
+            [class.p-4]="field.type === 'boolean'"
+            [class.sm:flex]="field.type === 'boolean'"
+            [class.sm:items-center]="field.type === 'boolean'"
+            [class.sm:justify-between]="field.type === 'boolean'"
+            [class.gap-4]="field.type === 'boolean'"
+            [class.border-l-2]="!!field.when"
+            [class.border-estetica-secondary]="!!field.when"
+            [class.pl-4]="!!field.when"
+          >
+            <dt class="text-base font-medium leading-relaxed text-estetica-text">{{ field.label }}</dt>
+            <dd class="mt-2 text-base leading-relaxed" [class.sm:mt-0]="field.type === 'boolean'" [class.shrink-0]="field.type === 'boolean'">
+              @if (field.value === true || field.value === false) {
+                <span
+                  class="inline-flex min-w-16 justify-center rounded-lg px-3 py-1 font-semibold"
+                  [class.bg-estetica-primary]="field.value === true"
+                  [class.text-white]="field.value === true"
+                  [class.bg-estetica-bg-oficial]="field.value === false"
+                  [class.text-estetica-primary]="field.value === false"
+                >{{ field.value ? 'Sim' : 'Não' }}</span>
+              } @else if (isEmpty(field.value)) {
+                <span class="text-estetica-text/65">Não informado</span>
+              } @else {
+                <span class="block rounded-xl border border-estetica-secondary bg-estetica-bg/50 p-3 whitespace-pre-wrap break-words text-estetica-text">{{ display(field.value, field.type) }}</span>
+              }
+            </dd>
+          </div>
+        }
+      </dl>
+    </details>
+  } @empty {
+    <p class="rounded-xl border border-dashed border-estetica-secondary bg-white p-5 text-sm text-estetica-text/75">
+      Nenhuma resposta registrada nesta ficha.
+    </p>
+  }
+
+  <section aria-label="Declaração de veracidade" class="rounded-2xl border border-estetica-secondary bg-estetica-secondary/40 p-4 sm:p-5">
+    <h3 class="flex items-center gap-2 text-sm font-semibold text-estetica-text">
+      <i class="pi pi-check-circle text-estetica-primary" aria-hidden="true"></i>
+      Declaração de veracidade
+    </h3>
+    <p class="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-estetica-text/75">{{ anamnese().declaracao.texto }}</p>
+    <p class="mt-3 text-sm font-medium text-estetica-text">
+      Confirmada em {{ anamnese().declaracao.aceitaEm | date: "dd/MM/yyyy 'às' HH:mm" }}.
+    </p>
+  </section>
+</div>
