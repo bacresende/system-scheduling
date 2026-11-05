@@ -10,6 +10,7 @@
   --cor-secundaria: #f6ebec;
   --cor-terciaria: #9eb3a6;
   --cor-fundo: #fcfafa;
+  --cor-fundo-oficial: #f3f1f0;
   --cor-texto: #4a4a4a;
 }
 
@@ -20,13 +21,14 @@
   --color-estetica-secondary: var(--cor-secundaria);
   --color-estetica-tertiary: var(--cor-terciaria);
   --color-estetica-bg: var(--cor-fundo);
+  --color-estetica-bg-oficial: var(--cor-fundo-oficial);
   --color-estetica-text: var(--cor-texto);
 }
 
 /* 3. Reset básico aplicando as suas novas cores */
 body {
   margin: 0;
-  background-color: var(--cor-fundo);
+  background-color: var(--cor-fundo-oficial);
   color: var(--cor-texto);
   font-family: var(--p-font-family, sans-serif);
 }
