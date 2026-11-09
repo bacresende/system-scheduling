@@ -92,7 +92,7 @@
               <div class="grid items-start gap-4 sm:grid-cols-2">
                 @for (field of section.fields; track field.key) {
                   @if (visible(section.key, field)) {
-                    <div class="min-w-0" [class.sm:col-span-2]="field.type === 'boolean' || field.when || field.key === 'principaisQueixas'" [class.rounded-xl]="field.type === 'boolean'" [class.bg-estetica-bg]="field.type === 'boolean'" [class.p-4]="field.type === 'boolean'" [class.border-l-2]="!!field.when" [class.border-estetica-secondary]="!!field.when" [class.pl-4]="!!field.when">
+                    <div class="min-w-0" [class.sm:col-span-2]="field.type === 'boolean' || field.when || field.key === 'principaisQueixas'" [class.rounded-xl]="field.type === 'boolean'" [class.border]="field.type === 'boolean'" [class.anamnese-boolean-card]="field.type === 'boolean'" [class.border-estetica-secondary]="field.type !== 'boolean' && !!field.when" [class.bg-estetica-bg]="field.type === 'boolean'" [class.p-4]="field.type === 'boolean'" [class.border-l-2]="!!field.when" [class.pl-4]="!!field.when">
                       <div [class]="field.type === 'boolean' ? 'flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-center lg:gap-6' : ''">
                         <label [id]="section.key + '-' + field.key + '-label'" [attr.for]="field.type === 'boolean' ? null : section.key + '-' + field.key" class="block text-sm font-medium leading-relaxed" [class.mb-2]="field.type !== 'boolean'">{{ fieldLabel(field) }} @if (field.required) { <span class="text-estetica-primary" aria-hidden="true">*</span> } @else { <span class="text-xs font-normal text-estetica-text/60">(opcional)</span> }</label>
                         @switch (field.type) {

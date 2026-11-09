@@ -15,6 +15,10 @@
   --p-togglebutton-focus-ring-offset: 3px;
 }
 
+.anamnese-boolean-card {
+  border-color: color-mix(in srgb, var(--cor-secundaria) 35%, transparent);
+}
+
 /* Mantém a escala legível também quando o formulário é renderizado isoladamente. */
 :host .text-xs { font-size: 0.875rem; line-height: 1.5; }
 :host .text-sm { font-size: 1rem; line-height: 1.5; }
