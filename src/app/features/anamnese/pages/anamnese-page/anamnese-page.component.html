@@ -93,11 +93,11 @@
                 @for (field of section.fields; track field.key) {
                   @if (visible(section.key, field)) {
                     <div class="min-w-0" [class.sm:col-span-2]="field.type === 'boolean' || field.when || field.key === 'principaisQueixas'" [class.rounded-xl]="field.type === 'boolean'" [class.bg-estetica-bg]="field.type === 'boolean'" [class.p-4]="field.type === 'boolean'" [class.border-l-2]="!!field.when" [class.border-estetica-secondary]="!!field.when" [class.pl-4]="!!field.when">
-                      <div [class]="field.type === 'boolean' ? 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5' : ''">
+                      <div [class]="field.type === 'boolean' ? 'flex flex-col gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-center lg:gap-6' : ''">
                         <label [id]="section.key + '-' + field.key + '-label'" [attr.for]="field.type === 'boolean' ? null : section.key + '-' + field.key" class="block text-sm font-medium leading-relaxed" [class.mb-2]="field.type !== 'boolean'">{{ fieldLabel(field) }} @if (field.required) { <span class="text-estetica-primary" aria-hidden="true">*</span> } @else { <span class="text-xs font-normal text-estetica-text/60">(opcional)</span> }</label>
                         @switch (field.type) {
                           @case ('boolean') {
-                            <p-selectbutton [id]="section.key + '-' + field.key" [ariaLabelledBy]="section.key + '-' + field.key + '-label'" [formControlName]="field.key" [options]="simNao" optionLabel="label" optionValue="value" [allowEmpty]="false" (onChange)="refreshValidation()" class="shrink-0" styleClass="min-h-11 min-w-20" />
+                            <p-selectbutton [id]="section.key + '-' + field.key" [ariaLabelledBy]="section.key + '-' + field.key + '-label'" [formControlName]="field.key" [options]="simNao" optionLabel="label" optionValue="value" [allowEmpty]="false" (onChange)="refreshValidation()" class="w-full max-w-[18rem] lg:shrink-0" styleClass="min-h-11 w-full" />
                           }
                           @case ('select') {
                             <p-select [inputId]="section.key + '-' + field.key" [formControlName]="field.key" [options]="field.options ?? []" (onChange)="refreshValidation()" placeholder="Selecione uma opção" styleClass="min-h-12 w-full min-w-0 items-center rounded-xl" panelStyleClass="anamnese-select-panel" />
