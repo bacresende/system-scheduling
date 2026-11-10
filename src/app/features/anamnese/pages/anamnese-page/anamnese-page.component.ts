@@ -1,7 +1,23 @@
 import { DatePipe } from '@angular/common';
-import { afterNextRender, ChangeDetectionStrategy, Component, computed, ElementRef, inject, Injector, OnInit, signal } from '@angular/core';
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { SelectButtonModule } from 'primeng/selectbutton';
@@ -11,20 +27,40 @@ import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { AnamneseContext, AnamneseService } from '../../services/anamnese.service';
 import { AuthService } from '../../../auth/services/auth.service';
-import { CampoAnamnese, SecaoAnamnese, SECOES_ANAMNESE } from '../../models/anamnese-corporal.config';
+import {
+  CampoAnamnese,
+  SecaoAnamnese,
+  SECOES_ANAMNESE,
+} from '../../models/anamnese-corporal.config';
 import { EtapaAnamnese, ETAPAS_ANAMNESE } from '../../models/anamnese-etapas.config';
 import { RespostasAnamneseCorporal } from '../../models/anamnese-corporal.model';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
+import { RouterLink } from '@angular/router';
 
 type Answer = string | number | boolean | null;
 type SectionForm = FormGroup<Record<string, FormControl<Answer>>>;
 
 @Component({
   selector: 'app-anamnese-page',
-  imports: [DatePipe, CpfPipe, TelefonePipe, ReactiveFormsModule, ButtonModule, SelectModule, SelectButtonModule, CheckboxModule, InputTextModule, TextareaModule, DatePickerModule, RequestFeedback, FieldError],
+  imports: [
+    DatePipe,
+    CpfPipe,
+    TelefonePipe,
+    ReactiveFormsModule,
+    ButtonModule,
+    SelectModule,
+    SelectButtonModule,
+    CheckboxModule,
+    InputTextModule,
+    TextareaModule,
+    DatePickerModule,
+    RequestFeedback,
+    FieldError,
+    RouterLink,
+  ],
   providers: [RequestState, AnamneseContext],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './anamnese-page.component.html',
@@ -43,20 +79,41 @@ export class AnamnesePageComponent implements OnInit {
   protected readonly currentStep = signal(0);
   protected readonly steps: EtapaAnamnese[] = [
     ...ETAPAS_ANAMNESE,
-    { key: 'revisao', title: 'Revisão', icon: 'pi-check-circle', description: 'Confira as etapas e confirme suas informações para enviar a ficha.', sections: [] },
+    {
+      key: 'revisao',
+      title: 'Revisão',
+      icon: 'pi-check-circle',
+      description: 'Confira as etapas e confirme suas informações para enviar a ficha.',
+      sections: [],
+    },
   ];
   protected readonly activeStep = computed(() => this.steps[this.currentStep()]);
   private readonly validationVersion = signal(0);
-  protected readonly simNao = [{ label: 'Sim', value: true }, { label: 'Não', value: false }];
+  protected readonly simNao = [
+    { label: 'Sim', value: true },
+    { label: 'Não', value: false },
+  ];
   protected readonly maxDate = new Date();
-  protected readonly today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+  protected readonly today = new Date().toLocaleDateString('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+  });
   protected readonly form = new FormGroup({
     respostas: new FormGroup<Record<string, SectionForm>>(
-      Object.fromEntries(this.sections.map(section => [section.key, new FormGroup(
-        Object.fromEntries(section.fields.map(field => [field.key, new FormControl<Answer>(null)])),
-      )])),
+      Object.fromEntries(
+        this.sections.map((section) => [
+          section.key,
+          new FormGroup(
+            Object.fromEntries(
+              section.fields.map((field) => [field.key, new FormControl<Answer>(null)]),
+            ),
+          ),
+        ]),
+      ),
     ),
-    informacoesVerdadeiras: new FormControl(false, { nonNullable: true, validators: Validators.requiredTrue }),
+    informacoesVerdadeiras: new FormControl(false, {
+      nonNullable: true,
+      validators: Validators.requiredTrue,
+    }),
   });
   private readonly formEvents = toSignal(this.form.events);
   protected readonly progress = computed(() => {
@@ -71,10 +128,12 @@ export class AnamnesePageComponent implements OnInit {
         if (this.control(section.key, field.key).valid) answered++;
       }
     }
-    return { total, answered, percent: Math.round(answered / total * 100) };
+    return { total, answered, percent: Math.round((answered / total) * 100) };
   });
 
-  constructor() { this.refreshValidation(); }
+  constructor() {
+    this.refreshValidation();
+  }
 
   protected get idade(): number | null {
     const nascimento = this.usuario()?.nasc;
@@ -86,22 +145,29 @@ export class AnamnesePageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.state.run(async () => { this.context.load(); });
+    void this.state.run(async () => {
+      this.context.load();
+    });
   }
 
   protected stepComplete(index: number): boolean {
     this.formEvents();
     this.validationVersion();
     const keys = this.steps[index].sections;
-    return keys.length ? keys.every(key => this.group(key).valid) : this.form.controls.informacoesVerdadeiras.valid;
+    return keys.length
+      ? keys.every((key) => this.group(key).valid)
+      : this.form.controls.informacoesVerdadeiras.valid;
   }
 
   protected goToStep(index: number): void {
     if (this.state.busy() || index < 0 || index >= this.steps.length) return;
     this.currentStep.set(index);
-    afterNextRender(() => {
-      this.element.nativeElement.querySelector<HTMLElement>('#anamnese-step-title')?.focus();
-    }, { injector: this.injector });
+    afterNextRender(
+      () => {
+        this.element.nativeElement.querySelector<HTMLElement>('#anamnese-step-title')?.focus();
+      },
+      { injector: this.injector },
+    );
   }
 
   protected next(): void {
@@ -134,12 +200,18 @@ export class AnamnesePageComponent implements OnInit {
   }
 
   protected visible(section: string, field: CampoAnamnese): boolean {
-    const definition = this.sections.find(item => item.key === section)!;
-    return this.sectionVisible(definition) && (!field.when || this.control(section, field.when).value === true);
+    const definition = this.sections.find((item) => item.key === section)!;
+    return (
+      this.sectionVisible(definition) &&
+      (!field.when || this.control(section, field.when).value === true)
+    );
   }
 
   protected sectionVisible(section: SecaoAnamnese): boolean {
-    return !section.when || this.control(section.when.section, section.when.field).value === section.when.equals;
+    return (
+      !section.when ||
+      this.control(section.when.section, section.when.field).value === section.when.equals
+    );
   }
 
   protected refreshValidation(): void {
@@ -151,21 +223,37 @@ export class AnamnesePageComponent implements OnInit {
           control.clearValidators();
         } else {
           const validators: ValidatorFn[] = [];
-          if (field.required) validators.push(c => c.value === null || c.value === undefined ||
-            (typeof c.value === 'string' && !c.value.trim()) ? { required: true } : null);
+          if (field.required)
+            validators.push((c) =>
+              c.value === null ||
+              c.value === undefined ||
+              (typeof c.value === 'string' && !c.value.trim())
+                ? { required: true }
+                : null,
+            );
           if (field.maxLength) validators.push(Validators.maxLength(field.maxLength));
           if (field.min !== undefined) validators.push(Validators.min(field.min));
           if (field.max !== undefined) validators.push(Validators.max(field.max));
-          if (field.integer) validators.push(c => c.value !== null && !Number.isInteger(c.value) ? { integer: true } : null);
-          if (field.type === 'date') validators.push(c => !c.value || (/^\d{4}-\d{2}-\d{2}$/.test(c.value) &&
-            Number.isFinite(Date.parse(c.value)) && new Date(c.value).toISOString().slice(0, 10) === c.value && c.value <= this.today)
-            ? null : { date: true });
+          if (field.integer)
+            validators.push((c) =>
+              c.value !== null && !Number.isInteger(c.value) ? { integer: true } : null,
+            );
+          if (field.type === 'date')
+            validators.push((c) =>
+              !c.value ||
+              (/^\d{4}-\d{2}-\d{2}$/.test(c.value) &&
+                Number.isFinite(Date.parse(c.value)) &&
+                new Date(c.value).toISOString().slice(0, 10) === c.value &&
+                c.value <= this.today)
+                ? null
+                : { date: true },
+            );
           control.setValidators(validators);
         }
         control.updateValueAndValidity({ emitEvent: false });
       }
     }
-    this.validationVersion.update(version => version + 1);
+    this.validationVersion.update((version) => version + 1);
   }
 
   protected save(): void {
@@ -178,13 +266,25 @@ export class AnamnesePageComponent implements OnInit {
       if (incomplete >= 0) this.goToStep(incomplete);
       return;
     }
-    const respostas = Object.fromEntries(this.sections.filter(section => this.sectionVisible(section)).map(section => [section.key,
-      Object.fromEntries(section.fields.filter(field => this.visible(section.key, field))
-        .map(field => [field.key, this.control(section.key, field.key).value])
-        .filter(([, value]) => value !== null && value !== '')),
-    ])) as unknown as RespostasAnamneseCorporal;
+    const respostas = Object.fromEntries(
+      this.sections
+        .filter((section) => this.sectionVisible(section))
+        .map((section) => [
+          section.key,
+          Object.fromEntries(
+            section.fields
+              .filter((field) => this.visible(section.key, field))
+              .map((field) => [field.key, this.control(section.key, field.key).value])
+              .filter(([, value]) => value !== null && value !== ''),
+          ),
+        ]),
+    ) as unknown as RespostasAnamneseCorporal;
     void this.state.run(async () => {
-      await this.api.saveStandalone({ tipo: 'CORPORAL', respostas, declaracao: { informacoesVerdadeiras: true } });
+      await this.api.saveStandalone({
+        tipo: 'CORPORAL',
+        respostas,
+        declaracao: { informacoesVerdadeiras: true },
+      });
       this.saved.set(true);
     }, 'Ficha de avaliação corporal salva.');
   }

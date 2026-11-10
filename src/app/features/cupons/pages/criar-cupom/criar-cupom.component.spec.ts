@@ -59,6 +59,18 @@ describe('CriarCupomComponent', () => {
     expect(request).not.toHaveBeenCalled();
   });
 
+  it('renders the code generator as an outlined button with a visible hover state', async () => {
+    const { fixture } = await createComponent();
+    const button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+      'button[aria-label="Gerar código de cupom"]',
+    );
+
+    expect(button?.classList.contains('p-button-outlined')).toBe(true);
+    expect(button?.classList.contains('bg-white')).toBe(true);
+    expect(button?.classList.contains('hover:bg-estetica-primary')).toBe(true);
+    expect(button?.classList.contains('hover:text-white')).toBe(true);
+  });
+
   it('displays the number of global uses on the coupon card', async () => {
     const { fixture, component } = await createComponent();
     component.cupons.set([
@@ -203,5 +215,50 @@ describe('CriarCupomComponent', () => {
 
     expect(request).toHaveBeenCalledWith('POST', '/deleteCupom', { id: cupom.id });
     expect(component.cupons()).toEqual([]);
+  });
+
+  it('filters coupons by code, discount type and exact status', async () => {
+    const { fixture, component } = await createComponent();
+    component.cupons.set([
+      {
+        id: 'cupom-ativo',
+        usosGlobais: 0,
+        codigo: 'BEMVINDA10',
+        tipoDesconto: 'PORCENTAGEM',
+        valor: 10,
+        servicosValidos: [],
+        ativo: true,
+      },
+      {
+        id: 'cupom-inativo',
+        usosGlobais: 2,
+        codigo: 'VIP25',
+        tipoDesconto: 'VALOR_FIXO',
+        valor: 25,
+        servicosValidos: [],
+        ativo: false,
+      },
+    ]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const input = root.querySelector<HTMLInputElement>('#buscar-cupom');
+    if (!input) throw new Error('Busca de cupons não encontrada');
+    const codes = () =>
+      Array.from(root.querySelectorAll('article h3'), (item) => item.textContent?.trim());
+
+    input.value = 'porcentagem ativo';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(codes()).toEqual(['BEMVINDA10']);
+
+    input.value = 'valor fixo inativo';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(codes()).toEqual(['VIP25']);
+
+    input.value = 'sem resultado';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Nenhum cupom encontrado');
   });
 });

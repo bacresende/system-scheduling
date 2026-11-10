@@ -2,6 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   OnInit,
@@ -19,6 +20,8 @@ import { ServicosService } from '../../services/servicos.service';
 import { Servico } from '../../models/servico.model';
 import { FieldError } from '../../../../shared/ui/field-error';
 import { RequestFeedback, RequestState } from '../../../../shared/ui/request-feedback';
+import { SearchFieldComponent } from '../../../../shared/components/search-field/search-field.component';
+import { matchesSearch } from '../../../../shared/utils/search';
 
 @Component({
   selector: 'app-servico-list-page',
@@ -33,6 +36,7 @@ import { RequestFeedback, RequestState } from '../../../../shared/ui/request-fee
     TableModule,
     FieldError,
     RequestFeedback,
+    SearchFieldComponent,
   ],
   providers: [RequestState],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +50,12 @@ export class ServicoListPageComponent implements OnInit {
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('serviceDialog');
   private readonly deleteDialogRef = viewChild<ElementRef<HTMLDialogElement>>('deleteDialog');
   protected readonly servicos = signal<Servico[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filteredServicos = computed(() =>
+    this.servicos().filter((servico) =>
+      matchesSearch(this.searchTerm(), [servico.nome, servico.descricao]),
+    ),
+  );
   protected readonly loadCycle = signal(0);
   protected readonly editing = signal<string | undefined>(undefined);
   protected readonly pendingDelete = signal<Servico | null>(null);

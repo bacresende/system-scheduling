@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   ElementRef,
   inject,
@@ -27,6 +28,8 @@ import { ServicosService } from '../../../servicos/services/servicos.service';
 import { ServicoCupom } from '../../../servicos/models/servico.model';
 import { CuponsService } from '../../services/cupons.service';
 import { localDay } from '../../../../shared/utils/date';
+import { SearchFieldComponent } from '../../../../shared/components/search-field/search-field.component';
+import { matchesSearch, searchTerms } from '../../../../shared/utils/search';
 
 @Component({
   selector: 'app-criar-cupom',
@@ -43,6 +46,7 @@ import { localDay } from '../../../../shared/utils/date';
     SkeletonModule,
     ToggleSwitchModule,
     RequestFeedback,
+    SearchFieldComponent,
   ],
   providers: [RequestState],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +62,21 @@ export class CriarCupomComponent implements OnInit {
   private readonly deleteDialogRef = viewChild<ElementRef<HTMLDialogElement>>('deleteCupomDialog');
 
   protected readonly cupons = signal<Cupom[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filteredCupons = computed(() => {
+    const terms = searchTerms(this.searchTerm());
+    return this.cupons().filter((cupom) =>
+      terms.every((term) => {
+        if (term === 'ativo') return cupom.ativo;
+        if (term === 'inativo') return !cupom.ativo;
+        return matchesSearch(term, [
+          cupom.codigo,
+          cupom.tipoDesconto,
+          cupom.tipoDesconto === 'PORCENTAGEM' ? 'porcentagem percentual' : 'valor fixo',
+        ]);
+      }),
+    );
+  });
   protected readonly loadCycle = signal(0);
   protected readonly hoje = new Date(new Date().setHours(0, 0, 0, 0));
   protected readonly modalAberto = signal(false);

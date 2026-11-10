@@ -302,166 +302,217 @@
 
   <section aria-labelledby="lista-clientes-title">
     @for (cycle of [loadCycle()]; track cycle) {
-      <div class="mb-4">
-        <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
-        @defer (when !state.busy()) {
-          <p class="mt-1 text-sm text-estetica-text/70">
-            {{ clientes().length }}
-            {{ clientes().length === 1 ? 'cliente' : 'clientes' }}
-          </p>
-        } @placeholder {
-          <p-skeleton width="4.5rem" height="1.125rem" borderRadius="0.375rem" styleClass="mt-1" />
-        }
+      <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h2 id="lista-clientes-title" class="text-lg font-semibold">Lista de clientes</h2>
+          @defer (when !state.busy()) {
+            <p class="mt-1 text-sm text-estetica-text/70" aria-live="polite">
+              @if (searchTerm().trim()) {
+                {{ filteredClientes().length }} de {{ clientes().length }}
+                {{ clientes().length === 1 ? 'cliente' : 'clientes' }}
+              } @else {
+                {{ clientes().length }}
+                {{ clientes().length === 1 ? 'cliente' : 'clientes' }}
+              }
+            </p>
+          } @placeholder {
+            <p-skeleton
+              width="4.5rem"
+              height="1.125rem"
+              borderRadius="0.375rem"
+              styleClass="mt-1"
+            />
+          }
+        </div>
+
+        <div class="w-full md:max-w-sm">
+          <app-search-field
+            inputId="buscar-cliente"
+            label="Buscar clientes"
+            placeholder="Buscar por nome, e-mail ou telefone"
+            controls="lista-clientes-resultados"
+            [value]="searchTerm()"
+            (valueChange)="searchTerm.set($event)"
+            [disabled]="state.busy() || !clientes().length"
+          />
+        </div>
       </div>
 
-      @defer (when !state.busy()) {
-        @if (clientes().length) {
-          <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-            @for (item of clientes(); track item.id) {
-              <article
-                class="group relative overflow-hidden rounded-2xl border border-estetica-secondary bg-white p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
-              >
-                <button
-                  type="button"
-                  class="absolute inset-0 z-10 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
-                  [attr.aria-label]="'Ver todas as informações de ' + item.nome"
-                  (click)="showDetails(item)"
-                ></button>
-                <div
-                  aria-hidden="true"
-                  class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
-                ></div>
-                <div class="flex items-start justify-between gap-4">
-                  <div class="min-w-0">
-                    <span
-                      class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-                      [class]="
-                        item.cadastroCompleto
-                          ? 'bg-estetica-tertiary/25 text-estetica-text'
-                          : 'bg-estetica-secondary text-estetica-primary-dark'
-                      "
-                    >
+      <div id="lista-clientes-resultados">
+        @defer (when !state.busy()) {
+          @if (clientes().length) {
+            @if (filteredClientes().length) {
+              <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+                @for (item of filteredClientes(); track item.id) {
+                  <article
+                    class="group relative overflow-hidden rounded-2xl border border-estetica-secondary bg-white p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
+                  >
+                    <button
+                      type="button"
+                      class="absolute inset-0 z-10 cursor-pointer rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-estetica-primary"
+                      [attr.aria-label]="'Ver todas as informações de ' + item.nome"
+                      (click)="showDetails(item)"
+                    ></button>
+                    <div
+                      aria-hidden="true"
+                      class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/70"
+                    ></div>
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="min-w-0">
+                        <span
+                          class="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                          [class]="
+                            item.cadastroCompleto
+                              ? 'bg-estetica-tertiary/25 text-estetica-text'
+                              : 'bg-estetica-secondary text-estetica-primary-dark'
+                          "
+                        >
+                          <span
+                            aria-hidden="true"
+                            class="size-2 rounded-full"
+                            [class]="
+                              item.cadastroCompleto
+                                ? 'bg-estetica-tertiary'
+                                : 'bg-estetica-primary-dark'
+                            "
+                          ></span>
+                          {{ item.cadastroCompleto ? 'Cadastro completo' : 'Cadastro pendente' }}
+                        </span>
+                        <h3 class="break-words text-xl font-semibold tracking-tight">
+                          {{ item.nome }}
+                        </h3>
+                      </div>
                       <span
                         aria-hidden="true"
-                        class="size-2 rounded-full"
-                        [class]="
-                          item.cadastroCompleto
-                            ? 'bg-estetica-tertiary'
-                            : 'bg-estetica-primary-dark'
-                        "
-                      ></span>
-                      {{ item.cadastroCompleto ? 'Cadastro completo' : 'Cadastro pendente' }}
-                    </span>
-                    <h3 class="break-words text-xl font-semibold tracking-tight">
-                      {{ item.nome }}
-                    </h3>
+                        class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+                      >
+                        <i class="pi pi-user text-lg"></i>
+                      </span>
+                    </div>
+
+                    <dl
+                      class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-bg p-4 shadow-[0_5px_14px_-8px_rgba(110,55,65,0.28)]"
+                    >
+                      <div class="min-w-0">
+                        <dt class="text-xs text-estetica-text/70">E-mail</dt>
+                        <dd class="mt-1 flex min-w-0 items-center gap-2 text-sm font-medium">
+                          <i
+                            class="pi pi-envelope shrink-0 text-estetica-primary-dark"
+                            aria-hidden="true"
+                          ></i>
+                          <span class="break-all">{{ item.email }}</span>
+                        </dd>
+                      </div>
+                      <div class="border-t border-estetica-secondary pt-3">
+                        <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
+                        <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
+                          <i class="pi pi-phone text-estetica-primary-dark" aria-hidden="true"></i>
+                          {{ item.telefone | telefone }}
+                        </dd>
+                      </div>
+                    </dl>
+                  </article>
+                }
+              </div>
+            } @else {
+              <div
+                class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+              >
+                <span
+                  aria-hidden="true"
+                  class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+                >
+                  <i class="pi pi-search text-xl"></i>
+                </span>
+                <h3 class="text-lg font-semibold">Nenhum cliente encontrado</h3>
+                <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+                  Tente buscar usando outro nome, e-mail ou telefone.
+                </p>
+                <p-button
+                  label="Limpar busca"
+                  icon="pi pi-times"
+                  [outlined]="true"
+                  (onClick)="searchTerm.set('')"
+                  styleClass="mt-5 border-estetica-secondary bg-white text-estetica-primary-dark hover:bg-estetica-secondary"
+                />
+              </div>
+            }
+          } @else {
+            <div
+              class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+            >
+              <span
+                aria-hidden="true"
+                class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+              >
+                <i class="pi pi-users text-xl"></i>
+              </span>
+              <h3 class="text-lg font-semibold">Sua lista começa aqui</h3>
+              <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+                Cadastre clientes para manter os contatos organizados e acompanhar o status do
+                perfil.
+              </p>
+              <p-button
+                label="Incluir primeira cliente"
+                icon="pi pi-plus"
+                (onClick)="newClient()"
+                [disabled]="state.busy()"
+                styleClass="mt-5 bg-estetica-primary border-estetica-primary text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:bg-estetica-primary-dark"
+              />
+            </div>
+          }
+        } @placeholder {
+          <div
+            aria-busy="true"
+            aria-label="Carregando lista de clientes"
+            class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3"
+          >
+            @for (card of [1, 2, 3]; track card) {
+              <article
+                aria-hidden="true"
+                class="relative overflow-hidden rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.12),0_4px_14px_-2px_rgba(74,50,55,0.06)] sm:p-6"
+              >
+                <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
+                <div class="flex items-start justify-between gap-4">
+                  <div class="min-w-0 flex-1">
+                    <p-skeleton
+                      width="8.5rem"
+                      height="1.5rem"
+                      borderRadius="9999px"
+                      styleClass="mb-3"
+                    />
+                    <p-skeleton width="11rem" height="1.75rem" borderRadius="0.5rem" />
                   </div>
-                  <span
-                    aria-hidden="true"
-                    class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
-                  >
-                    <i class="pi pi-user text-lg"></i>
-                  </span>
+                  <p-skeleton width="2.75rem" height="2.75rem" borderRadius="1rem" />
                 </div>
 
-                <dl
-                  class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-bg p-4 shadow-[0_5px_14px_-8px_rgba(110,55,65,0.28)]"
+                <div
+                  class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-bg p-4"
                 >
-                  <div class="min-w-0">
-                    <dt class="text-xs text-estetica-text/70">E-mail</dt>
-                    <dd class="mt-1 flex min-w-0 items-center gap-2 text-sm font-medium">
-                      <i
-                        class="pi pi-envelope shrink-0 text-estetica-primary-dark"
-                        aria-hidden="true"
-                      ></i>
-                      <span class="break-all">{{ item.email }}</span>
-                    </dd>
+                  <div>
+                    <p-skeleton
+                      width="3rem"
+                      height="0.75rem"
+                      borderRadius="0.25rem"
+                      styleClass="mb-2"
+                    />
+                    <p-skeleton width="75%" height="1rem" borderRadius="0.375rem" />
                   </div>
                   <div class="border-t border-estetica-secondary pt-3">
-                    <dt class="text-xs text-estetica-text/70">WhatsApp</dt>
-                    <dd class="mt-1 flex items-center gap-2 text-sm font-medium">
-                      <i class="pi pi-phone text-estetica-primary-dark" aria-hidden="true"></i>
-                      {{ item.telefone | telefone }}
-                    </dd>
+                    <p-skeleton
+                      width="4.5rem"
+                      height="0.75rem"
+                      borderRadius="0.25rem"
+                      styleClass="mb-2"
+                    />
+                    <p-skeleton width="55%" height="1rem" borderRadius="0.375rem" />
                   </div>
-                </dl>
+                </div>
               </article>
             }
           </div>
-        } @else {
-          <div
-            class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
-          >
-            <span
-              aria-hidden="true"
-              class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
-            >
-              <i class="pi pi-users text-xl"></i>
-            </span>
-            <h3 class="text-lg font-semibold">Sua lista começa aqui</h3>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
-              Cadastre clientes para manter os contatos organizados e acompanhar o status do perfil.
-            </p>
-            <p-button
-              label="Incluir primeira cliente"
-              icon="pi pi-plus"
-              (onClick)="newClient()"
-              [disabled]="state.busy()"
-              styleClass="mt-5 bg-estetica-primary border-estetica-primary text-white shadow-[0_8px_20px_-6px_rgba(158,71,88,0.5)] hover:bg-estetica-primary-dark"
-            />
-          </div>
         }
-      } @placeholder {
-        <div
-          aria-busy="true"
-          aria-label="Carregando lista de clientes"
-          class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3"
-        >
-          @for (card of [1, 2, 3]; track card) {
-            <article
-              aria-hidden="true"
-              class="relative overflow-hidden rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.12),0_4px_14px_-2px_rgba(74,50,55,0.06)] sm:p-6"
-            >
-              <div class="absolute inset-y-0 left-0 w-1 bg-estetica-primary/40"></div>
-              <div class="flex items-start justify-between gap-4">
-                <div class="min-w-0 flex-1">
-                  <p-skeleton
-                    width="8.5rem"
-                    height="1.5rem"
-                    borderRadius="9999px"
-                    styleClass="mb-3"
-                  />
-                  <p-skeleton width="11rem" height="1.75rem" borderRadius="0.5rem" />
-                </div>
-                <p-skeleton width="2.75rem" height="2.75rem" borderRadius="1rem" />
-              </div>
-
-              <div
-                class="mt-5 grid gap-3 rounded-xl border border-estetica-secondary bg-estetica-bg p-4"
-              >
-                <div>
-                  <p-skeleton
-                    width="3rem"
-                    height="0.75rem"
-                    borderRadius="0.25rem"
-                    styleClass="mb-2"
-                  />
-                  <p-skeleton width="75%" height="1rem" borderRadius="0.375rem" />
-                </div>
-                <div class="border-t border-estetica-secondary pt-3">
-                  <p-skeleton
-                    width="4.5rem"
-                    height="0.75rem"
-                    borderRadius="0.25rem"
-                    styleClass="mb-2"
-                  />
-                  <p-skeleton width="55%" height="1rem" borderRadius="0.375rem" />
-                </div>
-              </div>
-            </article>
-          }
-        </div>
-      }
+      </div>
     }
   </section>
 </section>

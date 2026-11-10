@@ -277,13 +277,18 @@
 
   <section aria-labelledby="catalogo-title">
     @for (cycle of [loadCycle()]; track cycle) {
-      <div class="mb-4 flex items-center justify-between gap-4">
+      <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 id="catalogo-title" class="text-lg font-semibold">Catálogo de serviços</h2>
           @defer (when !state.busy()) {
-            <p class="mt-1 text-sm text-estetica-text/70">
-              {{ servicos().length }}
-              {{ servicos().length === 1 ? 'serviço' : 'serviços' }}
+            <p class="mt-1 text-sm text-estetica-text/70" aria-live="polite">
+              @if (searchTerm().trim()) {
+                {{ filteredServicos().length }} de {{ servicos().length }}
+                {{ servicos().length === 1 ? 'serviço' : 'serviços' }}
+              } @else {
+                {{ servicos().length }}
+                {{ servicos().length === 1 ? 'serviço' : 'serviços' }}
+              }
             </p>
           } @placeholder {
             <p-skeleton
@@ -294,12 +299,25 @@
             />
           }
         </div>
+        <div class="w-full md:max-w-sm">
+          <app-search-field
+            inputId="buscar-servico"
+            label="Buscar serviços"
+            placeholder="Buscar por nome ou descrição"
+            controls="catalogo-servicos-resultados"
+            [value]="searchTerm()"
+            (valueChange)="searchTerm.set($event)"
+            [disabled]="state.busy() || !servicos().length"
+          />
+        </div>
       </div>
 
+      <div id="catalogo-servicos-resultados">
       @defer (when !state.busy()) {
         @if (servicos().length) {
+          @if (filteredServicos().length) {
           <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-            @for (item of servicos(); track item.id) {
+            @for (item of filteredServicos(); track item.id) {
               <article
                 class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-secondary bg-estetica-bg p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
               >
@@ -410,6 +428,29 @@
               </article>
             }
           </div>
+          } @else {
+            <div
+              class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+            >
+              <span
+                aria-hidden="true"
+                class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+              >
+                <i class="pi pi-search text-xl"></i>
+              </span>
+              <h3 class="text-lg font-semibold">Nenhum serviço encontrado</h3>
+              <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+                Tente buscar usando outro nome ou descrição.
+              </p>
+              <p-button
+                label="Limpar busca"
+                icon="pi pi-times"
+                [outlined]="true"
+                (onClick)="searchTerm.set('')"
+                styleClass="mt-5 border-estetica-secondary bg-white text-estetica-primary-dark hover:bg-estetica-secondary"
+              />
+            </div>
+          }
         } @else {
           <div
             class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
@@ -525,6 +566,7 @@
           }
         </div>
       }
+      </div>
     }
   </section>
 </section>

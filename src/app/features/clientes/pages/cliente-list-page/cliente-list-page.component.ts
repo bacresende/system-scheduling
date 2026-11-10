@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   ElementRef,
   inject,
   OnInit,
@@ -22,6 +23,8 @@ import { TelefonePipe } from '../../../../shared/pipes/telefone.pipe';
 import { CpfPipe } from '../../../../shared/pipes/cpf.pipe';
 import { BirthdatePipe } from '../../../../shared/pipes/birthdate.pipe';
 import { cpfValidator } from '../../../usuarios/models/usuario-validators';
+import { SearchFieldComponent } from '../../../../shared/components/search-field/search-field.component';
+import { matchesSearch } from '../../../../shared/utils/search';
 
 @Component({
   selector: 'app-cliente-list-page',
@@ -34,6 +37,7 @@ import { cpfValidator } from '../../../usuarios/models/usuario-validators';
     SkeletonModule,
     FieldError,
     RequestFeedback,
+    SearchFieldComponent,
     CepPipe,
     TelefonePipe,
     CpfPipe,
@@ -49,6 +53,12 @@ export class ClienteListPageComponent implements OnInit {
   private readonly api = inject(UsuariosService);
   private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('clientDialog');
   protected readonly clientes = signal<Usuario[]>([]);
+  protected readonly searchTerm = signal('');
+  protected readonly filteredClientes = computed(() => {
+    return this.clientes().filter((cliente) =>
+      matchesSearch(this.searchTerm(), [cliente.nome, cliente.email, cliente.telefone]),
+    );
+  });
   protected readonly loadCycle = signal(0);
   protected readonly selectedClient = signal<Usuario | null>(null);
   private readonly detailsDialogRef =

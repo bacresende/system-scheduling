@@ -101,9 +101,10 @@
               label="Gerar"
               icon="pi pi-sparkles"
               ariaLabel="Gerar código de cupom"
+              [outlined]="true"
               class="shrink-0"
               (onClick)="gerarCodigo()"
-              styleClass="min-h-12 w-max rounded-xl border-estetica-primary text-estetica-bg hover:bg-estetica-primary hover:text-white"
+              styleClass="min-h-12 w-max rounded-xl border-estetica-primary bg-white text-estetica-primary-dark transition-colors duration-200 hover:bg-estetica-primary hover:text-white"
             />
           </div>
           <p id="codigo-cupom-ajuda" class="mt-2 text-xs leading-relaxed text-estetica-text/75">
@@ -474,12 +475,17 @@
 
   <section aria-labelledby="lista-cupons-title">
     @for (cycle of [loadCycle()]; track cycle) {
-      <div class="mb-4 flex items-center justify-between gap-4">
+      <div class="mb-5 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 id="lista-cupons-title" class="text-lg font-semibold">Cupons criados</h2>
           @defer (when !state.busy()) {
-            <p class="mt-1 text-sm text-estetica-text/70">
-              {{ cupons().length }} {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
+            <p class="mt-1 text-sm text-estetica-text/70" aria-live="polite">
+              @if (searchTerm().trim()) {
+                {{ filteredCupons().length }} de {{ cupons().length }}
+                {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
+              } @else {
+                {{ cupons().length }} {{ cupons().length === 1 ? 'cupom' : 'cupons' }}
+              }
             </p>
           } @placeholder {
             <p-skeleton
@@ -490,12 +496,25 @@
             />
           }
         </div>
+        <div class="w-full md:max-w-sm">
+          <app-search-field
+            inputId="buscar-cupom"
+            label="Buscar cupons"
+            placeholder="Buscar por código, tipo ou status"
+            controls="lista-cupons-resultados"
+            [value]="searchTerm()"
+            (valueChange)="searchTerm.set($event)"
+            [disabled]="state.busy() || !cupons().length"
+          />
+        </div>
       </div>
 
+      <div id="lista-cupons-resultados">
       @defer (when !state.busy()) {
         @if (cupons().length) {
+          @if (filteredCupons().length) {
           <div class="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-            @for (cupom of cupons(); track cupom.id) {
+            @for (cupom of filteredCupons(); track cupom.id) {
               <article
                 class="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-estetica-secondary bg-white p-5 shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)] transition duration-200 hover:-translate-y-0.5 hover:border-estetica-primary/50 hover:shadow-[0_18px_40px_-8px_rgba(110,55,65,0.24)] motion-reduce:transform-none motion-reduce:transition-none sm:p-6"
               >
@@ -651,6 +670,29 @@
               </article>
             }
           </div>
+          } @else {
+            <div
+              class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
+            >
+              <span
+                aria-hidden="true"
+                class="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-estetica-secondary text-estetica-primary-dark"
+              >
+                <i class="pi pi-search text-xl"></i>
+              </span>
+              <h3 class="text-lg font-semibold">Nenhum cupom encontrado</h3>
+              <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-estetica-text/75">
+                Tente buscar usando outro código, tipo ou status.
+              </p>
+              <p-button
+                label="Limpar busca"
+                icon="pi pi-times"
+                [outlined]="true"
+                (onClick)="searchTerm.set('')"
+                styleClass="mt-5 border-estetica-secondary bg-white text-estetica-primary-dark hover:bg-estetica-secondary"
+              />
+            </div>
+          }
         } @else {
           <div
             class="rounded-2xl border border-dashed border-estetica-secondary bg-estetica-bg px-6 py-12 text-center shadow-[0_12px_32px_-6px_rgba(110,55,65,0.16),0_4px_14px_-2px_rgba(74,50,55,0.09)]"
@@ -760,6 +802,7 @@
           }
         </div>
       }
+      </div>
     }
   </section>
 </section>

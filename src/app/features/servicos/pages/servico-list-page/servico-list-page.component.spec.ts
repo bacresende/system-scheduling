@@ -158,5 +158,45 @@ describe('ServicoListPageComponent', () => {
     expect(component.servicos()).toEqual([]);
     expect(component.pendingDelete()).toBeNull();
   });
+
+  it('filtra serviços por nome ou descrição e permite limpar a busca', async () => {
+    const fixture = TestBed.createComponent(ServicoListPageComponent);
+    const component = fixture.componentInstance as unknown as {
+      servicos: ServicoListPageComponent['servicos'];
+    };
+    fixture.detectChanges();
+    await fixture.whenStable();
+    component.servicos.set([
+      initialService,
+      {
+        id: 'srv-2',
+        nome: 'Limpeza Facial',
+        descricao: 'Cuidado para o rosto',
+        preco: 120,
+        duracaoMinutos: 50,
+        ativo: true,
+      },
+    ]);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const input = root.querySelector<HTMLInputElement>('#buscar-servico');
+    if (!input) throw new Error('Busca de serviços não encontrada');
+
+    input.value = 'corporal';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(Array.from(root.querySelectorAll('article h3'), (item) => item.textContent?.trim())).toEqual([
+      'Drenagem Linfática',
+    ]);
+
+    input.value = 'inexistente';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(root.textContent).toContain('Nenhum serviço encontrado');
+
+    root.querySelector<HTMLButtonElement>('button[aria-label="Limpar busca"]')?.click();
+    fixture.detectChanges();
+    expect(root.querySelectorAll('article')).toHaveLength(2);
+  });
 });
 
