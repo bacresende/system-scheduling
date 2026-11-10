@@ -107,6 +107,8 @@ export class ApiClient {
 
 export function errorMessage(error: unknown): string {
   if (error instanceof HttpErrorResponse) {
+    if (error.status === 0)
+      return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
     if (error.status === 400)
       return error.error?.error || 'Requisição inválida. Verifique os dados e tente novamente.';
     if (error.status === 401)
@@ -114,6 +116,10 @@ export function errorMessage(error: unknown): string {
     if (error.status === 403) return 'Você não tem permissão para realizar esta operação.';
     if (error.status === 409)
       return 'Conflito de dados. Atualize a página: o horário ou registro pode ter sido alterado.';
+    if (error.status === 429)
+      return 'Muitas tentativas em pouco tempo. Aguarde um momento e tente novamente.';
+    if (error.status >= 500)
+      return 'O servidor encontrou um erro. Tente novamente em alguns instantes.';
     return 'Não foi possível comunicar com a API. Verifique a conexão e tente novamente.';
   }
   return error instanceof Error ? error.message : 'Não foi possível concluir a operação.';
