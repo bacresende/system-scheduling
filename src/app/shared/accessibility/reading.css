@@ -77,7 +77,7 @@ html:root {
   flex: 1 1 4rem;
 }
 
-:root :is(button, .p-datepicker-day) {
+:root button {
   min-width: 2.75rem;
 }
 
