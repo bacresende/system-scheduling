@@ -130,7 +130,7 @@ import { RouterLink } from '@angular/router';
 
           <a
             routerLink="/"
-            class="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-estetica-primary px-4 text-sm font-semibold text-estetica-text transition-colors hover:bg-estetica-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text"
+            class="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-estetica-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-estetica-primary-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-estetica-text"
           >
             Voltar ao início
             <i aria-hidden="true" class="pi pi-arrow-right"></i>
