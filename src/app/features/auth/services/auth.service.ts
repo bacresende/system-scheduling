@@ -36,11 +36,18 @@ export class AuthService {
   }
 
   async login(credentials: Credenciais): Promise<void> {
-    const response = await this.api.request<Usuario>('POST', '/login', {
-      email: credentials.email,
-      senha: credentials.senha,
-    });
-    this.acceptAuthenticationResponse(response);
+    try {
+      const response = await this.api.request<Usuario>('POST', '/login', {
+        email: credentials.email.trim().toLowerCase(),
+        senha: credentials.senha,
+      });
+      this.acceptAuthenticationResponse(response);
+    } catch (error: unknown) {
+      if (this.isInvalidCredentials(error)) {
+        throw new Error('E-mail ou senha incorretos. Confira os dados e tente novamente.');
+      }
+      throw error;
+    }
   }
 
   async register(payload: PreCadastro): Promise<void> {
@@ -94,10 +101,34 @@ export class AuthService {
   }
 
   private isUsernameOrEmailTaken(error: unknown): boolean {
-    if (!(error instanceof HttpErrorResponse) || error.status !== 400) return false;
-    if (typeof error.error !== 'object' || error.error === null || !('code' in error.error)) {
-      return false;
+    const code = this.parseErrorCode(error);
+    const message = this.parseErrorText(error).toLowerCase();
+    return code === 202 || code === 203 || message.includes('já existe uma conta com esse e-mail');
+  }
+
+  private isInvalidCredentials(error: unknown): boolean {
+    const code = this.parseErrorCode(error);
+    const message = this.parseErrorText(error).toLowerCase();
+    return (
+      code === 101 ||
+      message.includes('invalid username/password') ||
+      message.includes('e-mail ou senha incorretos')
+    );
+  }
+
+  private parseErrorCode(error: unknown): number | null {
+    if (!(error instanceof HttpErrorResponse) || typeof error.error !== 'object' || !error.error) {
+      return null;
     }
-    return error.error.code === 202 || error.error.code === 203;
+    const code = 'code' in error.error ? error.error.code : null;
+    return typeof code === 'number' ? code : null;
+  }
+
+  private parseErrorText(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse) || typeof error.error !== 'object' || !error.error) {
+      return '';
+    }
+    const message = 'error' in error.error ? error.error.error : '';
+    return typeof message === 'string' ? message : '';
   }
 }

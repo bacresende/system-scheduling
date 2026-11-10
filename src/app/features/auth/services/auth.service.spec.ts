@@ -87,6 +87,20 @@ describe('AuthService', () => {
     await expect(registration).rejects.toThrow('Esqueci minha senha');
   });
 
+  it('explains invalid login credentials without exposing whether the email exists', async () => {
+    const auth = TestBed.inject(AuthService);
+    const login = auth.login({ email: ' CLIENTE@example.test ', senha: 'incorreta' });
+    const request = TestBed.inject(HttpTestingController).expectOne(
+      'https://parseapi.back4app.com/functions/login',
+    );
+    expect(request.request.body.email).toBe('cliente@example.test');
+    request.flush(
+      { code: 101, error: 'Invalid username/password.' },
+      { status: 400, statusText: 'Bad Request' },
+    );
+    await expect(login).rejects.toThrow('E-mail ou senha incorretos');
+  });
+
   it('requests password reset through the Parse REST endpoint', async () => {
     const auth = TestBed.inject(AuthService);
     const reset = auth.requestPasswordReset(' CLIENTE@example.test ');
